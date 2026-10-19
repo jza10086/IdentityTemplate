@@ -1,0 +1,89 @@
+extends SceneTree
+## Real-renderer screenshots; run with a display (not --headless).
+var app: Control
+var output = ""
+
+func _initialize() -> void:
+	call_deferred("run")
+
+func capture(name: String) -> void:
+	await create_timer(0.35).timeout
+	await RenderingServer.frame_post_draw
+	var img = root.get_texture().get_image()
+	var result = img.save_png(output.path_join(name + ".png"))
+	print("CAPTURE ", name, " ", img.get_size(), " result=", result)
+
+func unlock() -> void:
+	app.authorized_viewer = app.session.self_id
+	app.authorized_phase = app.view.phase
+	app._render()
+
+func run() -> void:
+	output = OS.get_environment("CAPTURE_DIR")
+	if output.is_empty(): output = ProjectSettings.globalize_path("user://screenshots")
+	DirAccess.make_dir_recursive_absolute(output)
+	root.size = Vector2i(1280,800)
+	app = load("res://scenes/main.tscn").instantiate()
+	root.add_child(app)
+	await capture("01-home")
+	app._navigate("local")
+	app.local_count = 8
+	app._render()
+	await capture("02-local-lobby")
+	app._start_local()
+	await capture("03-private-handoff")
+	var roles: Dictionary = {}
+	var seer = -1
+	for p in app.session._rules.state.players:
+		roles[p.id] = p.role
+		if p.role == "seer": seer = p.id
+	app.session.set_local_viewer(seer)
+	unlock()
+	await capture("04-seer-role")
+	while app.view.phase == "reveal": app.session.submit("reveal_ack")
+	app.session.set_local_viewer(seer)
+	unlock()
+	await capture("05-night-action")
+	while app.view.phase == "night":
+		var actor = app.session.self_id
+		var role = roles[actor]
+		var target = -1
+		if role != "villager":
+			for p in app.view.players:
+				if p.alive and p.id != actor and not (role == "wolf" and roles[p.id] == "wolf"):
+					target = p.id
+					break
+		app.session.submit("night_action", target)
+	await capture("06-dawn")
+	app.session.advance()
+	await capture("07-discussion")
+	app.session.advance()
+	unlock()
+	await capture("08-vote")
+	var guard = 0
+	while app.view.phase != "ended" and guard < 160:
+		guard += 1
+		if app.view.phase == "vote":
+			var wolf = -1
+			for p in app.view.players:
+				if p.alive and roles[p.id] == "wolf": wolf = p.id
+			app.session.submit("vote", wolf if app.session.self_id != wolf else -1)
+		elif app.view.phase == "night":
+			var role = roles[app.session.self_id]
+			var target = -1
+			if role != "villager":
+				for p in app.view.players:
+					if p.alive and p.id != app.session.self_id and not (role == "wolf" and roles[p.id] == "wolf"):
+						target = p.id
+						break
+			app.session.submit("night_action", target)
+		else: app.session.advance()
+	await capture("09-endgame")
+	app._leave()
+	app._navigate("host")
+	await capture("10-network-setup")
+	app._navigate("rules")
+	await capture("11-rules")
+	app.queue_free()
+	await process_frame
+	quit()
