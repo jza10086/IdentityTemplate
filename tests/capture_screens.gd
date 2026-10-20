@@ -25,6 +25,7 @@ func run() -> void:
 	root.size = Vector2i(1280,800)
 	app = load("res://scenes/main.tscn").instantiate()
 	root.add_child(app)
+	app._set_visual_style("geometry" if OS.get_environment("IDENTITY_STYLE") == "geometry" else "moonveil", false)
 	await capture("01-home")
 	app._navigate("local")
 	app.local_count = 8

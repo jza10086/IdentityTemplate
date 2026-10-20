@@ -11,3 +11,10 @@ All artwork in `assets/art/` is original vector artwork created specifically for
 - `icon.svg` (128 × 128): Moon-and-wolf project icon.
 
 The SVG files use native paths, polygons, ellipses, circles, fills, strokes and gradients. They contain no text, raster images, filters, CSS, external links, or third-party dependencies. All role cards include an opaque base fill.
+
+
+## Additional geometric theatre theme
+
+The original moonlit assets above remain unchanged and are the default first-run style. `assets/art/geometric/` adds original, project-specific SVG compositions: a three-person ensemble, three private role portraits, four neutral seat portraits, a privacy seal, and daylight/night backdrops. Artwork uses simple circles, rectangles, triangles, semicircles and flat fills. No frames, images, audio, or traced artwork from the reference are redistributed.
+
+Visual-direction reference supplied for this version: https://www.bilibili.com/video/BV1YrJX69EXq/ . The reference informed the geometric-theatre vocabulary and cream/sand/navy/coral palette only; all delivered shapes and compositions were drawn independently for this project. Public seat portraits are keyed to seat number, not hidden role.

@@ -109,4 +109,19 @@ GODOT_BIN=/absolute/path/to/godot python3 tests/run_network_smoke.py
 
 原创矢量图说明见 `ART_SOURCES.md`；字体来源和许可见 `assets/fonts/SOURCES.md`、`LICENSE.txt`。没有使用其他游戏的角色、美术或商标素材。
 
-项目拥有本地 Git `main` 分支和初始提交，没有配置远程仓库，也没有推送或发布。
+项目远程仓库：https://github.com/jza10086/IdentityTemplate
+
+
+## 两套完整美术
+
+首次启动默认保留「月夜原版」。大厅右上角的「风格」按钮可随时在「月夜原版」与「几何剧场」之间切换；选择保存在本机 `user://presentation.cfg`，不会修改对局或发送给其他玩家。
+
+「几何剧场」使用独立原创 SVG：奶油色日景、藏蓝色夜景、珊瑚色强调、几何人物与面具、粗体无衬线标题及直角卡片。覆盖大厅、同屏/联机设置、规则、交接遮挡、身份卡、玩家列表、夜间行动、投票和终局。夜色只由公开阶段决定；公共座位头像只由座次决定，绝不按秘密身份配图。
+
+测试几何版完整热座流程：
+
+```sh
+IDENTITY_STYLE=geometry godot --headless --path . --script tests/test_ui.gd
+godot --headless --path . --script tests/test_geometry.gd
+IDENTITY_STYLE=geometry CAPTURE_DIR=/tmp/geometry-captures godot --path . --script tests/capture_screens.gd
+```

@@ -19,3 +19,12 @@ Validated 2026-10-19 UTC with Godot 4.7.2 stable, Linux, OpenGL Compatibility re
 - No Windows/macOS executable export, mobile/Web export, WAN matchmaking, audio/chat, reconnect or host migration is claimed.
 - Native renderer emits one environment-only V-Sync unsupported warning under software rendering; no script/runtime errors were present in screenshot runs.
 - This is a trusted-friends LAN prototype, not an encrypted or adversarially audited service. The host owns complete role data.
+
+## Geometric theatre addition · 2026-10-20 UTC
+
+- Original SVG art remains byte-for-byte unchanged; first launch still uses the moonlit theme.
+- Original UI flow: 82 checks passed. Geometric UI flow: 82 checks passed, including complete private hot-seat play, voting, rematch and leave/cancel.
+- `test_geometry.gd`: 21 checks passed for the 960×640 window, both themes, five navigation pages, same-session switching, unchanged game snapshot, hidden role handoff, day/night text palettes, readable daylight error color, and saved visual preference with test cleanup.
+- Final geometric screenshots were rendered at 1280×800 through the actual Godot 4.7.2 OpenGL Compatibility renderer (Mesa llvmpipe), not mocked HTML or a screenshot reconstruction. All 11 capture stages succeeded. Home, day discussion, night selection, and privacy handoff were visually reviewed; all inspected controls and text fit.
+- Core rules/session/network code was not modified. The existing rules, session and independent-process ENet suites were rerun successfully for this addition.
+- The existing software-renderer V-Sync warning remains environment-only. Screenshot capture produced no script errors.

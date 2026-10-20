@@ -39,8 +39,9 @@ func run() -> void:
 	root.size = Vector2i(1440,900)
 	app = load("res://scenes/main.tscn").instantiate()
 	root.add_child(app)
+	app._set_visual_style("geometry" if OS.get_environment("IDENTITY_STYLE") == "geometry" else "moonveil", false)
 	await settle()
-	check(labels(app).contains("月色之下"), "Home hero rendered")
+	check(labels(app).contains("每张面孔" if app._is_geometry() else "月色之下"), "Home hero rendered")
 	for p in ["host", "join", "rules", "local"]:
 		app._navigate(p)
 		await settle()

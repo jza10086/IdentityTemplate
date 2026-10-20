@@ -36,11 +36,56 @@ var modal: Control
 var font: Font
 var title_font: Font
 var last_phase = ""
+# Local presentation preference only; never included in a network snapshot.
+var visual_style = "moonveil"
+var background_art: TextureRect
+var moonveil_title_font: Font
+var geometry_title_font: FontVariation
+
+func _is_geometry() -> bool:
+	return visual_style == "geometry"
+
+func _is_dark_stage() -> bool:
+	return page == "game" and str(view.get("phase", "")) in ["night", "reveal"]
+
+func _tone(c: Color) -> Color:
+	if not _is_geometry() or c.a == 0.0: return c
+	var dark = _is_dark_stage()
+	if c.is_equal_approx(PAPER): return Color("#f7f0df") if dark else Color("#202f41")
+	if c.is_equal_approx(INK): return Color("#202f41")
+	if c.is_equal_approx(MUTED): return Color("#c2cbd0") if dark else Color("#52616a")
+	if c.is_equal_approx(GOLD): return Color("#efa878") if dark else Color("#b64934")
+	if c.is_equal_approx(TEAL): return Color("#a9d4bf") if dark else Color("#386759")
+	if c.is_equal_approx(Color("#e9ad99")): return Color("#f1af95") if dark else Color("#a13c2c")
+	if c.is_equal_approx(LINE): return Color("#52687a") if dark else Color("#c6bba5")
+	if c.get_luminance() < 0.30:
+		return Color("#293b50") if dark else Color("#fff9ed")
+	if c.get_luminance() < 0.50:
+		return Color("#63717c") if dark else Color("#c6bba5")
+	return c
+
+func _set_visual_style(value: String, persist: bool = true) -> void:
+	visual_style = value if value in ["moonveil", "geometry"] else "moonveil"
+	if persist:
+		var settings = ConfigFile.new()
+		settings.set_value("presentation", "style", visual_style)
+		var result = settings.save("user://presentation.cfg")
+		if result != OK: push_warning("Could not save visual preference: %s" % result)
+	_render()
+
 
 func _ready() -> void:
 	font = load("res://assets/fonts/NotoSansSC-Regular.otf")
 	title_font = load("res://assets/fonts/MoonveilSerif.otf")
 	title_font.fallbacks = [font]
+	moonveil_title_font = title_font
+	geometry_title_font = FontVariation.new()
+	geometry_title_font.base_font = font
+	geometry_title_font.variation_embolden = 0.7
+	var settings = ConfigFile.new()
+	if settings.load("user://presentation.cfg") == OK:
+		var saved = str(settings.get_value("presentation", "style", "moonveil"))
+		visual_style = saved if saved in ["moonveil", "geometry"] else "moonveil"
 	_apply_theme()
 	session = SessionScript.new()
 	session.name = "GameSession"
@@ -48,6 +93,7 @@ func _ready() -> void:
 	session.view_changed.connect(_on_view)
 	session.error_occurred.connect(_on_error)
 	var art = TextureRect.new()
+	background_art = art
 	art.texture = load("res://assets/art/background.svg")
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
@@ -66,30 +112,30 @@ func _apply_theme() -> void:
 	var t = Theme.new()
 	t.default_font = font
 	t.default_font_size = 18
-	t.set_color("font_color", "Label", PAPER)
-	t.set_color("font_color", "Button", PAPER)
-	t.set_color("font_hover_color", "Button", PAPER)
-	t.set_color("font_pressed_color", "Button", PAPER)
+	t.set_color("font_color", "Label", _tone(PAPER))
+	t.set_color("font_color", "Button", _tone(PAPER))
+	t.set_color("font_hover_color", "Button", _tone(PAPER))
+	t.set_color("font_pressed_color", "Button", _tone(PAPER))
 	t.set_color("font_disabled_color", "Button", Color("#657185"))
-	t.set_color("font_color", "LineEdit", PAPER)
-	t.set_color("font_placeholder_color", "LineEdit", MUTED)
+	t.set_color("font_color", "LineEdit", _tone(PAPER))
+	t.set_color("font_placeholder_color", "LineEdit", _tone(MUTED))
 	t.set_stylebox("normal", "LineEdit", _style(Color("#101a29"), LINE, 9, 16))
 	t.set_stylebox("focus", "LineEdit", _style(Color("#162236"), GOLD, 9, 16))
 	t.set_constant("caret_width", "LineEdit", 2)
-	t.set_color("caret_color", "LineEdit", GOLD)
+	t.set_color("caret_color", "LineEdit", _tone(GOLD))
 	t.set_constant("separation", "VBoxContainer", 14)
 	t.set_constant("separation", "HBoxContainer", 14)
 	t.set_constant("h_separation", "GridContainer", 14)
 	t.set_constant("v_separation", "GridContainer", 14)
-	t.set_color("font_color", "CheckBox", PAPER)
+	t.set_color("font_color", "CheckBox", _tone(PAPER))
 	theme = t
 
 func _style(bg: Color, border: Color = Color.TRANSPARENT, radius: int = 12, pad: int = 20) -> StyleBoxFlat:
 	var s = StyleBoxFlat.new()
-	s.bg_color = bg
-	s.border_color = border
+	s.bg_color = _tone(bg)
+	s.border_color = _tone(border)
 	s.set_border_width_all(1 if border.a > 0 else 0)
-	s.set_corner_radius_all(radius)
+	s.set_corner_radius_all(2 if _is_geometry() else radius)
 	s.content_margin_left = pad
 	s.content_margin_right = pad
 	s.content_margin_top = pad
@@ -100,7 +146,7 @@ func _label(text: String, size_px: int = 18, color: Color = PAPER, parent: Node 
 	var l = Label.new()
 	l.text = text
 	l.add_theme_font_size_override("font_size", size_px)
-	l.add_theme_color_override("font_color", color)
+	l.add_theme_color_override("font_color", _tone(color))
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if parent: parent.add_child(l)
@@ -121,6 +167,12 @@ func _button(text: String, callback: Callable, primary: bool = false, minimum: V
 	b.add_theme_stylebox_override("pressed", _style(Color("#b98959") if primary else Color("#121c2d"), GOLD, 9, 14))
 	b.add_theme_stylebox_override("disabled", _style(Color("#17202e"), Color("#293344"), 9, 14))
 	b.add_theme_stylebox_override("focus", _style(Color.TRANSPARENT, PAPER, 9, 14))
+	if _is_geometry():
+		b.add_theme_stylebox_override("normal", _style(Color("#eda17c") if primary else PANEL, INK, 2, 14))
+		b.add_theme_stylebox_override("hover", _style(Color("#f3bb98") if primary else Color("#e8d8b9"), GOLD, 2, 14))
+		b.add_theme_stylebox_override("pressed", _style(Color("#de8b64") if primary else PANEL, GOLD, 2, 14))
+		b.add_theme_color_override("font_hover_color", INK)
+		b.add_theme_color_override("font_disabled_color", Color("#788287"))
 	if primary:
 		b.add_theme_color_override("font_color", INK)
 		b.add_theme_color_override("font_hover_color", INK)
@@ -174,6 +226,11 @@ func _navigate(next: String) -> void:
 	_render()
 
 func _render() -> void:
+	title_font = geometry_title_font if _is_geometry() else moonveil_title_font
+	_apply_theme()
+	if is_instance_valid(background_art):
+		var backdrop = "res://assets/art/geometric/backdrop_night.svg" if _is_dark_stage() else "res://assets/art/geometric/backdrop_day.svg"
+		background_art.texture = load(backdrop if _is_geometry() else "res://assets/art/background.svg")
 	if is_instance_valid(root_box):
 		root_box.get_parent().queue_free()
 		remove_child(root_box.get_parent())
@@ -187,7 +244,7 @@ func _render() -> void:
 	root_box = VBoxContainer.new()
 	root_box.add_theme_constant_override("separation", 24)
 	margin.add_child(root_box)
-	shade.color.a = 0.12 if page == "home" else 0.68
+	shade.color.a = 0.0 if _is_geometry() else (0.12 if page == "home" else 0.68)
 	_header()
 	match page:
 		"home": _home()
@@ -214,6 +271,7 @@ func _header() -> void:
 	small.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_spacer(r, false)
 	if page == "home":
+		r.add_child(_button("风格：几何剧场" if _is_geometry() else "风格：月夜原版", func(): _set_visual_style("moonveil" if _is_geometry() else "geometry"), false, Vector2(180,44)))
 		_chip("4–8 人  ·  身份推理", r)
 		r.add_child(_button("游戏指南", func(): _navigate("rules"), false, Vector2(122, 44)))
 	else:
@@ -222,6 +280,9 @@ func _header() -> void:
 		r.add_child(_button("离开房间" if page == "game" else "返回大厅", _request_leave if page == "game" else func(): _navigate("home"), false, Vector2(120, 44)))
 
 func _home() -> void:
+	if _is_geometry():
+		_geometry_home()
+		return
 	var hero = HBoxContainer.new()
 	hero.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root_box.add_child(hero)
@@ -482,6 +543,7 @@ func _handoff() -> void:
 	var v = _panel(center, Color("#111d2e"), Color("#536071"), 42)
 	v.get_parent().custom_minimum_size = Vector2(660, 440)
 	_label("PRIVATE MOMENT", 13, GOLD, v).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	if _is_geometry(): v.add_child(_geometry_image("privacy", Vector2(0, 80)))
 	_title("请将屏幕交给", 28, v).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title(player_name, 48, v).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_label("确认周围没有其他人观看后，再揭开你的秘密。\n本页不显示任何身份或行动信息。", 17, MUTED, v).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -491,7 +553,7 @@ func _handoff() -> void:
 
 func _role_art(role: String, minimum: Vector2) -> TextureRect:
 	var img = TextureRect.new()
-	img.texture = load("res://assets/art/role_%s.svg" % role)
+	img.texture = load(("res://assets/art/geometric/role_%s.svg" if _is_geometry() else "res://assets/art/role_%s.svg") % role)
 	img.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	img.custom_minimum_size = minimum
@@ -649,6 +711,9 @@ func _roster(parent: Node, selectable: bool) -> void:
 		if id == session.self_id: status += " · 你"
 		if allied and str(view.get("phase", "")) == "night": status += " · 队友"
 		_label("%02d  /  %s" % [index, status], 12, TEAL if alive else MUTED, v)
+		if _is_geometry():
+			# Public-seat portraits never derive from a hidden identity.
+			v.add_child(_geometry_image("seat_%d" % ((index - 1) % 4), Vector2(0, 44)))
 		_label(str(p.name), 20, PAPER if alive else MUTED, v)
 		if view.get("phase", "") == "ended":
 			_label(ROLES.get(str(p.get("role", "")), "未知"), 14, GOLD, v)
@@ -762,7 +827,7 @@ func _leave() -> void:
 
 func _footer() -> void:
 	var r = _row(root_box)
-	_label("月隐镇  /  狼人杀", 12, MUTED, r)
+	_label("月隐镇  /  几何剧场 · GEOMETRIC THEATRE" if _is_geometry() else "月隐镇  /  狼人杀", 12, MUTED, r)
 	_spacer(r, false)
 	_label("面对面的相聚，各自心中的秘密。", 12, MUTED, r)
 
@@ -772,3 +837,47 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		elif peek_identity: _close_peek()
 		elif page == "game": _request_leave()
 		elif page != "home": _navigate("home")
+
+
+func _geometry_image(asset: String, minimum: Vector2) -> TextureRect:
+	var image = TextureRect.new()
+	image.texture = load("res://assets/art/geometric/%s.svg" % asset)
+	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	image.custom_minimum_size = minimum
+	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return image
+
+func _geometry_home() -> void:
+	var hero = _row(root_box, 36)
+	hero.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var copy = VBoxContainer.new()
+	copy.custom_minimum_size.x = 610
+	copy.add_theme_constant_override("separation", 17)
+	hero.add_child(copy)
+	_spacer(copy)
+	_label("ACT 01   /   几何剧场", 15, GOLD, copy)
+	_title("每张面孔，\n都有另一面。", 63, copy)
+	_label("一场关于直觉、伪装与信任的游戏。\n圆形、方形、三角形。相同的座位，不同的秘密。", 19, MUTED, copy)
+	var actions = _row(copy, 12)
+	actions.add_child(_button("创建房间  →", func(): _navigate("host"), true, Vector2(210,60)))
+	actions.add_child(_button("加入房间", func(): _navigate("join"), false, Vector2(165,60)))
+	var sub = _row(copy)
+	sub.add_child(_button("同屏传递 · 开始一局", func(): _navigate("local"), false, Vector2(240,48)))
+	_label("4–8 人 / 无需账号", 14, MUTED, sub)
+	_spacer(copy)
+	var stage = _geometry_image("ensemble", Vector2(480, 340))
+	stage.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stage.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	hero.add_child(stage)
+	var cards = _row(root_box, 16)
+	for role in ["wolf", "seer", "villager"]:
+		var card = _panel(cards, PANEL, LINE, 16)
+		var row = _row(card, 18)
+		row.add_child(_role_art(role, Vector2(82, 110)))
+		var words = VBoxContainer.new()
+		words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(words)
+		_label({"wolf":"01 / 伪装", "seer":"02 / 洞察", "villager":"03 / 信任"}[role], 12, GOLD, words)
+		_title(ROLES[role], 26, words)
+		_label({"wolf":"在沉默中，藏住锋芒。", "seer":"换个角度，看见真相。", "villager":"每一次选择，都有分量。"}[role], 15, MUTED, words)
