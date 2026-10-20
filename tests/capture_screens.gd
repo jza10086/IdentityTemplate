@@ -25,13 +25,9 @@ func run() -> void:
 	root.size = Vector2i(1280,800)
 	app = load("res://scenes/main.tscn").instantiate()
 	root.add_child(app)
-	app._set_visual_style("geometry" if OS.get_environment("IDENTITY_STYLE") == "geometry" else "moonveil", false)
-	await capture("01-home")
-	app._navigate("local")
-	app.local_count = 8
+	await capture("01-round-start-eight")
+	app.round_start = false
 	app._render()
-	await capture("02-local-lobby")
-	app._start_local()
 	await capture("03-private-handoff")
 	var roles: Dictionary = {}
 	var seer = -1
@@ -69,6 +65,9 @@ func run() -> void:
 			for p in app.view.players:
 				if p.alive and roles[p.id] == "wolf": wolf = p.id
 			app.session.submit("vote", wolf if app.session.self_id != wolf else -1)
+		elif app.view.phase == "vote_result":
+			await capture("08b-vote-result")
+			app.session.advance()
 		elif app.view.phase == "night":
 			var role = roles[app.session.self_id]
 			var target = -1
@@ -80,11 +79,11 @@ func run() -> void:
 			app.session.submit("night_action", target)
 		else: app.session.advance()
 	await capture("09-endgame")
-	app._leave()
-	app._navigate("host")
-	await capture("10-network-setup")
-	app._navigate("rules")
-	await capture("11-rules")
+	app.start_game(["青禾", "墨白", "小满", "长风"])
+	await capture("10-round-start-four")
+	root.size = Vector2i(960,640)
+	app.start_game(["青禾", "墨白", "小满", "长风", "星野", "鹿鸣", "晚棠", "知夏"])
+	await capture("11-small-eight")
 	app.queue_free()
 	await process_frame
 	quit()

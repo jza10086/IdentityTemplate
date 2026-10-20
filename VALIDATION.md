@@ -1,30 +1,22 @@
-# Validation report
+# Party minigame validation
 
-Validated 2026-10-19 UTC with Godot 4.7.2 stable, Linux, OpenGL Compatibility renderer (Mesa llvmpipe).
+Validated 2026-10-20 UTC with Godot 4.7.2 stable, Linux, OpenGL Compatibility software renderer.
 
 ## Passed
 
-- Editor import and project script compilation: no errors.
-- `test_rules.gd`: 10,812 assertions, including 170 full seeded simulations across 4–8 players. Covers private view isolation, malformed/duplicate/dead actions, role presets, 4-player first-night peace, voting tie/abstention, wolf tie break, victories, rematch reset, and nonsequential network ID seat labels.
-- `test_session.gd`: 1,221 checks. Local complete games, rematch, independent viewer snapshots, invalid names/counts/ports, clean leave, game catalog factory and supported game metadata.
-- `test_ui.gd`: 82 checks on the final run. Real Godot Control trees, navigation, duplicate-name validation, privacy before role reveal and each action, full local game, public-note concealment, abstain selection, rematch, leave confirmation, cancel and cleanup. The total varies with randomly assigned roles and survival count.
-- `run_network_smoke.py`: real independent-process ENet connections. Four players complete a game; sender authorization, private views, late join rejection, rematch and client disconnect verified. Separate eight-player scenario verifies capacity, ninth-player refusal, duplicate/invalid names, readiness/minimum player gates and host disconnect.
-- `capture_screens.gd`: 11 actual in-engine screenshots at 1280×800. Home, eight-player local setup, privacy handoff, seer card, night action, dawn, discussion, vote, ending, network setup and rules.
-- `capture_lan.gd`: actual host plus seven independent clients; all eight connected and ready, rendered LAN lobby captured.
-- Visually inspected home, local setup, seer card, night target selection, public discussion, network setup and eight-player LAN lobby. No debug UI appears in the game viewport.
+- `tests/test_rules.gd`: 10,812 assertions, including 170 complete seeded simulations across 4–8 players. No rule changes in this revision.
+- `tests/test_session.gd`: 1,221 checks, 0 failures. Local games, rematch, private snapshots, validation and catalog metadata. No ENet protocol changes.
+- `tests/test_ui.gd`: 786 checks, 0 failures in the final run (count varies with random roles). Direct eight-player round start, 4–8 perimeter layouts at 1440×900 and 960×640 window sizes, seat/center separation, no overlapping seats or out-of-bounds buttons, private handoffs, full six-player game, public-note concealment, abstention, replay, exit confirmation/cancel and exit signal.
+- `tests/test_integration.gd`: 15 checks, 0 failures. Pre-ready start and session binding; initial viewer; borrowed-session and transport ownership; invalid-roster preservation; same-session rebind privacy reset; 0–3 player waiting snapshots; one-time completion signal.
+- `tests/run_network_smoke.py`: both real multi-process ENet scenarios passed. Four-player full game, private views, sender-spoof resistance, late-join rejection, rematch/disconnect; eight-player admission, ninth-player refusal, invalid/duplicate names, readiness gate and host disconnect. Backend waiting state remains, but there is no lobby UI.
+- `tests/capture_screens.gd`: 11 real-renderer PNG captures, covering direct round start, private handoff, illustrated seer identity, night actions, dawn, discussion, voting, vote result, endgame, four-player perimeter and 960×640 eight-player viewport.
+- Original moonlit backdrop and all three role illustrations remain unchanged. Alternate geometric art and obsolete menu/lobby capture scripts removed.
 
-## Verification boundaries
+## Integration and verification limits
 
-- No cross-device/router/firewall LAN test was possible; real ENet loopback processes passed.
-- No Windows/macOS executable export, mobile/Web export, WAN matchmaking, audio/chat, reconnect or host migration is claimed.
-- Native renderer emits one environment-only V-Sync unsupported warning under software rendering; no script/runtime errors were present in screenshot runs.
-- This is a trusted-friends LAN prototype, not an encrypted or adversarially audited service. The host owns complete role data.
-
-## Geometric theatre addition · 2026-10-20 UTC
-
-- Original SVG art remains byte-for-byte unchanged; first launch still uses the moonlit theme.
-- Original UI flow: 82 checks passed. Geometric UI flow: 82 checks passed, including complete private hot-seat play, voting, rematch and leave/cancel.
-- `test_geometry.gd`: 21 checks passed for the 960×640 window, both themes, five navigation pages, same-session switching, unchanged game snapshot, hidden role handoff, day/night text palettes, readable daylight error color, and saved visual preference with test cleanup.
-- Final geometric screenshots were rendered at 1280×800 through the actual Godot 4.7.2 OpenGL Compatibility renderer (Mesa llvmpipe), not mocked HTML or a screenshot reconstruction. All 11 capture stages succeeded. Home, day discussion, night selection, and privacy handoff were visually reviewed; all inspected controls and text fit.
-- Core rules/session/network code was not modified. The existing rules, session and independent-process ENet suites were rerun successfully for this addition.
-- The existing software-renderer V-Sync warning remains environment-only. Screenshot capture produced no script errors.
+- Clean entry points and host lifecycle signals are implemented and tested; no integration into an unspecified party framework is claimed.
+- `start_game` is hotseat. Its viewer ID is not authentication or a network identity.
+- `bind_session` expects this project's already-configured GameSession. External session and peer ownership remain with the host, including on exit/free. Host decides what happens after the exit signal.
+- No cross-device/router/firewall test, Windows/macOS executable export, mobile/Web export, WAN matchmaking, reconnect, host migration or chat is claimed.
+- Screenshots use the real native renderer, not headless framebuffer output. The software renderer may report unsupported V-Sync; it does not affect gameplay captures.
+- Trusted-friends model: the host owns complete identities and ENet is not encrypted. Hotseat privacy requires players to respect screen handoffs.

@@ -39,22 +39,26 @@ func run() -> void:
 	root.size = Vector2i(1440,900)
 	app = load("res://scenes/main.tscn").instantiate()
 	root.add_child(app)
-	app._set_visual_style("geometry" if OS.get_environment("IDENTITY_STYLE") == "geometry" else "moonveil", false)
 	await settle()
-	check(labels(app).contains("每张面孔" if app._is_geometry() else "月色之下"), "Home hero rendered")
-	for p in ["host", "join", "rules", "local"]:
-		app._navigate(p)
+	check(app.round_start and app.view.players.size() == 8, "Standalone opens direct eight-player round start")
+	check(not labels(app).contains("创建房间") and not labels(app).contains("返回大厅"), "No home or lobby controls")
+	for count in range(4, 9):
+		app.start_game(app.local_names.slice(0, count))
 		await settle()
-		check(app.root_box.size.y <= 905, "Page fits logical viewport: " + p)
-	app.local_count = 4
-	var saved_names = app.local_names.duplicate()
-	app.local_names = ["same", "same", "third", "fourth", "five", "six", "seven", "eight"]
-	app._start_local()
-	await settle()
-	check(app.page == "local" and app.session.mode == "none", "Duplicate names keep local setup visible")
-	app.local_names = saved_names
-	app.local_count = 6
-	app._start_local()
+		check(app.view.players.size() == count, "Roster API starts %d players" % count)
+		check_layout()
+		# Keep the eight-name fixture separate from active roster.
+		app.local_names = ["旅人一", "旅人二", "旅人三", "旅人四", "旅人五", "旅人六", "旅人七", "旅人八"]
+	root.size = Vector2i(960,640)
+	for count in range(4, 9):
+		var names: Array = []
+		for i in count: names.append("测试玩家%d" % (i+1))
+		app.start_game(names)
+		await settle()
+		check_layout()
+	root.size = Vector2i(1440,900)
+	app.start_game(["旅人一", "旅人二", "旅人三", "旅人四", "旅人五", "旅人六"])
+	check(press_prefix("开始本局"), "Round-start button enters private reveal")
 	await settle()
 	check(app.view.phase == "reveal", "Start local enters role reveal")
 	var observed_roles: Dictionary = {}
@@ -73,6 +77,7 @@ func run() -> void:
 	while app.view.phase != "ended" and steps < 120:
 		steps += 1
 		await settle()
+		check_layout()
 		var phase = app.view.phase
 		if phase in ["night", "vote"]:
 			check(labels(app).contains("请将屏幕交给"), "Each private action begins behind cover")
@@ -111,7 +116,7 @@ func run() -> void:
 	check(app.view.phase == "ended", "UI reaches complete game")
 	check(press_prefix("再来一局"), "Rematch control works")
 	await settle()
-	check(app.view.phase == "reveal", "Rematch resets phase")
+	check(app.view.phase == "reveal" and app.round_start, "Rematch resets to round-start overlay")
 	check(app.authorized_viewer == -1, "Rematch hides identity")
 	app._request_leave()
 	await settle()
@@ -120,10 +125,28 @@ func run() -> void:
 	await settle()
 	check(not is_instance_valid(app.modal), "Canceled dialog is gone")
 	check(app.view.phase == "reveal", "Cancel leaves match intact")
+	var exits = [0]
+	app.exit_requested.connect(func(): exits[0] += 1)
 	app._leave()
 	await settle()
-	check(app.page == "home" and app.session.mode == "none", "Leave cleans session and returns home")
+	check(app.exited and app.session.mode == "none", "Leave cleans session without menu navigation")
+	check(exits[0] == 1, "Host exit signal emitted once")
 	app.queue_free()
 	await process_frame
 	print("UI TESTS: %d checks; %d failures" % [checks,failures.size()])
 	quit(0 if failures.is_empty() else 1)
+
+func check_layout() -> void:
+	var bounds = Rect2(Vector2.ZERO, app.size)
+	var seats: Array = []
+	for child in app.arena.get_children():
+		if child.has_meta("player_id"):
+			seats.append(child)
+			check(bounds.encloses(child.get_global_rect()), "Seat fits logical viewport")
+			check(not child.get_global_rect().intersects(app.stage.get_global_rect()), "Seat stays outside center stage")
+	check(seats.size() == app.view.players.size(), "All players have perimeter seats")
+	for i in seats.size():
+		for j in range(i+1,seats.size()):
+			check(not seats[i].get_global_rect().intersects(seats[j].get_global_rect()), "Perimeter seats never overlap")
+	for b in buttons(app):
+		if b.is_visible_in_tree(): check(bounds.encloses(b.get_global_rect()), "Visible button fits viewport: " + b.text)

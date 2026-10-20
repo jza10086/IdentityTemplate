@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dejxn1mdsyfmf"
-path="res://.godot/imported/role_villager.svg-01624cee6fb8111d6bf2aa69a5e044e7.ctex"
+uid="uid://c4ta22jo5vso1"
+path="res://.godot/imported/seat_portrait.svg-20398a5e7bc9a666586afe1d7442d157.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/geometric/role_villager.svg"
-dest_files=["res://.godot/imported/role_villager.svg-01624cee6fb8111d6bf2aa69a5e044e7.ctex"]
+source_file="res://assets/art/seat_portrait.svg"
+dest_files=["res://.godot/imported/seat_portrait.svg-20398a5e7bc9a666586afe1d7442d157.ctex"]
 
 [params]
 
