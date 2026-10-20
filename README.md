@@ -10,10 +10,10 @@
 godot --path /path/to/IdentityParty
 ```
 
-画面四周为玩家卡片，中间专用于阶段信息、私密身份、行动确认、讨论、投票和结算。8 人按上 2 / 右 2 / 下 2 / 左 2 分布；4–7 人保留四周座位布局，不回退成矩形网格或侧栏。四周默认统一中性人物画像，绝不按隐藏身份配图；仅终局公开所有角色。
+画面四周为玩家卡片，中间专用于阶段信息、私密身份、行动确认、讨论、投票和结算。8 人按上 3 / 左 2 / 右 2 / 下 1 分布，底部唯一座位始终是当前查看者（标记“你”），包括已离场的自己。4–7 人隐藏多余位置，仍保留底部自己与两侧座位，不回退成矩形网格或侧栏。同屏私密回合随交接把当前玩家转到底部；公共阶段恢复初始查看者，私密查阅结束也恢复公共座位。联网按会话中的真实玩家 ID 定位，不假定连续编号。四周默认统一中性人物画像，绝不按隐藏身份配图；仅终局公开所有角色。
 
 - 流程：回合开始 → 私密交接 / 身份揭晓 → 夜间行动 → 天亮 → 讨论 → 投票 → 投票结果 → 下一夜 / 终局。
-- 选择行动目标：点击四周可选择的玩家卡片，再在中央确认。投票可弃票。
+- 选择行动目标：点击他人整张卡片（头像、名字和边缘均可），高亮选择后再在中央确认，单击不会立即提交。投票可弃票；自己、离场者及不合法夜间目标不可选，交接遮挡页没有可选目标。
 - 同屏每次换人先遮挡秘密。讨论时可私密查阅自己的身份与查验记录，使用后收起。
 - Escape / “结束游戏”先确认，随后通知宿主退出。独立预览保留“再来一局”，不返回已删除菜单。
 - 发言使用面对面交流或已有语音工具。本项目没有语音、聊天或 AI 玩家。
@@ -79,6 +79,7 @@ game.start_game(["青禾", "晚星", "听雨", "拾光"], 1)
 godot --headless --path . --script tests/test_rules.gd
 godot --headless --path . --script tests/test_session.gd
 godot --headless --path . --script tests/test_ui.gd
+godot --headless --path . --script tests/test_layout_controls.gd
 godot --headless --path . --script tests/test_integration.gd
 GODOT_BIN=/absolute/path/to/godot python3 tests/run_network_smoke.py
 CAPTURE_DIR=/tmp/party-captures godot --path . --script tests/capture_screens.gd

@@ -57,6 +57,15 @@ func run() -> void:
 	app.session.advance()
 	unlock()
 	await capture("08-vote")
+	for p in app.view.players:
+		if app._can_select(p):
+			app.selected_target = int(p.id)
+			break
+	app._render()
+	await capture("08a-vote-selected")
+	root.size = Vector2i(960,640)
+	await capture("08a-small-vote-selected")
+	root.size = Vector2i(1280,800)
 	var guard = 0
 	while app.view.phase != "ended" and guard < 160:
 		guard += 1

@@ -42,6 +42,8 @@ var last_phase = ""
 var round_start := true
 var exited := false
 var reported_end := false
+# Stable public hotseat anchor; private turns temporarily rotate to the actor.
+var table_viewer_id := -1
 
 func _ready() -> void:
 	font = load("res://assets/fonts/NotoSansSC-Regular.otf")
@@ -93,6 +95,7 @@ func start_game(roster: Array, local_player_id: int = 1) -> void:
 	reported_end = false
 	authorized_viewer = -1
 	peek_identity = false
+	table_viewer_id = local_player_id
 	session.start_local(roster)
 	if session.mode == "local":
 		local_names = roster.duplicate()
@@ -109,6 +112,7 @@ func bind_session(external_session: Node) -> void:
 	if not is_instance_valid(external_session) or not external_session is SessionScript:
 		_on_error("需要有效的 GameSession 实例。")
 		return
+	table_viewer_id = external_session.self_id
 	authorized_viewer = -1
 	authorized_phase = ""
 	peek_identity = false
@@ -259,6 +263,10 @@ func _on_view(snapshot: Dictionary) -> void:
 			authorized_viewer = -1
 			session.set_local_viewer(int(pending[0]))
 			return
+	if session.mode == "local" and phase in ["dawn", "discussion", "vote_result", "ended"] and not peek_identity:
+		if not _player(table_viewer_id).is_empty() and session.self_id != table_viewer_id:
+			session.set_local_viewer(table_viewer_id)
+			return
 	_render()
 	if phase == "ended" and not reported_end:
 		reported_end = true
@@ -310,7 +318,9 @@ func _choose_peek() -> void:
 func _close_peek() -> void:
 	peek_identity = false
 	authorized_viewer = -1
-	_render()
+	if session.mode == "local" and not _player(table_viewer_id).is_empty():
+		session.set_local_viewer(table_viewer_id)
+	else: _render()
 
 func _player(id: int) -> Dictionary:
 	for p in view.get("players", []):
@@ -411,24 +421,39 @@ func _can_select(p: Dictionary) -> bool:
 
 func _perimeter() -> void:
 	var players: Array = view.get("players", [])
-	# Clockwise seats: north, east, south, west. Public art never uses hidden roles.
-	var slots = [Vector2(.37,.10), Vector2(.63,.10), Vector2(.935,.34), Vector2(.935,.66), Vector2(.63,.90), Vector2(.37,.90), Vector2(.065,.66), Vector2(.065,.34)]
-	var layouts = {
-		4: [Vector2(.5,.10), Vector2(.935,.5), Vector2(.5,.90), Vector2(.065,.5)],
-		5: [slots[0], slots[1], Vector2(.935,.5), Vector2(.5,.90), Vector2(.065,.5)],
-		6: [slots[0], slots[1], Vector2(.935,.5), slots[4], slots[5], Vector2(.065,.5)],
-		7: [slots[0], slots[1], slots[2], slots[3], slots[4], slots[5], Vector2(.065,.5)],
-		8: slots
-	}
-	var positions: Array = layouts.get(players.size(), [])
-	if positions.size() != players.size(): return
+	if players.size() < 4 or players.size() > 8: return
+	# Keep the viewer below the table, regardless of roster order or network ID.
+	# Remaining seats fill north, then balanced west/east pairs. Never drop dead self.
+	var positions: Array = {
+		4: [Vector2(.5,.10), Vector2(.065,.5), Vector2(.935,.5)],
+		5: [Vector2(.37,.10), Vector2(.63,.10), Vector2(.065,.5), Vector2(.935,.5)],
+		6: [Vector2(.30,.10), Vector2(.50,.10), Vector2(.70,.10), Vector2(.065,.5), Vector2(.935,.5)],
+		7: [Vector2(.37,.10), Vector2(.63,.10), Vector2(.065,.34), Vector2(.065,.66), Vector2(.935,.34), Vector2(.935,.66)],
+		8: [Vector2(.30,.10), Vector2(.50,.10), Vector2(.70,.10), Vector2(.065,.34), Vector2(.065,.66), Vector2(.935,.34), Vector2(.935,.66)]
+	}.get(players.size(), [])
+	if positions.size() != players.size() - 1: return
+	var viewer_id = int(view.get("self_id", session.self_id))
+	if _player(viewer_id).is_empty(): return # No invented self seat in incomplete snapshots.
+	var other_index = 0
 	for i in players.size():
 		var p: Dictionary = players[i]
-		var pos: Vector2 = positions[i]
+		var is_self = int(p.id) == viewer_id
+		var pos = Vector2(.5,.90) if is_self else positions[other_index]
+		if not is_self: other_index += 1
 		var selected = selected_target == int(p.id)
-		var box = PanelContainer.new()
+		var eligible = _can_select(p)
+		var box = Button.new()
 		box.name = "Seat%d" % int(p.id)
 		box.set_meta("player_id", int(p.id))
+		box.set_meta("is_self", is_self)
+		box.disabled = not eligible
+		box.focus_mode = Control.FOCUS_ALL if eligible else Control.FOCUS_NONE
+		box.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if eligible else Control.CURSOR_ARROW
+		box.tooltip_text = "点击选择「%s」，再到中央确认" % str(p.name) if eligible else ""
+		box.pressed.connect(func():
+			if _can_select(p):
+				selected_target = int(p.id)
+				_render())
 		box.anchor_left = pos.x
 		box.anchor_right = pos.x
 		box.anchor_top = pos.y
@@ -437,13 +462,21 @@ func _perimeter() -> void:
 		box.offset_right = 83
 		box.offset_top = -70
 		box.offset_bottom = 70
-		box.add_theme_stylebox_override("panel", _style(Color("#263342") if selected else Color("#111c2b"), GOLD if selected else Color("#405064"), 12, 10))
+		var card_style = _style(Color("#263342") if selected else Color("#111c2b"), GOLD if selected or is_self else Color("#405064"), 12, 10)
+		for state in ["normal", "disabled"]: box.add_theme_stylebox_override(state, card_style)
+		box.add_theme_stylebox_override("hover", _style(Color("#26354b"), GOLD, 12, 10))
+		box.add_theme_stylebox_override("pressed", _style(Color("#263342"), GOLD, 12, 10))
+		box.add_theme_stylebox_override("focus", _style(Color.TRANSPARENT, PAPER, 12, 10))
 		arena.add_child(box)
+		var inset = MarginContainer.new()
+		inset.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		for side in ["left", "right", "top", "bottom"]: inset.add_theme_constant_override("margin_" + side, 10)
+		box.add_child(inset)
 		var v = VBoxContainer.new()
 		v.add_theme_constant_override("separation", 3)
-		box.add_child(v)
+		inset.add_child(v)
 		var line = _row(v, 8)
-		_label("%02d" % (i+1), 15, GOLD, line)
+		_label("%02d%s" % [i+1, " · 你" if is_self else ""], 15, GOLD, line)
 		_label("存活" if p.get("alive", true) else "已离场", 12, TEAL if p.get("alive",true) else MUTED, line).horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		if view.get("phase", "") == "ended":
 			v.add_child(_role_art(str(p.get("role", "villager")), Vector2(0,42)))
@@ -461,16 +494,18 @@ func _perimeter() -> void:
 		name_label.custom_minimum_size.x = 140
 		if view.get("phase", "") == "ended":
 			_label(ROLES.get(str(p.get("role", "")), ""), 13, GOLD, v).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		elif _can_select(p):
-			var b = _button("已选择 ✓" if selected else "选择", func(): selected_target = int(p.id); _render(), selected, Vector2(0,28))
-			b.add_theme_font_size_override("font_size", 13)
-			b.add_theme_stylebox_override("normal", _style(GOLD if selected else Color("#192536"), GOLD if selected else LINE, 7, 3))
-			b.add_theme_stylebox_override("hover", _style(Color("#26354b"), GOLD, 7, 3))
-			b.add_theme_stylebox_override("pressed", _style(Color("#121c2d"), GOLD, 7, 3))
-			v.add_child(b)
+		elif eligible:
+			_label("已选择 ✓" if selected else "点击卡片选择", 11, GOLD if selected else TEAL, v).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		else:
 			_label("秘密未揭晓", 11, MUTED, v).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		# All artwork and labels pass pointer events to the full-card button.
+		_ignore_card_children(box)
 		if not p.get("alive", true): box.modulate.a = 0.58
+
+func _ignore_card_children(node: Node) -> void:
+	for child in node.get_children():
+		if child is Control: child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_ignore_card_children(child)
 
 func _game() -> void:
 	var phase = str(view.get("phase", ""))

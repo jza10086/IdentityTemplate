@@ -103,6 +103,7 @@ func run() -> void:
 				app._submit_action("vote", wolf if actor != wolf else -1)
 		elif phase in ["dawn", "discussion", "vote_result"]:
 			check(not labels(app).contains("你的查验记录"), "Public screen hides private notes")
+			check(app.session.self_id == app.table_viewer_id, "Public phase restores stable local viewer")
 			if phase == "discussion":
 				app._choose_peek()
 				await settle()
@@ -142,6 +143,8 @@ func check_layout() -> void:
 	for child in app.arena.get_children():
 		if child.has_meta("player_id"):
 			seats.append(child)
+			if int(child.get_meta("player_id")) == app.session.self_id:
+				check(is_equal_approx(child.anchor_top, .9), "Current actor remains at bottom even on privacy handoff")
 			check(bounds.encloses(child.get_global_rect()), "Seat fits logical viewport")
 			check(not child.get_global_rect().intersects(app.stage.get_global_rect()), "Seat stays outside center stage")
 	check(seats.size() == app.view.players.size(), "All players have perimeter seats")
