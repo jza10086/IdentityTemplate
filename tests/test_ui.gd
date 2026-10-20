@@ -66,7 +66,7 @@ func run() -> void:
 		await settle()
 		check(labels(app).contains("请将屏幕交给"), "Privacy handoff before each reveal")
 		check(not labels(app).contains("你是，"), "Role hidden on handoff")
-		check(press_prefix("我是「"), "Reveal control available")
+		check(press_prefix("确认是我"), "Reveal control available")
 		await settle()
 		observed_roles[app.session.self_id] = app.view.your_role
 		check(labels(app).contains("你是，"), "Private role rendered after consent")
@@ -81,7 +81,7 @@ func run() -> void:
 		var phase = app.view.phase
 		if phase in ["night", "vote"]:
 			check(labels(app).contains("请将屏幕交给"), "Each private action begins behind cover")
-			check(press_prefix("我是「"), "Private action reveal control")
+			check(press_prefix("确认是我"), "Private action reveal control")
 			await settle()
 			var actor = app.session.self_id
 			var role = observed_roles[actor]
@@ -144,7 +144,7 @@ func check_layout() -> void:
 		if child.has_meta("player_id"):
 			seats.append(child)
 			if int(child.get_meta("player_id")) == app.session.self_id:
-				check(is_equal_approx(child.anchor_top, .9), "Current actor remains at bottom even on privacy handoff")
+				check(is_equal_approx(child.anchor_top, 1.0), "Current actor remains at bottom even on privacy handoff")
 			check(bounds.encloses(child.get_global_rect()), "Seat fits logical viewport")
 			check(not child.get_global_rect().intersects(app.stage.get_global_rect()), "Seat stays outside center stage")
 	check(seats.size() == app.view.players.size(), "All players have perimeter seats")

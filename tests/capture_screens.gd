@@ -13,6 +13,28 @@ func capture(name: String) -> void:
 	var result = img.save_png(output.path_join(name + ".png"))
 	print("CAPTURE ", name, " ", img.get_size(), " result=", result)
 
+func capture_dawn_sequence() -> void:
+	var frame_dir = output.path_join("dawn-frames")
+	DirAccess.make_dir_recursive_absolute(frame_dir)
+	var stamps: Array = []
+	var start = Time.get_ticks_msec()
+	var index = 0
+	var completed_at = -1
+	while Time.get_ticks_msec() - start < 30000:
+		await RenderingServer.frame_post_draw
+		var elapsed = Time.get_ticks_msec() - start
+		var img = root.get_texture().get_image()
+		img.save_png(frame_dir.path_join("frame-%04d.png" % index))
+		stamps.append({"frame": index, "ms": elapsed, "text": app.subtitles.text, "alpha": app.subtitles.modulate.a})
+		index += 1
+		if app.subtitles.completed:
+			if completed_at < 0: completed_at = elapsed
+			elif elapsed - completed_at > 1000: break
+		await create_timer(0.10).timeout
+	var manifest = FileAccess.open(frame_dir.path_join("timing.json"), FileAccess.WRITE)
+	manifest.store_string(JSON.stringify(stamps))
+	print("CAPTURE dawn animation ", index, " real-runtime frames")
+
 func unlock() -> void:
 	app.authorized_viewer = app.session.self_id
 	app.authorized_phase = app.view.phase
@@ -51,6 +73,7 @@ func run() -> void:
 					target = p.id
 					break
 		app.session.submit("night_action", target)
+	await capture_dawn_sequence()
 	await capture("06-dawn")
 	app.session.advance()
 	await capture("07-discussion")

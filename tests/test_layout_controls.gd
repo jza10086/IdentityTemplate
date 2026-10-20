@@ -50,7 +50,7 @@ func run():
 				app.round_start = false
 				app._on_view({"self_id":viewer.id,"phase":"vote","players":roster,"round":1,"your_role":"villager","submitted_ids":[]})
 				await settle()
-				check(is_equal_approx(seat(viewer.id).anchor_left, .5) and is_equal_approx(seat(viewer.id).anchor_top, .9), "Every viewer stays alone at bottom for every count and size")
+				check(is_equal_approx(seat(viewer.id).anchor_left, .5) and is_equal_approx(seat(viewer.id).anchor_top, 1.0), "Every viewer stays alone at bottom for every count and size")
 				var top := 0
 				var left := 0
 				var right := 0
@@ -78,7 +78,7 @@ func run():
 		var card = seat(target)
 		await click_at(card.get_global_rect().position + card.size * fraction)
 		check(app.selected_target == target, "Whole card accepts click at " + str(fraction))
-		check(app.view.get("submitted_ids", []).is_empty(), "Card click does not submit vote before central confirmation")
+		check(app.view.get("submitted_ids", []).is_empty(), "Card click does not submit vote before bottom confirmation")
 	# Dead targets and a dead viewer cannot act; own card remains bottom.
 	app.view.players[0].alive = false
 	app._render()
@@ -87,7 +87,7 @@ func run():
 	app.view.players[-1].alive = false
 	app._render()
 	await settle()
-	check(is_equal_approx(seat(app.session.self_id).anchor_top, .9), "Dead self remains bottom")
+	check(is_equal_approx(seat(app.session.self_id).anchor_top, 1.0), "Dead self remains bottom")
 	for p in app.view.players: check(seat(p.id).disabled, "Dead viewer cannot choose targets")
 	# Private cover gives no role-dependent selection affordances.
 	for p in app.view.players: p.alive = true

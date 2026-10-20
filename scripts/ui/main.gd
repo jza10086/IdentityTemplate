@@ -18,13 +18,18 @@ const PHASES = {"reveal":"身份揭晓", "night":"长夜降临", "dawn":"天光�
 signal finished(result: Dictionary)
 signal exit_requested
 @export var standalone_preview := true
+## Host accessibility preference: preserve sentence timing without opacity animation.
+@export var reduced_motion := false
 var session: Node
 var owns_session := true
 var page = "game"
 var root_box: VBoxContainer
 var shell: MarginContainer
 var arena: Control
-var stage: PanelContainer
+var stage: Control
+var subtitles: Label
+var private_panel: Control
+var match_serial := 0
 var view: Dictionary = {}
 var local_count = 8
 var local_names: Array = ["旅人一", "旅人二", "旅人三", "旅人四", "旅人五", "旅人六", "旅人七", "旅人八"]
@@ -57,6 +62,7 @@ func _ready() -> void:
 	art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(art)
+	_create_subtitles()
 	session = SessionScript.new()
 	session.name = "GameSession"
 	add_child(session)
@@ -90,6 +96,7 @@ func start_game(roster: Array, local_player_id: int = 1) -> void:
 			return
 		seen[clean.to_lower()] = true
 	error_text = ""
+	match_serial += 1
 	round_start = true
 	exited = false
 	reported_end = false
@@ -112,6 +119,7 @@ func bind_session(external_session: Node) -> void:
 	if not is_instance_valid(external_session) or not external_session is SessionScript:
 		_on_error("需要有效的 GameSession 实例。")
 		return
+	match_serial += 1
 	table_viewer_id = external_session.self_id
 	authorized_viewer = -1
 	authorized_phase = ""
@@ -354,59 +362,94 @@ func _dismiss_modal() -> void:
 		remove_child(modal)
 	modal = null
 
+func _create_subtitles() -> void:
+	stage = Control.new()
+	stage.name = "CenterStage"
+	stage.anchor_left = 0.20
+	stage.anchor_right = 0.80
+	stage.anchor_top = 0.30
+	stage.anchor_bottom = 0.65
+	stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(stage)
+	subtitles = load("res://scripts/ui/round_subtitles.gd").new()
+	subtitles.name = "RoundSubtitles"
+	subtitles.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	subtitles.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	subtitles.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	subtitles.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	subtitles.add_theme_font_override("font", title_font)
+	subtitles.add_theme_font_size_override("font_size", 38)
+	subtitles.add_theme_color_override("font_color", PAPER)
+	subtitles.add_theme_color_override("font_shadow_color", Color(0.02,0.03,0.05,0.8))
+	subtitles.add_theme_constant_override("shadow_offset_y", 2)
+	subtitles.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stage.add_child(subtitles)
+
+func _narration() -> Array[String]:
+	if exited: return ["夜谈已结束", "感谢相聚，期待下一场月下故事。"]
+	if round_start: return ["围坐月下", "好戏开场"]
+	var phase = str(view.get("phase", ""))
+	if phase == "dawn":
+		var result = str(view.get("last_result", ""))
+		var ending = "一切平安" if result == "天亮了，昨夜是平安夜，无人出局。" else result
+		if ending.is_empty(): ending = "夜色已散去"
+		# Match only the already-public result; never inspect private rule state.
+		for index in view.get("players", []).size():
+			var p = view.players[index]
+			if result == "天亮了，%s（%d 号）昨夜出局。" % [str(p.name), index + 1]:
+				ending = str(p.name) + "遭到了狼人的毒手"
+				break
+		return ["天亮了，请睁眼", "昨晚", ending]
+	if phase == "ended": return ["晨光终至，好人获胜" if view.get("winner", "") == "village" else "长夜未尽，狼人获胜"]
+	if phase == "vote_result": return ["小镇已经作出选择", str(view.get("last_result", ""))]
+	var sentences: Array[String] = []
+	sentences.assign({"reveal":["故事开始之前", "请记住你的身份"], "night":["天黑了，请闭眼", "让秘密留在夜色中"], "discussion":["天已亮", "让每个人说完，再作判断"], "vote":["此刻，请作出你的选择", "谁将离开这座小镇？"]}.get(phase, ["等待派对开始"]))
+	return sentences
+
 func _render() -> void:
 	if not is_node_ready(): return
+	if is_instance_valid(private_panel):
+		private_panel.queue_free()
+		remove_child(private_panel)
+		private_panel = null
 	if is_instance_valid(shell):
 		remove_child(shell)
 		shell.queue_free()
 	shell = MarginContainer.new()
 	shell.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	for side in ["left", "right"]: shell.add_theme_constant_override("margin_" + side, 32)
-	for side in ["top", "bottom"]: shell.add_theme_constant_override("margin_" + side, 20)
+	shell.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(shell)
-	var outer = VBoxContainer.new()
-	outer.add_theme_constant_override("separation", 12)
-	shell.add_child(outer)
-	var header = _row(outer)
-	_title("◈  月隐镇", 26, header)
-	_label("IDENTITY PARTY  /  月下夜谈", 12, MUTED, header)
-	_spacer(header, false)
-	_chip("%02d 人 · 第 %02d 回合" % [view.get("players", []).size(), view.get("round", 1)], header)
-	header.add_child(_button("结束游戏", _request_leave, false, Vector2(116,40)))
 	arena = Control.new()
-	arena.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	outer.add_child(arena)
-	stage = PanelContainer.new()
-	stage.name = "CenterStage"
-	stage.anchor_left = 0.15
-	stage.anchor_right = 0.85
-	stage.anchor_top = 0.225
-	stage.anchor_bottom = 0.775
-	stage.add_theme_stylebox_override("panel", _style(Color(0.045,0.075,0.12,0.95), Color("#776650"), 22, 24))
-	arena.add_child(stage)
-	root_box = VBoxContainer.new()
-	root_box.add_theme_constant_override("separation", 12)
-	stage.add_child(root_box)
+	arena.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	shell.add_child(arena)
 	_perimeter()
+	# Commands sit beside the self seat, never in the narrative space.
+	var dock = VBoxContainer.new()
+	dock.name = "ActionDock"
+	dock.anchor_left = 0.5
+	dock.anchor_right = 0.5
+	dock.anchor_top = 1.0
+	dock.anchor_bottom = 1.0
+	dock.offset_left = 112
+	dock.offset_right = 440
+	dock.offset_top = -174
+	dock.offset_bottom = -20
+	dock.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	dock.add_theme_constant_override("separation", 8)
+	arena.add_child(dock)
+	root_box = dock
 	if exited:
-		_title("夜谈已结束", 34, root_box)
-		_label("感谢相聚，期待下一场月下故事。", 18, MUTED, root_box)
-		_spacer(root_box)
 		if standalone_preview: root_box.add_child(_button("再来一局  →", func(): start_game(local_names), true))
 	elif round_start and not view.is_empty():
-		_label("CHAPTER 01  /  THE NIGHT BEGINS", 13, GOLD, root_box)
-		_title("围坐月下，好戏开场", 40, root_box)
-		_label(_preset_text(local_count), 20, TEAL, root_box)
-		_label("依次秘密查看身份，夜间传递设备行动。\n天亮后公开讨论，投票寻找藏在人群中的狼人。", 18, MUTED, root_box)
-		_label("4 人体验局首夜平安。平票或全员弃票时，无人离场。", 14, MUTED, root_box)
-		_spacer(root_box)
+		_label(_preset_text(view.get("players", []).size()), 16, TEAL, root_box)
 		root_box.add_child(_button("开始本局，分发身份  →", func(): round_start = false; _render(), true))
 	else: _game()
-	notice_label = _label(error_text, 14, Color("#e9ad99"), outer)
+	notice_label = _label(error_text, 14, Color("#e9ad99"), root_box)
 	notice_label.visible = not error_text.is_empty()
-	var footer = _row(outer)
-	_label("MOONVEIL  /  直觉 · 伪装 · 信任", 11, MUTED, footer)
-	_label("秘密只在你的回合揭晓", 11, GOLD, footer).horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	var key = "%d/%s/%s/%s/%s" % [match_serial, view.get("round", 0), view.get("phase", ""), round_start, exited]
+	subtitles.reduced_motion = reduced_motion
+	subtitles.play(key, _narration())
+	if is_instance_valid(modal): move_child(modal, -1)
 
 func _can_select(p: Dictionary) -> bool:
 	var phase = str(view.get("phase", ""))
@@ -425,11 +468,11 @@ func _perimeter() -> void:
 	# Keep the viewer below the table, regardless of roster order or network ID.
 	# Remaining seats fill north, then balanced west/east pairs. Never drop dead self.
 	var positions: Array = {
-		4: [Vector2(.5,.10), Vector2(.065,.5), Vector2(.935,.5)],
-		5: [Vector2(.37,.10), Vector2(.63,.10), Vector2(.065,.5), Vector2(.935,.5)],
-		6: [Vector2(.30,.10), Vector2(.50,.10), Vector2(.70,.10), Vector2(.065,.5), Vector2(.935,.5)],
-		7: [Vector2(.37,.10), Vector2(.63,.10), Vector2(.065,.34), Vector2(.065,.66), Vector2(.935,.34), Vector2(.935,.66)],
-		8: [Vector2(.30,.10), Vector2(.50,.10), Vector2(.70,.10), Vector2(.065,.34), Vector2(.065,.66), Vector2(.935,.34), Vector2(.935,.66)]
+		4: [Vector2(.5,0.0), Vector2(0.0,.5), Vector2(1.0,.5)],
+		5: [Vector2(.37,0.0), Vector2(.63,0.0), Vector2(0.0,.5), Vector2(1.0,.5)],
+		6: [Vector2(.30,0.0), Vector2(.50,0.0), Vector2(.70,0.0), Vector2(0.0,.5), Vector2(1.0,.5)],
+		7: [Vector2(.37,0.0), Vector2(.63,0.0), Vector2(0.0,.34), Vector2(0.0,.66), Vector2(1.0,.34), Vector2(1.0,.66)],
+		8: [Vector2(.30,0.0), Vector2(.50,0.0), Vector2(.70,0.0), Vector2(0.0,.34), Vector2(0.0,.66), Vector2(1.0,.34), Vector2(1.0,.66)]
 	}.get(players.size(), [])
 	if positions.size() != players.size() - 1: return
 	var viewer_id = int(view.get("self_id", session.self_id))
@@ -438,7 +481,7 @@ func _perimeter() -> void:
 	for i in players.size():
 		var p: Dictionary = players[i]
 		var is_self = int(p.id) == viewer_id
-		var pos = Vector2(.5,.90) if is_self else positions[other_index]
+		var pos = Vector2(.5,1.0) if is_self else positions[other_index]
 		if not is_self: other_index += 1
 		var selected = selected_target == int(p.id)
 		var eligible = _can_select(p)
@@ -449,7 +492,7 @@ func _perimeter() -> void:
 		box.disabled = not eligible
 		box.focus_mode = Control.FOCUS_ALL if eligible else Control.FOCUS_NONE
 		box.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if eligible else Control.CURSOR_ARROW
-		box.tooltip_text = "点击选择「%s」，再到中央确认" % str(p.name) if eligible else ""
+		box.tooltip_text = "点击选择「%s」，再在下方确认" % str(p.name) if eligible else ""
 		box.pressed.connect(func():
 			if _can_select(p):
 				selected_target = int(p.id)
@@ -462,6 +505,18 @@ func _perimeter() -> void:
 		box.offset_right = 83
 		box.offset_top = -70
 		box.offset_bottom = 70
+		if pos.x == 0.0:
+			box.offset_left = 20
+			box.offset_right = 186
+		elif pos.x == 1.0:
+			box.offset_left = -186
+			box.offset_right = -20
+		if pos.y == 0.0:
+			box.offset_top = 20
+			box.offset_bottom = 160
+		elif pos.y == 1.0:
+			box.offset_top = -160
+			box.offset_bottom = -20
 		var card_style = _style(Color("#263342") if selected else Color("#111c2b"), GOLD if selected or is_self else Color("#405064"), 12, 10)
 		for state in ["normal", "disabled"]: box.add_theme_stylebox_override(state, card_style)
 		box.add_theme_stylebox_override("hover", _style(Color("#26354b"), GOLD, 12, 10))
@@ -509,21 +564,13 @@ func _ignore_card_children(node: Node) -> void:
 
 func _game() -> void:
 	var phase = str(view.get("phase", ""))
-	if phase in ["", "lobby", "connecting"]:
-		_title("等待派对开始", 32, root_box)
-		_label("由派对主程序准备玩家并启动本局。", 18, MUTED, root_box)
-		return
+	if phase in ["", "lobby", "connecting"]: return
 	if phase == "ended":
-		_label("THE FINAL REVEAL", 13, GOLD, root_box)
-		_title("晨光终至，好人获胜" if view.get("winner", "") == "village" else "长夜未尽，狼人获胜", 36, root_box)
-		_label(str(view.get("last_result", "")), 20, PAPER, root_box)
-		_label("四周身份现已公开。谢谢你们，一起完成这段月下故事。", 17, MUTED, root_box)
-		_spacer(root_box)
 		if standalone_preview: root_box.add_child(_button("再来一局  →", func(): start_game(local_names), true))
 		root_box.add_child(_button("结束本局", _leave))
 		return
 	if phase == "reveal" and session.mode == "lan" and view.get("submitted_ids", []).has(session.self_id):
-		_title("身份已收好，静候入夜", 32, root_box)
+		_label("身份已收好，静候入夜", 17, MUTED, root_box)
 		return
 	if peek_identity or phase == "reveal" or (session.mode == "local" and phase in ["night", "vote"]):
 		if authorized_viewer != session.self_id or authorized_phase != phase:
@@ -532,21 +579,27 @@ func _game() -> void:
 	if peek_identity or phase == "reveal":
 		_identity()
 		return
-	_label("ROUND %02d  /  %s" % [view.get("round", 1), "PRIVATE ACTION" if phase in ["night","vote"] else "PUBLIC TABLE"], 13, GOLD, root_box)
-	_title(PHASES.get(phase, phase), 32, root_box)
 	if phase in ["night", "vote"]: _action_board(root_box)
 	else: _public_board(root_box)
 
 func _handoff() -> void:
-	_label("PRIVATE MOMENT  /  " + PHASES.get(str(view.get("phase","")), ""), 13, GOLD, root_box)
-	_title("请将屏幕交给", 28, root_box)
-	_title(_player_name(session.self_id), 46, root_box)
-	_label("确认没有其他人观看，再揭开秘密。\n本页不显示身份、阵营或行动信息。", 17, MUTED, root_box)
-	_spacer(root_box)
-	root_box.add_child(_button("我是「%s」，查看秘密  →" % _player_name(session.self_id), func(): authorized_viewer = session.self_id; authorized_phase = str(view.phase); _render(), true))
+	_label("请将屏幕交给「%s」" % _player_name(session.self_id), 18, PAPER, root_box)
+	_label("确认无人旁观，再查看秘密。", 14, MUTED, root_box)
+	root_box.add_child(_button("确认是我，查看秘密  →", func(): authorized_viewer = session.self_id; authorized_phase = str(view.phase); _render(), true))
 	if peek_identity: root_box.add_child(_button("返回公共讨论", _close_peek))
 
 func _identity() -> void:
+	# Explicit, opaque privacy view. It is destroyed at every handoff/phase change.
+	private_panel = ColorRect.new()
+	private_panel.color = Color("#0a111d")
+	private_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(private_panel)
+	var center = CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	private_panel.add_child(center)
+	root_box = VBoxContainer.new()
+	root_box.custom_minimum_size = Vector2(760, 400)
+	center.add_child(root_box)
 	var role = str(view.get("your_role", "villager"))
 	var row = _row(root_box, 28)
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -568,20 +621,15 @@ func _action_board(parent: Node) -> void:
 	var phase = str(view.phase)
 	var role = str(view.get("your_role", "villager"))
 	if not _player(session.self_id).get("alive", true) or view.get("submitted_ids", []).has(session.self_id):
-		_label("本轮无需操作，请等待其他玩家完成。", 20, MUTED, parent)
+		_label("本轮无需操作，请等待其他玩家。", 16, MUTED, parent)
 		return
-	_label(_player_name(session.self_id) + "  /  仅你可见", 15, GOLD, parent)
 	if phase == "night" and role == "villager":
-		_label("今晚，请安心休息。\n你的力量，留在明天的讨论与投票中。", 22, MUTED, parent)
-		_spacer(parent)
+		_label("今晚，请安心休息。", 18, MUTED, parent)
 		parent.add_child(_button("确认休息，结束回合  →", func(): _submit_action("night_action", -1), true))
 		return
-	_label("选择要放逐的玩家" if phase == "vote" else ("选择今晚的猎物" if role == "wolf" else "选择要查验的玩家"), 23, PAPER, parent)
-	_label("点击四周人物卡片，再在这里确认。提交后不可修改。", 15, MUTED, parent)
-	if phase == "night" and role == "wolf": _label("不可选择自己或狼队友。", 14, MUTED, parent)
-	_label("尚未选择" if selected_target == -2 else ("本轮弃票" if selected_target == -1 else "已选择：" + _player_name(selected_target)), 22, GOLD, parent)
-	_spacer(parent)
-	var row = _row(parent)
+	_label("选择要放逐的玩家" if phase == "vote" else ("选择今晚的猎物" if role == "wolf" else "选择要查验的玩家"), 18, PAPER, parent)
+	_label("点击人物卡片" if selected_target == -2 else ("本轮弃票" if selected_target == -1 else "已选择：" + _player_name(selected_target)), 16, GOLD, parent)
+	var row = _row(parent, 8)
 	if phase == "vote": row.add_child(_button("弃票" + (" ✓" if selected_target == -1 else ""), func(): selected_target = -1; _render(), selected_target == -1))
 	var confirm = _button("确认放逐票  →" if phase == "vote" else ("确认查验  →" if role == "seer" else "确认袭击  →"), func(): _submit_action("vote" if phase == "vote" else "night_action", selected_target), true)
 	confirm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -590,11 +638,6 @@ func _action_board(parent: Node) -> void:
 
 func _public_board(parent: Node) -> void:
 	var phase = str(view.phase)
-	_label("让每个人说完，再作判断。" if phase == "discussion" else str(view.get("last_result", "")), 24, PAPER, parent)
-	_label(_phase_description(phase), 17, MUTED, parent)
-	var events: Array = view.get("events", [])
-	if not events.is_empty(): _label("小镇纪事  /  " + str(events[-1]), 14, MUTED, parent)
-	_spacer(parent)
 	if phase == "discussion":
 		if session.mode == "local": parent.add_child(_button("私密查阅身份 / 记录", _choose_peek, false, Vector2(0,42)))
 		else: parent.add_child(_button("私密查阅身份 / 记录", func(): peek_identity = true; authorized_viewer = -1; _render(), false, Vector2(0,42)))
@@ -616,6 +659,8 @@ func _leave() -> void:
 	_render()
 
 func _unhandled_key_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and event.keycode == KEY_SPACE:
+		subtitles.skip()
 	if event.is_action_pressed("ui_cancel"):
 		if is_instance_valid(modal): _dismiss_modal()
 		elif peek_identity: _close_peek()
