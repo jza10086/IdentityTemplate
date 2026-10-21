@@ -13,6 +13,37 @@ var selected_team: Array[int] = []
 var selected_ballot := -1
 var render_serial := 0
 var status_dock: VBoxContainer
+var atmosphere: Control
+var last_selected_id := -1
+const AtmosphereScript = preload("res://scripts/ui/avalon_atmosphere.gd")
+const OrnamentScript = preload("res://scripts/ui/avalon_card_ornament.gd")
+
+func _ready() -> void:
+	super._ready()
+	# Replace only Avalon's inherited background; Werewolf keeps its original art.
+	for child in get_children():
+		if child is TextureRect:
+			child.texture = load("res://assets/art/avalon_lake.svg")
+			child.name = "AvalonLake"
+			break
+	_ensure_atmosphere()
+
+func _ensure_atmosphere() -> void:
+	if is_instance_valid(atmosphere): return
+	atmosphere = AtmosphereScript.new()
+	atmosphere.name = "AvalonAtmosphere"
+	add_child(atmosphere)
+	move_child(atmosphere, 1)
+
+func _sync_atmosphere(key: String) -> void:
+	var phase := str(view.get("phase", ""))
+	var success := true
+	if phase == "quest_result":
+		success = int(view.get("quest_fail_votes", 0)) < int(view.get("fails_required", 1))
+	elif phase == "ended":
+		success = view.get("winner", "") == "good"
+	atmosphere.present(key, "intro" if round_start else ("exited" if exited else phase), success, reduced_motion)
+
 
 func start_game(roster: Array, local_player_id: int = 1) -> void:
 	if not is_node_ready():
@@ -122,6 +153,9 @@ func _narration() -> Array[String]:
 func _render() -> void:
 	if not is_node_ready(): return
 	render_serial += 1
+	_ensure_atmosphere()
+	var art_key = "%d/%s/%s/%s/%s/%s" % [match_serial, view.get("round", 0), view.get("phase", ""), view.get("leader_id", 0), round_start, exited]
+	_sync_atmosphere(art_key)
 	if is_instance_valid(private_panel):
 		remove_child(private_panel)
 		private_panel.queue_free()
@@ -152,6 +186,7 @@ func _render() -> void:
 	var key = "%d/%s/%s/%s/%s/%s" % [match_serial, view.get("round", 0), view.get("phase", ""), view.get("leader_id", 0), round_start, exited]
 	subtitles.reduced_motion = reduced_motion
 	subtitles.play(key, _narration())
+	_sync_atmosphere(key)
 	if is_instance_valid(modal): move_child(modal, -1)
 
 func _bottom_dock(node_name: String, left: float, right: float) -> VBoxContainer:
@@ -228,7 +263,18 @@ func _toggle_team(id: int) -> void:
 		_on_error("队伍已满，请先取消一位队员。")
 		return
 	error_text = ""
+	last_selected_id = id if selected_team.has(id) else -1
 	_render()
+	if selected_team.has(id): call_deferred("_selection_flourish", id, render_serial)
+	last_selected_id = -1
+
+func _selection_flourish(id: int, serial: int) -> void:
+	# Containers finish their layout after the rebuild. A stale deferred effect
+	# must never appear after a phase change, handoff, or a newer selection.
+	if serial != render_serial or not selected_team.has(id): return
+	var seat = arena.get_node_or_null("Seat%d" % id)
+	if is_instance_valid(seat):
+		atmosphere.select_at(seat.get_global_rect().get_center() - atmosphere.global_position)
 
 func _perimeter() -> void:
 	if view.get("phase", "") in ["", "lobby", "connecting"]: return
@@ -283,11 +329,11 @@ func _perimeter() -> void:
 		elif pos.y == 1:
 			box.offset_top = -160
 			box.offset_bottom = -20
-		var card_style = _style(Color("#263342") if selected else Color("#111c2b"), GOLD if selected or is_self else (TEAL if proposed else Color("#405064")), 12, 10)
+		var card_style = _style(Color("#243b3e") if selected else Color("#10282f"), GOLD if selected or is_self else (TEAL if proposed else Color("#4a6263")), 5, 10)
 		for state in ["normal", "disabled"]: box.add_theme_stylebox_override(state, card_style)
-		box.add_theme_stylebox_override("hover", _style(Color("#26354b"), GOLD, 12, 10))
-		box.add_theme_stylebox_override("pressed", _style(Color("#263342"), GOLD, 12, 10))
-		box.add_theme_stylebox_override("focus", _style(Color.TRANSPARENT, PAPER, 12, 10))
+		box.add_theme_stylebox_override("hover", _style(Color("#294449"), GOLD, 5, 10))
+		box.add_theme_stylebox_override("pressed", _style(Color("#263f42"), GOLD, 5, 10))
+		box.add_theme_stylebox_override("focus", _style(Color.TRANSPARENT, PAPER, 5, 10))
 		arena.add_child(box)
 		var inset = MarginContainer.new()
 		inset.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -329,6 +375,22 @@ func _perimeter() -> void:
 			footer = "远征队员"
 			tint = TEAL
 		_label(footer, 11, tint, v).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		var ornament = OrnamentScript.new()
+		ornament.name = "HeraldicOrnament"
+		ornament.selected = selected
+		ornament.proposed = proposed
+		ornament.leader = int(view.get("leader_id", -1)) == id
+		ornament.reduced_motion = reduced_motion
+		ornament.reveal_age = 0.0 if last_selected_id == id else 5.0
+		if view.get("phase", "") == "team_vote_result":
+			var public_votes: Dictionary = view.get("team_votes", {})
+			ornament.ballot = int(public_votes.get(id, public_votes.get(str(id), -1)))
+			ornament.reveal_age = atmosphere.phase_age - i * .07
+		box.add_child(ornament)
+		box.mouse_entered.connect(func(): ornament.set_hover(true))
+		box.mouse_exited.connect(func(): ornament.set_hover(false))
+		box.focus_entered.connect(func(): ornament.set_hover(true))
+		box.focus_exited.connect(func(): ornament.set_hover(false))
 		_ignore_card_children(box)
 
 func _game() -> void:
@@ -368,9 +430,19 @@ func _handoff() -> void:
 func _open_private_panel() -> VBoxContainer:
 	private_panel = ColorRect.new()
 	private_panel.name = "OpaquePrivatePanel"
-	private_panel.color = INK
+	private_panel.color = Color("#0a1d24")
 	private_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(private_panel)
+	# The private scene is opaque FIRST; decorative moonlight contains no role data.
+	var moonlight = TextureRect.new()
+	moonlight.name = "AbbeyMoonlight"
+	moonlight.texture = preload("res://assets/art/avalon_light_masks/window_j_blur.png")
+	moonlight.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	moonlight.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	moonlight.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	moonlight.modulate = Color(.48, .8, .78, .07)
+	moonlight.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	private_panel.add_child(moonlight)
 	var center = CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	private_panel.add_child(center)

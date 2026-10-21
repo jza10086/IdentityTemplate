@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<title>Broken oath: a fractured seal</title>
+<defs><linearGradient id="copper" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e4ae81"/><stop offset=".5" stop-color="#ad6d52"/><stop offset="1" stop-color="#603a38"/></linearGradient></defs>
+<path d="M118 34 A95 95 0 0 0 39 163 L61 149 L77 166 L95 150 L91 130 L113 111 L102 88 L125 68Z" fill="#402e30" stroke="url(#copper)" stroke-width="2"/>
+<path d="M140 35 A95 95 0 0 1 218 160 L204 154 L195 171 L177 158 L176 141 L155 123 L164 100 L139 81 L146 61Z" fill="#402e30" stroke="url(#copper)" stroke-width="2"/>
+<path d="M48 180 A96 96 0 0 0 207 180 L193 190 L175 177 L158 188 L145 172 L125 188 L107 171 L90 188 L74 174Z" fill="#402e30" stroke="url(#copper)" stroke-width="2"/>
+<path d="M105 50 A79 79 0 0 0 52 142 M156 53 A79 79 0 0 1 204 138 M75 192 A79 79 0 0 0 183 194" fill="none" stroke="#be835e" stroke-width="1.3" opacity=".57"/>
+<path d="M128 60 L142 99 L132 125 L122 117 L112 127 L114 99Z" fill="url(#copper)" stroke="#e2b18a" stroke-width="1.3"/>
+<path d="M119 140 L131 134 L140 144 L136 169 L145 175 L163 172 L169 183 L138 188 H118 L87 183 L93 172 L111 175 L120 169Z" fill="url(#copper)"/>
+<path d="M123 187 H133 V210 H123Z" fill="#c98a63"/><path d="M120 212 L128 221 L136 212 L132 205 H124Z" fill="#bd7b59"/>
+<path d="M128 74 V110 M124 151 L126 168" stroke="#f0c8a0" stroke-width="1.6" opacity=".8"/>
+<path d="M118 127 L123 131 L119 135 L115 132Z M143 122 L149 126 L145 134 L140 130Z M106 146 L111 149 L108 155 L102 150Z" fill="#d28b69" opacity=".8"/>
+<path d="M39 67 L46 72 L43 80 L36 75Z M215 197 L221 202 L218 209 L211 204Z" fill="#b77658" opacity=".56"/>
+</svg>

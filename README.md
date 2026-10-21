@@ -98,3 +98,5 @@ CAPTURE_DIR=/tmp/party-captures godot --path . --script tests/capture_screens.gd
 规则覆盖 4–8 人、170 场模拟、平票 / 弃票、4 人首夜平安、双方胜利、私密快照与非法行动。UI 覆盖直接开局、4–8 人四周布局、完整热座流程、退出 / 重开与无菜单回退。截图脚本必须使用真实图形显示与渲染器，不以 headless 截图替代。ENet 测试仍验证真实多进程对局、满员、晚加入、冒用发送者、准备门槛与掉线；这些后台测试不表示恢复了大厅 UI。
 
 素材来源见 `ART_SOURCES.md`，字体许可见 `assets/fonts/SOURCES.md`。仓库：https://github.com/jza10086/IdentityTemplate
+
+阿瓦隆新增独立「湖上圆桌」美术、誓约封印、圣杯任务揭晓与刺杀蚀月动画，支持减少动态效果；原版狼人杀不受影响。详见 [AVALON.md](AVALON.md)。

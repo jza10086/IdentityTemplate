@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+<title>Avalon, the lake beyond the mist</title>
+<desc>Original enchanted lake at dusk. A crescent moon, distant Camelot, reeds, and illuminated-manuscript vines frame a quiet central field.</desc>
+<defs>
+ <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#071421"/><stop offset=".48" stop-color="#0c2531"/><stop offset=".77" stop-color="#1d494c"/><stop offset="1" stop-color="#0d2834"/></linearGradient>
+ <radialGradient id="moonwash"><stop stop-color="#a9c8bd" stop-opacity=".14"/><stop offset=".42" stop-color="#5d918f" stop-opacity=".07"/><stop offset="1" stop-color="#4b8785" stop-opacity="0"/></radialGradient>
+ <linearGradient id="moon" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3e1aa"/><stop offset="1" stop-color="#a5bdad"/></linearGradient>
+ <linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#15363c"/><stop offset=".3" stop-color="#102f38"/><stop offset=".68" stop-color="#0c2732"/><stop offset="1" stop-color="#071921"/></linearGradient>
+ <linearGradient id="mist" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#78a69a" stop-opacity="0"/><stop offset=".25" stop-color="#78a69a" stop-opacity=".07"/><stop offset=".7" stop-color="#a1b7a1" stop-opacity=".12"/><stop offset="1" stop-color="#78a69a" stop-opacity="0"/></linearGradient>
+ <radialGradient id="reflection" cx=".5" cy=".5" r=".5"><stop stop-color="#6aa49a" stop-opacity=".24"/><stop offset=".45" stop-color="#508b89" stop-opacity=".1"/><stop offset="1" stop-color="#1e5c66" stop-opacity="0"/></radialGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#cfb678"/><stop offset="1" stop-color="#856f45"/></linearGradient>
+ <radialGradient id="hush" cx=".5" cy=".42" r=".66"><stop stop-color="#071925" stop-opacity=".43"/><stop offset=".48" stop-color="#071925" stop-opacity=".19"/><stop offset="1" stop-color="#071925" stop-opacity="0"/></radialGradient>
+ <linearGradient id="edge" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#030b15" stop-opacity=".1"/><stop offset=".6" stop-color="#030b15" stop-opacity="0"/><stop offset="1" stop-color="#030b15" stop-opacity=".54"/></linearGradient>
+</defs>
+<rect width="1600" height="1000" fill="url(#sky)"/>
+<ellipse cx="1280" cy="167" rx="415" ry="355" fill="url(#moonwash)"/>
+<!-- The moon is a crescent rather than a spotlight behind the UI. -->
+<path d="M1292 111 A52 52 0 1 0 1325 201 A48 48 0 0 1 1292 111Z" fill="url(#moon)" opacity=".83"/>
+<circle cx="1277" cy="161" r="68" fill="none" stroke="#9bb2a2" stroke-opacity=".055"/>
+<circle cx="1272.3" cy="178.4" r="0.80" fill="#c7ceb8" opacity="0.38"/>
+<circle cx="1403.7" cy="474.9" r="1.00" fill="#c7ceb8" opacity="0.38"/>
+<circle cx="1460.9" cy="337.9" r="1.00" fill="#c7ceb8" opacity="0.24"/>
+<circle cx="1162.2" cy="437.6" r="1.30" fill="#c7ceb8" opacity="0.34"/>
+<circle cx="472.9" cy="197.2" r="0.80" fill="#c7ceb8" opacity="0.16"/>
+<circle cx="138.5" cy="491.1" r="1.00" fill="#c7ceb8" opacity="0.39"/>
+<circle cx="1530.9" cy="84.5" r="1.00" fill="#c7ceb8" opacity="0.16"/>
+<circle cx="534.3" cy="163.0" r="1.00" fill="#c7ceb8" opacity="0.21"/>
+<circle cx="149.4" cy="96.5" r="1.00" fill="#c7ceb8" opacity="0.13"/>
+<circle cx="665.9" cy="209.9" r="0.80" fill="#c7ceb8" opacity="0.31"/>
+<circle cx="1231.7" cy="317.4" r="1.30" fill="#c7ceb8" opacity="0.33"/>
+<circle cx="513.9" cy="86.3" r="1.30" fill="#c7ceb8" opacity="0.23"/>
+<circle cx="1184.2" cy="215.9" r="0.80" fill="#c7ceb8" opacity="0.13"/>
+<circle cx="1101.1" cy="127.6" r="1.30" fill="#c7ceb8" opacity="0.32"/>
+<circle cx="1374.5" cy="469.0" r="1.00" fill="#c7ceb8" opacity="0.25"/>
+<circle cx="1488.0" cy="269.4" r="0.65" fill="#c7ceb8" opacity="0.33"/>
+<circle cx="304.8" cy="481.3" r="1.00" fill="#c7ceb8" opacity="0.29"/>
+<circle cx="1188.4" cy="484.9" r="1.30" fill="#c7ceb8" opacity="0.24"/>
+<circle cx="1261.3" cy="466.8" r="1.00" fill="#c7ceb8" opacity="0.33"/>
+<circle cx="1321.9" cy="333.2" r="0.65" fill="#c7ceb8" opacity="0.19"/>
+<circle cx="192.4" cy="175.3" r="0.65" fill="#c7ceb8" opacity="0.28"/>
+<circle cx="351.0" cy="138.9" r="0.65" fill="#c7ceb8" opacity="0.15"/>
+<circle cx="1068.0" cy="59.9" r="1.30" fill="#c7ceb8" opacity="0.39"/>
+<circle cx="1067.9" cy="58.0" r="0.80" fill="#c7ceb8" opacity="0.24"/>
+<circle cx="1420.7" cy="417.2" r="0.80" fill="#c7ceb8" opacity="0.25"/>
+<circle cx="1217.8" cy="316.7" r="0.80" fill="#c7ceb8" opacity="0.34"/>
+<circle cx="394.8" cy="105.2" r="1.00" fill="#c7ceb8" opacity="0.15"/>
+<circle cx="1385.1" cy="277.1" r="1.00" fill="#c7ceb8" opacity="0.38"/>
+<circle cx="1179.5" cy="426.8" r="0.65" fill="#c7ceb8" opacity="0.34"/>
+<circle cx="796.4" cy="184.3" r="1.00" fill="#c7ceb8" opacity="0.21"/>
+<circle cx="246.0" cy="202.9" r="1.00" fill="#c7ceb8" opacity="0.23"/>
+<!-- Blue-green hills dissolve into the far shore. -->
+<path d="M0 610 Q93 527 176 559 Q248 483 350 570 Q435 510 541 587 Q646 551 734 596 Q843 559 927 589 Q1050 531 1146 574 Q1260 507 1391 561 Q1486 506 1600 558 V736 H0Z" fill="#25474a" opacity=".47"/>
+<path d="M0 618 Q96 590 173 622 Q261 583 348 622 Q430 608 502 640 Q631 614 717 649 Q860 618 966 641 Q1090 603 1195 626 Q1325 558 1450 608 Q1544 573 1600 592 V735 H0Z" fill="#17383e"/>
+<!-- Camelot is small and distant on the left shore. -->
+<path d="M79 664 Q125 616 194 621 L224 604 L299 610 Q353 591 411 636 Q454 633 494 672Z" fill="#0c2731"/>
+<g fill="#0a2430" stroke="#528180" stroke-opacity=".17" stroke-width="1">
+ <path d="M140 639 V567 H151 V555 H161 V567 H171 V555 H181 V567 H193 V640Z"/>
+ <path d="M150 558 V513 L167 490 L184 513 V558Z"/>
+ <path d="M204 638 V542 H218 V530 H229 V542 H240 V530 H251 V542 H263 V638Z"/>
+ <path d="M216 540 V469 L235 440 L253 469 V540Z"/>
+ <path d="M268 640 V571 L307 550 L346 571 V640Z"/>
+ <path d="M289 574 V502 L305 479 L321 502 V574Z"/>
+ <path d="M339 643 V552 H349 V540 H359 V552 H369 V540 H379 V552 H389 V643Z"/>
+ <path d="M348 547 V513 L364 492 L381 513 V547Z"/>
+ <path d="M182 616 V595 H197 V585 H208 V595 H222 V585 H233 V595 H247 V643 H180Z"/>
+ <path d="M252 639 V609 H263 V599 H275 V609 H286 V599 H298 V609 H310 V640Z"/>
+</g>
+<g fill="#37616a" opacity=".41"><path d="M216 469 L235 440 L253 469Z"/><path d="M289 502 L305 479 L321 502Z"/><path d="M150 513 L167 490 L184 513Z"/><path d="M348 513 L364 492 L381 513Z"/></g>
+<g stroke="#b6a273" stroke-opacity=".44" stroke-width="1.1" fill="none"><path d="M235 439 V415 M305 479 V459 M167 490 V475"/></g>
+<g fill="#809580" opacity=".56"><path d="M236 416 Q250 411 258 422 Q249 421 236 426Z"/><path d="M306 460 L321 465 L306 471Z"/></g>
+<g fill="#d0b37d" opacity=".59"><path d="M229 489 Q234 480 239 489 V504 H229Z"/><path d="M300 523 Q305 516 310 523 V534 H300Z"/><path d="M161 535 Q166 527 171 535 V546 H161Z"/><path d="M359 578 Q364 570 369 578 V590 H359Z"/><path d="M222 564 Q226 558 230 564 V574 H222Z"/><path d="M241 564 Q245 558 249 564 V574 H241Z"/></g>
+<path d="M274 638 V616 Q285 599 296 616 V640Z" fill="#071a26"/>
+<!-- Island cypresses and empty eastern shores. -->
+<g fill="#0b2831"><path d="M93 655 L102 575 L111 655Z M116 650 L124 598 L132 650Z M402 654 L412 578 L422 654Z M422 659 L430 603 L439 659Z"/><path d="M1150 675 Q1230 642 1315 652 Q1420 603 1600 647 V724 H1140Z"/></g>
+<path d="M0 682 Q223 657 432 681 Q820 666 1106 687 Q1376 652 1600 684 V1000 H0Z" fill="url(#water)"/>
+<path d="M0 671 Q357 646 705 678 Q1000 652 1600 670 L1600 692 Q1110 677 727 695 Q294 674 0 696Z" fill="url(#mist)"/>
+<path d="M0 707 Q334 675 728 702 Q1100 675 1600 700 L1600 709 Q1107 693 713 719 Q331 692 0 726Z" fill="url(#mist)" opacity=".55"/>
+<ellipse cx="1264" cy="824" rx="286" ry="169" fill="url(#reflection)"/>
+<!-- Broken brush-like moon reflections, spaced across calm water. -->
+<g fill="#9ab9a5">
+ <path d="M1239 708 H1284 L1272 710 H1244Z" opacity=".18"/>
+ <path d="M1221 720 H1305 L1293 722 H1213Z" opacity=".19"/>
+ <path d="M1242 733 H1298 L1306 735 H1235Z" opacity=".16"/>
+ <path d="M1196 750 H1275 L1292 752 H1207Z M1311 750 H1326 L1333 752 H1308Z" opacity=".16"/>
+ <path d="M1204 769 H1320 L1309 772 H1191Z" opacity=".15"/>
+ <path d="M1162 792 H1226 L1235 795 H1153Z M1251 792 H1331 L1345 795 H1240Z" opacity=".14"/>
+ <path d="M1191 822 H1270 L1286 825 H1174Z M1306 822 H1350 L1377 825 H1312Z" opacity=".14"/>
+ <path d="M1114 854 H1194 L1206 857 H1098Z M1232 854 H1357 L1370 857 H1221Z" opacity=".11"/>
+ <path d="M1162 894 H1269 L1289 898 H1134Z M1324 894 H1402 L1423 898 H1311Z" opacity=".09"/>
+ <path d="M1073 943 H1218 L1240 947 H1039Z M1269 943 H1436 L1453 947 H1280Z" opacity=".07"/>
+</g>
+<g fill="none" stroke="#447274" stroke-linecap="round" opacity=".24">
+ <path d="M128 734 Q277 727 410 734 M520 733 H635 M865 731 H1015"/>
+ <path d="M47 775 H181 M226 779 Q391 771 524 777 M866 782 H991 M1415 775 H1564"/>
+ <path d="M269 823 H457 M566 823 Q725 814 865 820 M1439 824 H1592"/>
+ <path d="M92 875 Q254 862 388 870 M454 869 H553 M764 881 H961"/>
+ <path d="M242 930 H393 M502 936 Q698 924 844 933 M891 937 H998"/>
+</g>
+<!-- Reed islands: layered teal shapes, not a rectangular interface border. -->
+<path d="M0 818 Q79 834 144 866 Q224 885 290 931 Q352 962 433 1000 H0Z" fill="#0a242c"/>
+<path d="M1600 782 Q1552 805 1501 843 Q1460 868 1422 937 Q1370 973 1338 1000 H1600Z" fill="#0a242c"/>
+<path d="M0 904 Q143 898 269 974 L318 1000 H0Z M1600 898 Q1490 902 1430 963 L1404 1000 H1600Z" fill="#071a23"/>
+<path d="M204.6 961.7 Q207.2 875.8 213.2 829.6" fill="none" stroke="#1c3b3c" stroke-width="1.3" opacity=".65"/>
+<path d="M213.2 835.6 l3 -22" stroke="#60715a" stroke-width="3.4" stroke-linecap="round" opacity=".49"/>
+<path d="M52.6 922.0 Q54.4 882.1 58.6 860.6" fill="none" stroke="#274a47" stroke-width="1.5" opacity=".65"/>
+<path d="M175.1 949.5 Q170.1 916.8 158.5 899.2" fill="none" stroke="#274a47" stroke-width="1.3" opacity=".65"/>
+<path d="M200.6 958.6 Q208.0 888.6 225.3 851.0" fill="none" stroke="#274a47" stroke-width="1.5" opacity=".65"/>
+<path d="M225.3 857.0 l3 -22" stroke="#60715a" stroke-width="3.4" stroke-linecap="round" opacity=".49"/>
+<path d="M107.7 928.4 Q105.2 851.5 99.3 810.1" fill="none" stroke="#1c3b3c" stroke-width="1.4" opacity=".65"/>
+<path d="M110.6 916.1 Q118.1 879.7 135.6 860.1" fill="none" stroke="#1c3b3c" stroke-width="1.7" opacity=".65"/>
+<path d="M258.5 983.7 Q252.9 901.5 239.9 857.2" fill="none" stroke="#1c3b3c" stroke-width="1.7" opacity=".65"/>
+<path d="M239.9 863.2 l3 -22" stroke="#60715a" stroke-width="3.4" stroke-linecap="round" opacity=".49"/>
+<path d="M41.0 898.7 Q45.0 809.7 54.5 761.8" fill="none" stroke="#1c3b3c" stroke-width="1.9" opacity=".65"/>
+<path d="M137.9 964.8 Q145.4 878.5 162.8 832.1" fill="none" stroke="#31534c" stroke-width="1.4" opacity=".65"/>
+<path d="M199.1 992.9 Q196.7 922.1 191.2 884.0" fill="none" stroke="#31534c" stroke-width="1.7" opacity=".65"/>
+<path d="M191.2 890.0 l3 -22" stroke="#60715a" stroke-width="3.4" stroke-linecap="round" opacity=".49"/>
+<path d="M106.6 936.9 Q116.5 865.5 139.6 827.0" fill="none" stroke="#274a47" stroke-width="1.8" opacity=".65"/>
+<path d="M48.6 904.4 Q45.1 871.1 36.8 853.2" fill="none" stroke="#274a47" stroke-width="1.4" opacity=".65"/>
+<path d="M246.7 1000.0 Q244.3 966.2 238.9 945.0" fill="none" stroke="#1c3b3c" stroke-width="2.0" opacity=".65"/>
+<path d="M238.9 951.0 l3 -22" stroke="#60715a" stroke-width="3.4" stroke-linecap="round" opacity=".49"/>
+<path d="M115.9 924.2 Q118.0 835.2 123.0 787.3" fill="none" stroke="#274a47" stroke-width="2.0" opacity=".65"/>
+<path d="M243.5 988.8 Q247.1 933.5 255.4 903.7" fill="none" stroke="#274a47" stroke-width="1.5" opacity=".65"/>
+<path d="M140.3 941.2 Q143.1 876.0 149.7 840.8" fill="none" stroke="#274a47" stroke-width="1.6" opacity=".65"/>
+<path d="M149.7 846.8 l3 -22" stroke="#60715a" stroke-width="3.4" stroke-linecap="round" opacity=".49"/>
+<path d="M248.8 998.3 Q242.8 941.0 228.6 910.1" fill="none" stroke="#1c3b3c" stroke-width="1.9" opacity=".65"/>
+<path d="M86.8 949.4 Q95.2 859.6 114.8 811.3" fill="none" stroke="#31534c" stroke-width="1.3" opacity=".65"/>
+<path d="M125.5 962.7 Q129.3 916.0 138.2 890.9" fill="none" stroke="#31534c" stroke-width="1.9" opacity=".65"/>
+<path d="M138.2 896.9 l3 -22" stroke="#60715a" stroke-width="3.4" stroke-linecap="round" opacity=".49"/>
+<path d="M99.2 916.9 Q98.2 883.8 95.9 865.9" fill="none" stroke="#31534c" stroke-width="1.8" opacity=".65"/>
+<path d="M172.1 987.6 Q182.1 909.2 205.5 867.0" fill="none" stroke="#31534c" stroke-width="1.4" opacity=".65"/>
+<path d="M1422.1 956.5 Q1426.4 907.1 1436.6 880.5" fill="none" stroke="#31534c" stroke-width="1.9" opacity=".65"/>
+<path d="M1436.6 886.5 l-3 -22" stroke="#60715a" stroke-width="3.4" stroke-linecap="round" opacity=".49"/>
+<path d="M1584.8 918.6 Q1584.1 883.4 1582.4 864.5" fill="none" stroke="#274a47" stroke-width="1.4" opacity=".65"/>
+<path d="M1564.6 931.8 Q1557.4 858.6 1540.7 819.3" fill="none" stroke="#274a47" stroke-width="1.3" opacity=".65"/>
+<path d="M1576.6 884.9 Q1570.5 819.0 1556.3 783.6" fill="none" stroke="#31534c" stroke-width="1.2" opacity=".65"/>
+<path d="M1556.3 789.6 l-3 -22" stroke="#60715a" stroke-width="3.4" stroke-linecap="round" opacity=".49"/>
+<path d="M1474.9 935.6 Q1471.0 883.8 1461.8 856.0" fill="none" stroke="#31534c" stroke-width="1.3" opacity=".65"/>
+<path d="M1340.2 1000.0 Q1343.6 964.6 1351.3 943.4" fill="none" stroke="#274a47" stroke-width="1.4" opacity=".65"/>
+<path d="M1395.7 962.4 Q1402.0 889.2 1416.7 849.8" fill="none" stroke="#1c3b3c" stroke-width="1.6" opacity=".65"/>
+<path d="M1416.7 855.8 l-3 -22" stroke="#60715a" stroke-width="3.4" stroke-linecap="round" opacity=".49"/>
+<path d="M1576.3 912.1 Q1577.3 844.1 1579.4 807.5" fill="none" stroke="#1c3b3c" stroke-width="1.9" opacity=".65"/>
+<path d="M1420.2 960.3 Q1416.0 918.7 1406.1 896.3" fill="none" stroke="#274a47" stroke-width="1.6" opacity=".65"/>
+<path d="M1480.0 964.2 Q1478.0 890.3 1473.5 850.5" fill="none" stroke="#1c3b3c" stroke-width="1.1" opacity=".65"/>
+<path d="M1473.5 856.5 l-3 -22" stroke="#60715a" stroke-width="3.4" stroke-linecap="round" opacity=".49"/>
+<path d="M1426.6 946.6 Q1420.8 894.2 1407.1 866.0" fill="none" stroke="#31534c" stroke-width="1.4" opacity=".65"/>
+<path d="M1394.6 965.9 Q1397.9 875.4 1405.8 826.7" fill="none" stroke="#31534c" stroke-width="1.9" opacity=".65"/>
+<path d="M1563.5 892.3 Q1566.9 859.3 1574.9 841.6" fill="none" stroke="#1c3b3c" stroke-width="1.6" opacity=".65"/>
+<path d="M1574.9 847.6 l-3 -22" stroke="#60715a" stroke-width="3.4" stroke-linecap="round" opacity=".49"/>
+<path d="M1487.8 948.0 Q1483.8 876.0 1474.6 837.1" fill="none" stroke="#31534c" stroke-width="1.1" opacity=".65"/>
+<path d="M1379.2 1000.0 Q1376.1 931.8 1369.0 894.8" fill="none" stroke="#274a47" stroke-width="1.4" opacity=".65"/>
+<path d="M1381.9 971.3 Q1373.5 887.9 1353.7 842.9" fill="none" stroke="#1c3b3c" stroke-width="1.9" opacity=".65"/>
+<path d="M1353.7 848.9 l-3 -22" stroke="#60715a" stroke-width="3.4" stroke-linecap="round" opacity=".49"/>
+<path d="M1410.9 968.1 Q1406.5 918.7 1396.1 892.1" fill="none" stroke="#274a47" stroke-width="1.8" opacity=".65"/>
+<path d="M1457.0 959.8 Q1453.7 919.3 1446.1 897.5" fill="none" stroke="#1c3b3c" stroke-width="1.2" opacity=".65"/>
+<path d="M1447.9 972.5 Q1440.9 925.7 1424.6 900.5" fill="none" stroke="#1c3b3c" stroke-width="1.2" opacity=".65"/>
+<path d="M1424.6 906.5 l-3 -22" stroke="#60715a" stroke-width="3.4" stroke-linecap="round" opacity=".49"/>
+<path d="M1533.6 919.9 Q1538.6 859.9 1550.3 827.5" fill="none" stroke="#31534c" stroke-width="1.4" opacity=".65"/>
+<path d="M1493.7 940.3 Q1496.7 909.0 1503.5 892.1" fill="none" stroke="#274a47" stroke-width="1.2" opacity=".65"/>
+<g fill="#355c52" opacity=".45"><path d="M68 852 Q34 803 22 805 Q27 835 68 852Z M122 879 Q153 829 162 832 Q151 865 122 879Z M1536 877 Q1508 827 1498 828 Q1505 860 1536 877Z M1461 951 Q1430 911 1412 918 Q1426 941 1461 951Z"/></g>
+<!-- Lily leaves carry one small old-gold glint. -->
+<g fill="#39685e" opacity=".45"><path d="M293 879 C310 866 342 869 347 879 C336 891 310 892 293 879Z M378 910 C389 903 410 903 419 911 C409 920 390 920 378 910Z M1398 808 C1410 800 1433 803 1439 809 C1427 817 1409 817 1398 808Z"/></g>
+<path d="M322 870 Q318 855 325 850 Q332 856 329 869 Q339 856 343 862 Q342 873 329 877 Q315 878 309 867 Q315 864 322 870Z" fill="#b69b68" opacity=".5"/>
+<rect width="1600" height="1000" fill="url(#hush)"/>
+<rect width="1600" height="1000" fill="url(#edge)"/>
+<!-- Sparse manuscript botanicals, intentionally no enclosing frame. -->
+<g fill="none" stroke="url(#gold)" stroke-width="1.25" opacity=".25" stroke-linecap="round">
+ <path d="M29 236 C42 210 22 175 37 147 C50 119 89 130 91 102 C93 81 66 79 62 96 C59 108 75 113 81 102 M38 146 C17 132 21 111 35 101 M35 102 C39 78 28 66 20 62 M59 130 C62 151 77 155 88 146"/>
+ <path d="M32 181 Q53 160 59 168 Q58 183 32 181Z M40 140 Q45 117 56 118 Q61 130 40 140Z M35 102 Q18 92 19 80 Q33 81 35 102Z M82 125 Q102 123 108 109 Q91 108 82 125Z"/>
+ <path d="M1570 501 C1557 476 1579 439 1561 412 C1547 391 1519 397 1510 376 C1501 357 1519 342 1533 352 C1544 361 1533 375 1524 369 M1559 411 C1578 400 1583 379 1572 363 M1546 399 C1540 422 1525 426 1514 414"/>
+ <path d="M1568 452 Q1548 434 1542 443 Q1543 457 1568 452Z M1559 410 Q1554 388 1544 391 Q1540 402 1559 410Z M1572 363 Q1585 349 1580 338 Q1568 342 1572 363Z"/>
+</g>
+<g fill="#c1a36b" opacity=".38"><path d="M37 232 l3 6 -3 6 -3 -6Z M1570 498 l3 6 -3 6 -3 -6Z"/><circle cx="108" cy="109" r="1.6"/><circle cx="1514" cy="414" r="1.6"/></g>
+</svg>
