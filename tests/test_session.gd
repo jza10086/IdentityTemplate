@@ -15,7 +15,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var games: Array[Dictionary] = CatalogScript.list_games()
-	_check(games.size() == 1 and games[0]["id"] == "werewolf", "Catalog contains only implemented games")
+	_check(games.size() == 2 and games[0]["id"] == "werewolf" and games[1]["id"] == "avalon", "Catalog contains only implemented games")
 	_check(games[0]["min_players"] == 4 and games[0]["max_players"] == 8, "Catalog player limits match rules")
 	games[0]["name"] = "mutated"
 	_check(CatalogScript.list_games()[0]["name"] == "狼人杀", "Catalog metadata is isolated")

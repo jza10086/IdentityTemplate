@@ -38,7 +38,12 @@ func _ready() -> void:
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 
 
-func host_lan(player_name: String, port: int = DEFAULT_PORT) -> Error:
+func host_lan(player_name: String, port: int = DEFAULT_PORT, selected_game_id: String = "") -> Error:
+	var chosen := game_id if selected_game_id.is_empty() else selected_game_id
+	var config := CatalogScript.metadata(chosen)
+	if config.is_empty():
+		_fail("找不到这个游戏，请选择已实现的游戏。")
+		return ERR_INVALID_PARAMETER
 	var cleaned := _clean_name(player_name)
 	if cleaned.is_empty():
 		_fail("昵称需为 1–18 个字符，不能包含换行或控制字符。")
@@ -57,11 +62,12 @@ func host_lan(player_name: String, port: int = DEFAULT_PORT) -> Error:
 	_peer = candidate
 	multiplayer.multiplayer_peer = _peer
 	mode = "lan"
+	game_id = chosen
 	is_host = true
 	self_id = 1
 	_port = port
 	_address = _get_lan_address()
-	_status = "房间已创建，等待 4–8 位玩家加入并准备。"
+	_status = "%s房间已创建，等待 %d–%d 位玩家加入并准备。" % [config["name"], config["min_players"], config["max_players"]]
 	_lobby_players[1] = {"id": 1, "name": cleaned, "ready": true, "connected": true}
 	_publish_views()
 	return OK
@@ -99,9 +105,14 @@ func join_lan(player_name: String, address: String, port: int = DEFAULT_PORT) ->
 	return OK
 
 
-func start_local(names: Array) -> void:
-	if names.size() < MIN_PLAYERS or names.size() > MAX_PLAYERS:
-		_fail("本地对局需要 4–8 位玩家。")
+func start_local(names: Array, selected_game_id: String = "") -> void:
+	var chosen := game_id if selected_game_id.is_empty() else selected_game_id
+	var config := CatalogScript.metadata(chosen)
+	if config.is_empty():
+		_fail("找不到这个游戏，请选择已实现的游戏。")
+		return
+	if names.size() < int(config["min_players"]) or names.size() > int(config["max_players"]):
+		_fail("%s本地对局需要 %d–%d 位玩家。" % [config["name"], config["min_players"], config["max_players"]])
 		return
 	var cleaned_names: Array = []
 	var seen: Dictionary = {}
@@ -114,6 +125,7 @@ func start_local(names: Array) -> void:
 		cleaned_names.append(cleaned)
 	leave()
 	mode = "local"
+	game_id = chosen
 	is_host = true
 	self_id = 1
 	_local_names = cleaned_names
@@ -152,8 +164,12 @@ func start_match() -> void:
 	if _rules != null:
 		_fail("对局已经开始。")
 		return
-	if _lobby_players.size() < MIN_PLAYERS or _lobby_players.size() > MAX_PLAYERS:
-		_fail("需要 4–8 位玩家才能开始。")
+	var config := CatalogScript.metadata(game_id)
+	if config.is_empty():
+		_fail("找不到这个游戏，请选择已实现的游戏。")
+		return
+	if _lobby_players.size() < int(config["min_players"]) or _lobby_players.size() > int(config["max_players"]):
+		_fail("%s需要 %d–%d 位玩家才能开始。" % [config["name"], config["min_players"], config["max_players"]])
 		return
 	for player in _lobby_players.values():
 		if not player.get("ready", false):
@@ -162,7 +178,24 @@ func start_match() -> void:
 	_start_rules()
 
 
-func submit(action: String, target: int = -1) -> void:
+## Host-facing selection before a match. No game menu is imposed on the UI.
+func select_game(selected_game_id: String) -> bool:
+	if _rules != null or (mode != "none" and not is_host):
+		_fail("仅房主可在开局前选择游戏。")
+		return false
+	var config := CatalogScript.metadata(selected_game_id)
+	if config.is_empty():
+		_fail("找不到这个游戏，请选择已实现的游戏。")
+		return false
+	if mode == "lan" and game_id != selected_game_id:
+		_reset_readiness()
+	game_id = selected_game_id
+	_status = "已选择%s，需 %d–%d 位玩家准备后开始。" % [config["name"], config["min_players"], config["max_players"]]
+	_publish_views()
+	return true
+
+
+func submit(action: String, target: Variant = -1) -> void:
 	if mode == "local" or (mode == "lan" and is_host):
 		_submit_for(self_id, action, target)
 	elif mode == "lan" and _is_connected() and not _connecting:
@@ -173,7 +206,7 @@ func submit(action: String, target: int = -1) -> void:
 
 func advance() -> void:
 	if not is_host or _rules == null:
-		_fail("只有房主可以推进白天阶段。")
+		_fail("只有房主可以推进阶段。")
 		return
 	var result = _rules.advance()
 	if result is Dictionary and not result.get("ok", false):
@@ -234,12 +267,12 @@ func _start_rules() -> void:
 	_publish_views()
 
 
-func _submit_for(player_id: int, action: String, target: int) -> void:
+func _submit_for(player_id: int, action: String, target: Variant) -> void:
 	if not _lobby_players.has(player_id) or _rules == null:
 		_send_error(player_id, "当前没有可操作的对局。")
 		return
-	if action not in ["reveal_ack", "night_action", "vote"]:
-		_send_error(player_id, "不支持的操作。")
+	if not CatalogScript.accepts_action(game_id, action, target):
+		_send_error(player_id, "不支持的操作或行动参数格式。")
 		return
 	var result: Dictionary = _rules.submit(player_id, action, target)
 	if not result.get("ok", false):
@@ -434,7 +467,7 @@ func _request_ready(ready_value: bool) -> void:
 
 
 @rpc("any_peer", "call_remote", "reliable")
-func _request_submit(action: String, target: int = -1) -> void:
+func _request_submit(action: String, target: Variant = -1) -> void:
 	if mode == "lan" and is_host:
 		_submit_for(multiplayer.get_remote_sender_id(), action, target)
 
@@ -445,6 +478,7 @@ func _receive_view(snapshot: Dictionary) -> void:
 		return
 	_connecting = false
 	view = snapshot.duplicate(true)
+	game_id = str(snapshot.get("game_id", game_id))
 	self_id = multiplayer.get_unique_id()
 	view["self_id"] = self_id
 	view["is_host"] = false
