@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://1n5awwexnwux"
-path="res://.godot/imported/avalon_blade.svg-eb6148634050e90dbd8add51e31fd680.ctex"
+uid="uid://dxs7emnsw8y7p"
+path="res://.godot/imported/avalon_blade.svg-7a5940461af274bb3e8658a87cd18c06.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/avalon_blade.svg"
-dest_files=["res://.godot/imported/avalon_blade.svg-eb6148634050e90dbd8add51e31fd680.ctex"]
+source_file="res://games/minigame/godot_party_default_identity_party/assets/art/avalon_blade.svg"
+dest_files=["res://.godot/imported/avalon_blade.svg-7a5940461af274bb3e8658a87cd18c06.ctex"]
 
 [params]
 

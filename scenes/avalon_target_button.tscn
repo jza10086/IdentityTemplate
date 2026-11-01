@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://dieyiawdt7hq8"]
+
+[node name="AssassinationTarget" type="Button" unique_id=336542371]
+custom_minimum_size = Vector2(255, 76)
+mouse_default_cursor_shape = 2
+toggle_mode = true
+text = "01 · 圆桌骑士"

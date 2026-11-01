@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://e7m0ngiouor"
-path="res://.godot/imported/avalon_grail.svg-d1f17c3b37c21590780a96a8a146783d.ctex"
+uid="uid://cip7tmxcr2c5l"
+path="res://.godot/imported/avalon_grail.svg-1d8968dcbbc9feebcfa5e89b70a70d0a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/avalon_grail.svg"
-dest_files=["res://.godot/imported/avalon_grail.svg-d1f17c3b37c21590780a96a8a146783d.ctex"]
+source_file="res://games/minigame/godot_party_default_identity_party/assets/art/avalon_grail.svg"
+dest_files=["res://.godot/imported/avalon_grail.svg-1d8968dcbbc9feebcfa5e89b70a70d0a.ctex"]
 
 [params]
 

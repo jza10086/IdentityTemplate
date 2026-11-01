@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c4ta22jo5vso1"
-path="res://.godot/imported/seat_portrait.svg-20398a5e7bc9a666586afe1d7442d157.ctex"
+uid="uid://b2ekfo7j26e0w"
+path="res://.godot/imported/seat_portrait.svg-f9334a3ed1355434aa6d35b41e6992fc.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/seat_portrait.svg"
-dest_files=["res://.godot/imported/seat_portrait.svg-20398a5e7bc9a666586afe1d7442d157.ctex"]
+source_file="res://games/minigame/godot_party_default_identity_party/assets/art/seat_portrait.svg"
+dest_files=["res://.godot/imported/seat_portrait.svg-f9334a3ed1355434aa6d35b41e6992fc.ctex"]
 
 [params]
 

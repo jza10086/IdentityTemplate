@@ -1,17 +1,17 @@
 extends Label
 ## Presentation-only clock. Replacing a sequence cancels it atomically; no timers,
 ## asynchronous callbacks, or rules advancement can survive a phase change.
-const FADE_IN := 0.9
-const HOLD := 1.8
-const FADE_OUT := 0.9
-const GAP := 0.35
-var sequence_key := ""
+const FADE_IN : Variant = 0.9
+const HOLD : Variant = 1.8
+const FADE_OUT : Variant = 0.9
+const GAP : Variant = 0.35
+var sequence_key : Variant = ""
 var lines: Array[String] = []
-var line_index := 0
-var elapsed := 0.0
-var reduced_motion := false
-var completed := false
-var generation := 0
+var line_index : Variant = 0
+var elapsed : Variant = 0.0
+var reduced_motion : Variant = false
+var completed : Variant = false
+var generation : Variant = 0
 
 func play(key: String, sentences: Array) -> void:
 	if key == sequence_key: return
@@ -36,7 +36,7 @@ func _process(delta: float) -> void:
 func advance_clock(delta: float) -> void:
 	if completed or lines.is_empty(): return
 	elapsed += maxf(0.0, delta)
-	var duration = FADE_IN + HOLD + FADE_OUT + GAP
+	var duration: Variant = FADE_IN + HOLD + FADE_OUT + GAP
 	while elapsed + 0.000001 >= duration and line_index < lines.size() - 1:
 		elapsed = maxf(0.0, elapsed - duration)
 		line_index += 1

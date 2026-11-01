@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dualv20dvg3f3"
-path="res://.godot/imported/avalon_broken_oath.svg-1c1adb532b83fb913edfe3f4d89e810c.ctex"
+uid="uid://c246majaehccr"
+path="res://.godot/imported/avalon_broken_oath.svg-c4797a06b5bb81ef2ff93e7d8694bbf4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/avalon_broken_oath.svg"
-dest_files=["res://.godot/imported/avalon_broken_oath.svg-1c1adb532b83fb913edfe3f4d89e810c.ctex"]
+source_file="res://games/minigame/godot_party_default_identity_party/assets/art/avalon_broken_oath.svg"
+dest_files=["res://.godot/imported/avalon_broken_oath.svg-c4797a06b5bb81ef2ff93e7d8694bbf4.ctex"]
 
 [params]
 

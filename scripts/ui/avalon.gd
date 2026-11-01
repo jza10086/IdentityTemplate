@@ -1,88 +1,88 @@
-extends "res://scripts/ui/main.gd"
+extends "res://games/minigame/godot_party_default_identity_party/scripts/ui/main.gd"
 ## Avalon is a presentation adapter. The authoritative rules never live in this scene.
 ## Only a viewer-filtered session snapshot is used to draw private information.
 const AVALON_ROLES = {"merlin":"梅林", "assassin":"刺客", "loyal":"忠臣", "minion":"爪牙"}
-const AVALON_COPY = {
-	"merlin":"你知道邪恶阵营的身份。\n引导三次任务成功，但不要让刺客认出你。",
-	"assassin":"你与邪恶阵营彼此相认。\n让三次任务失败，或在终局刺中梅林。",
-	"loyal":"你不知道其他人的阵营。\n通过讨论与投票，帮助三次任务成功。",
-	"minion":"你与邪恶阵营彼此相认。\n隐藏身份，让三次任务失败。"
+const AVALON_COPY: Dictionary[String, String] = {
+	"merlin": "好人阵营，能看见邪恶玩家。你的目标是让三次远征成功，并隐藏身份，避免被刺客识破。",
+	"assassin": "邪恶阵营，知道邪恶同伴。你的目标是破坏三次远征，或在三次远征成功后刺杀梅林。",
+	"loyal": "好人阵营，无特殊技能。你的目标是让远征成功，防止内鬼破坏远征，并保护梅林。",
+	"minion": "邪恶阵营，知道邪恶同伴。你的目标是隐藏身份，混入远征队伍，让三次远征失败。"
 }
-const PRIVATE_PHASES = ["reveal", "team_vote", "quest", "assassination"]
+const AVALON_PHASES: Dictionary[String, String] = {
+	"team_proposal": "队长提名阶段",
+	"team_vote": "队伍投票阶段",
+	"team_vote_result": "队伍投票结果阶段",
+	"quest": "远征投票阶段",
+	"quest_result": "远征结果阶段",
+	"assassination": "刺杀梅林阶段",
+	"ended": "本局结束"
+}
+const PROLOGUE: Array[String] = [
+	"不列颠的未来寄托于亚瑟王。他象征着繁荣希望。",
+	"然而，在王麾下英勇的战士之中，潜伏着莫德雷德邪恶的追随者。",
+	"唯有梅林能够识破他们的真面目，但他只能隐晦地传递自己的预言。"
+]
+
+@export var player_card_scene: PackedScene
+@export var target_button_scene: PackedScene
+@export var role_entry_scene: PackedScene
+@onready var table_effects: Control = %AvalonTableEffects
+@onready var atmosphere: Control = %AvalonAtmosphere
+var prologue_started: bool = false
 var selected_team: Array[int] = []
-var selected_ballot := -1
-var render_serial := 0
-var status_dock: VBoxContainer
-var atmosphere: Control
-var last_selected_id := -1
-const AtmosphereScript = preload("res://scripts/ui/avalon_atmosphere.gd")
-const OrnamentScript = preload("res://scripts/ui/avalon_card_ornament.gd")
+var selected_ballot: int = -1
+var render_serial: int = 0
+var cards: Dictionary[int, Button] = {}
+var targets: Dictionary[int, Button] = {}
 
 func _ready() -> void:
-	super._ready()
-	# Replace only Avalon's inherited background; Werewolf keeps its original art.
-	for child in get_children():
-		if child is TextureRect:
-			child.texture = load("res://assets/art/avalon_lake.svg")
-			child.name = "AvalonLake"
-			break
-	_ensure_atmosphere()
+	assert(player_card_scene != null and target_button_scene != null and role_entry_scene != null, "阿瓦隆牌桌缺少 UI 预制体")
+	# This scene receives its session from the game or the offline simulator.
+	owns_session = false
+	arena = %Arena
+	stage = %CenterStage
+	subtitles = %WaitingStatus
+	notice_label = %Notice
+	table_effects.ui_font = get_theme_default_font()
+	table_effects.ballot_visibility_changed.connect(_refresh_vote_labels)
+	table_effects.quest_resolved.connect(_play_quest_result)
+	for button: Button in [%Yes, %No, %RoleGuideButton, %Stay]:
+		button.pressed.connect(%UIClick.play)
+	for button: Button in [%Finish, %Leave]:
+		button.pressed.connect(%UIConfirm.play)
+	subtitles.intro_finished.connect(_render)
+	resized.connect(func(): _refresh_effect_layout.call_deferred(render_serial))
+	%Nominate.pressed.connect(_submit_team)
+	%Finish.pressed.connect(_leave)
+	%Yes.pressed.connect(_choose_ballot.bind(1))
+	%No.pressed.connect(_choose_ballot.bind(0))
+	%Confirm.pressed.connect(_confirm_action)
+	%RoleGuideButton.pressed.connect(_show_role_guide)
+	%Stay.pressed.connect(_dismiss_modal)
+	%Leave.pressed.connect(func(): _dismiss_modal(); _leave())
+	for role: String in AVALON_COPY:
+		var entry: VBoxContainer = role_entry_scene.instantiate()
+		%RoleEntries.add_child(entry)
+		entry.get_node("%RoleTitle").text = AVALON_ROLES[role]
+		entry.get_node("%Description").text = AVALON_COPY[role]
+	%Arena.hide()
+	subtitles.text = ""
 
-func _ensure_atmosphere() -> void:
-	if is_instance_valid(atmosphere): return
-	atmosphere = AtmosphereScript.new()
-	atmosphere.name = "AvalonAtmosphere"
-	add_child(atmosphere)
-	move_child(atmosphere, 1)
+## The animation emits this once for a newly revealed public quest result.
+func _play_quest_result(success: bool) -> void:
+	if success:
+		%QuestSuccess.play()
+	else:
+		%QuestFailure.play()
 
 func _sync_atmosphere(key: String) -> void:
-	var phase := str(view.get("phase", ""))
-	var success := true
+	var phase : Variant = str(view.get("phase", ""))
+	var success : Variant = true
 	if phase == "quest_result":
 		success = int(view.get("quest_fail_votes", 0)) < int(view.get("fails_required", 1))
 	elif phase == "ended":
 		success = view.get("winner", "") == "good"
 	atmosphere.present(key, "intro" if round_start else ("exited" if exited else phase), success, reduced_motion)
-
-
-func start_game(roster: Array, local_player_id: int = 1) -> void:
-	if not is_node_ready():
-		standalone_preview = false
-		call_deferred("start_game", roster.duplicate(), local_player_id)
-		return
-	if not owns_session:
-		_on_error("外部会话由派对宿主管理，请由宿主开始新局。")
-		return
-	if roster.size() < 5 or roster.size() > 8 or local_player_id < 1 or local_player_id > roster.size():
-		_on_error("阿瓦隆需要 5–8 位玩家和有效的初始座位。")
-		return
-	var seen: Dictionary = {}
-	for value in roster:
-		var clean = session._clean_name(str(value))
-		if clean.is_empty() or seen.has(clean.to_lower()):
-			_on_error("请为每位玩家填写不同的昵称（1–18 个字符）。")
-			return
-		seen[clean.to_lower()] = true
-	_dismiss_modal()
-	error_text = ""
-	match_serial += 1
-	round_start = true
-	exited = false
-	reported_end = false
-	authorized_viewer = -1
-	authorized_phase = ""
-	peek_identity = false
-	selected_team.clear()
-	selected_ballot = -1
-	selected_target = -2
-	last_phase = ""
-	table_viewer_id = local_player_id
-	session.start_local(roster, "avalon")
-	if session.mode == "local":
-		local_names = roster.duplicate()
-		local_count = roster.size()
-		session.set_local_viewer(local_player_id)
-	_render()
 
 func bind_session(external_session: Node) -> void:
 	if is_instance_valid(external_session) and external_session is SessionScript and external_session.game_id != "avalon":
@@ -90,168 +90,224 @@ func bind_session(external_session: Node) -> void:
 		return
 	selected_team.clear()
 	selected_ballot = -1
-	if is_node_ready(): _dismiss_modal()
+	prologue_started = false
+	if is_node_ready():
+		%QuestSuccess.stop()
+		%QuestFailure.stop()
+		subtitles.reset()
+		if is_instance_valid(table_effects): table_effects.reset()
+		_dismiss_modal()
 	super.bind_session(external_session)
 
-func _preset_text(count: int) -> String:
-	var evil = 3 if count >= 7 else 2
-	return "%d 位好人 · %d 位坏人\n含梅林与刺客" % [count - evil, evil]
-
 func _on_view(snapshot: Dictionary) -> void:
-	var previous_phase = str(view.get("phase", ""))
-	var previous_leader = int(view.get("leader_id", -1))
+	var previous_phase: Variant = str(view.get("phase", ""))
+	var previous_leader: Variant = int(view.get("leader_id", -1))
 	if snapshot.get("self_id", -1) != view.get("self_id", -1):
 		selected_target = -2
 		selected_ballot = -1
-		authorized_viewer = -1
 	view = snapshot
-	var phase = str(view.get("phase", ""))
+	var phase: Variant = str(view.get("phase", ""))
 	if phase != last_phase:
 		selected_target = -2
 		selected_ballot = -1
-		authorized_viewer = -1
-		role_visible = false
 		last_phase = phase
-		peek_identity = false
 	if previous_phase != phase or previous_leader != int(view.get("leader_id", -1)):
 		selected_team.clear()
+	if not prologue_started and not view.is_empty():
+		prologue_started = true
+		if phase != "ended" and not view.get("cancelled", false):
+			subtitles.begin_intro(PROLOGUE)
 	page = "game"
-	if not exited and session.mode == "local" and not peek_identity:
-		if phase in PRIVATE_PHASES:
-			var pending: Array = session.pending_local_ids()
-			if not pending.is_empty() and not pending.has(session.self_id):
-				session.set_local_viewer(int(pending[0]))
-				return
-		elif phase == "team_proposal":
-			var leader = int(view.get("leader_id", -1))
-			if not _player(leader).is_empty() and session.self_id != leader:
-				session.set_local_viewer(leader)
-				return
-		elif phase in ["team_vote_result", "quest_result", "ended"]:
-			if not _player(table_viewer_id).is_empty() and session.self_id != table_viewer_id:
-				session.set_local_viewer(table_viewer_id)
-				return
 	_render()
 	if phase == "ended" and not reported_end and not exited:
 		reported_end = true
 		finished.emit(view.duplicate(true))
 
-func _narration() -> Array[String]:
-	if exited: return ["此夜的远征已落幕", "期待下一场月下相聚。"]
-	if round_start: return ["月下圆桌", "阿瓦隆的远征，即将启程"]
-	match str(view.get("phase", "")):
-		"reveal": return ["在故事开始之前", "请记住你的秘密身份"]
-		"team_proposal": return ["第 %d 次远征" % int(view.get("quest_number", view.get("round", 1))), "由「%s」提名同行者" % _player_name(int(view.get("leader_id", -1)))]
-		"team_vote": return ["这支队伍，值得信任吗？", "每个人，秘密作出选择"]
-		"team_vote_result": return ["圆桌已作出选择", "提案通过，准备出征" if view.get("team_approved", false) else "提案未通过，队长顺位轮换"]
-		"quest": return ["远征已经启程", "让选择，留在任务卡背后"]
-		"quest_result": return ["远征的消息传回圆桌", str(view.get("last_result", "任务已经揭晓"))]
-		"assassination": return ["三次远征成功", "但命运，仍握在刺客手中"]
-		"ended": return ["圣杯之光不灭，好人获胜" if view.get("winner", "") == "good" else "暗影笼罩圆桌，邪恶获胜", str(view.get("last_result", "身份已全部揭晓"))]
-	return ["等待阿瓦隆对局开始"]
-
+## Bind fixed scene nodes in place so snapshot refreshes retain focus and animation clocks.
 func _render() -> void:
-	if not is_node_ready(): return
+	if not is_node_ready():
+		return
 	render_serial += 1
-	_ensure_atmosphere()
-	var art_key = "%d/%s/%s/%s/%s/%s" % [match_serial, view.get("round", 0), view.get("phase", ""), view.get("leader_id", 0), round_start, exited]
-	_sync_atmosphere(art_key)
-	if is_instance_valid(private_panel):
-		remove_child(private_panel)
-		private_panel.queue_free()
-		private_panel = null
-	if is_instance_valid(shell):
-		remove_child(shell)
-		shell.queue_free()
-	shell = MarginContainer.new()
-	shell.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	shell.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(shell)
-	arena = Control.new()
-	arena.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	shell.add_child(arena)
-	_perimeter()
-	root_box = _bottom_dock("ActionDock", 112, 440)
-	if exited:
-		if standalone_preview: root_box.add_child(_guarded_button("再来一局  →", func(): start_game(local_names), true))
-	elif round_start and not view.is_empty():
-		_label(_preset_text(view.get("players", []).size()), 16, TEAL, root_box)
-		root_box.add_child(_guarded_button("开始本局，分发身份  →", func(): round_start = false; _render(), true))
-	else: _game()
-	if view.get("quest_sizes", []).size() == 5 and not view.get("phase", "") in ["", "lobby", "connecting"] and not exited:
-		status_dock = _bottom_dock("QuestStatus", -440, -112)
-		_status_board(status_dock)
-	notice_label = _label(error_text, 14, Color("#e9ad99"), root_box)
+	var phase: String = str(view.get("phase", ""))
+	var active: bool = AVALON_PHASES.has(phase) and not exited
+	arena.visible = active or exited or not error_text.is_empty()
+	%RoundPhaseDock.visible = active
+	%QuestStatus.visible = active
+	%RoleGuideButton.visible = active
+	%Seats.visible = active
+	%IdentityDock.visible = active and AVALON_COPY.has(str(view.get("your_role", "")))
+	%ActionPanel.hide()
+	%Nominate.hide()
+	%Finish.hide()
+	%DockMessage.hide()
+	notice_label.text = error_text
 	notice_label.visible = not error_text.is_empty()
-	var key = "%d/%s/%s/%s/%s/%s" % [match_serial, view.get("round", 0), view.get("phase", ""), view.get("leader_id", 0), round_start, exited]
-	subtitles.reduced_motion = reduced_motion
-	subtitles.play(key, _narration())
+	var key: String = "%d/%s/%s/%s/%s/%s" % [match_serial, view.get("round", 0), phase, view.get("leader_id", 0), round_start, exited]
 	_sync_atmosphere(key)
-	if is_instance_valid(modal): move_child(modal, -1)
+	table_effects.present(view, selected_team, reduced_motion, active and not subtitles.intro_active)
+	_sync_seats(active)
+	_refresh_vote_labels()
+	if active:
+		%Round.text = "%d/5 回合" % view.quest_number
+		%Phase.text = AVALON_PHASES[phase]
+		if %IdentityDock.visible:
+			%Role.text = AVALON_ROLES[view.your_role]
+			%RoleDescription.text = AVALON_COPY[view.your_role]
+		_bind_quest_status()
+		if not subtitles.intro_active:
+			_bind_actions(phase)
+	_present_subtitles()
+	_refresh_effect_layout.call_deferred(render_serial)
 
-func _bottom_dock(node_name: String, left: float, right: float) -> VBoxContainer:
-	var dock = VBoxContainer.new()
-	dock.name = node_name
-	dock.anchor_left = .5
-	dock.anchor_right = .5
-	dock.anchor_top = 1.0
-	dock.anchor_bottom = 1.0
-	dock.offset_left = left
-	dock.offset_right = right
-	dock.offset_top = -174
-	dock.offset_bottom = -20
-	dock.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	dock.add_theme_constant_override("separation", 7)
-	arena.add_child(dock)
-	return dock
+func _bind_quest_status() -> void:
+	%LeaderSummary.text = "队长：%s · 连拒 %d / 5" % [_player_name(view.leader_id), view.rejection_count]
+	%QuestRule.text = "本次 %d 人出征 · %d 张失败票判失败" % [_quest_size(), view.fails_required]
+	var numbers: PackedStringArray = []
+	for id: int in view.team:
+		numbers.append("%02d" % _seat_number(id))
+	var summary: String = ""
+	if not numbers.is_empty():
+		summary = "提名座位：" + " · ".join(numbers)
+	elif view.players.size() >= 7:
+		summary = "第 4 次任务需要 2 张失败票才失败"
+	%TeamSummary.text = summary
+	%TeamSummary.visible = not summary.is_empty()
 
-func _status_board(parent: Node) -> void:
-	var sizes: Array = view.get("quest_sizes", [])
-	var results: Array = view.get("quest_results", [])
-	var track = _row(parent, 8)
-	for i in 5:
-		var result = results[i] if i < results.size() else null
-		var token = "○"
-		var color = MUTED
-		if result != null:
-			var success = bool(result.get("success", false)) if result is Dictionary else bool(result)
-			token = "✓" if success else "×"
-			color = TEAL if success else Color("#e9ad99")
-		var size_text = str(sizes[i]) if i < sizes.size() else "?"
-		var text = _label("%d · %s\n%s 人" % [i+1, token, size_text], 14, color, track)
-		text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		text.autowrap_mode = TextServer.AUTOWRAP_OFF
-	_label("队长：%s · 连拒 %d / 5" % [_player_name(int(view.get("leader_id", -1))), int(view.get("rejection_count", 0))], 15, GOLD, parent)
-	_label("本次 %d 人出征 · %d 张失败票判失败" % [_quest_size(), int(view.get("fails_required", 1))], 14, PAPER, parent)
-	var team: Array = view.get("team", [])
-	if not team.is_empty():
-		var numbers = PackedStringArray()
-		for id in team: numbers.append("%02d" % _seat_number(int(id)))
-		_label("提名座位：" + " · ".join(numbers), 13, MUTED, parent)
-	elif view.get("players", []).size() >= 7:
-		_label("第 4 次任务需要 2 张失败票才失败", 13, MUTED, parent)
+func _dock_message(message: String) -> void:
+	%DockMessage.text = message
+	%DockMessage.show()
+
+func _bind_actions(phase: String) -> void:
+	if phase == "ended":
+		var winner: String = "正义阵营获胜" if view.winner == "good" else "邪恶阵营获胜"
+		_dock_message(winner + " · 即将返回大游戏结算")
+		%Finish.visible = session.is_host
+		return
+	if session.self_id <= 0:
+		_dock_message("观战中 · 仅显示公开信息")
+		return
+	match phase:
+		"team_proposal":
+			if view.leader_id == session.self_id:
+				_dock_message("队长选人：%d / %d · 可以选择自己" % [selected_team.size(), _quest_size()])
+				%Nominate.show()
+				%Nominate.disabled = selected_team.size() != _quest_size()
+			else:
+				_dock_message("等待队长「%s」提名队伍" % _player_name(view.leader_id))
+		"team_vote", "quest", "assassination":
+			if session.self_id in view.submitted_ids:
+				_dock_message("你的选择已收好。\n等待其他玩家完成。")
+			elif (phase == "quest" and session.self_id not in view.team) or (phase == "assassination" and view.your_role != "assassin"):
+				_dock_message("请等待本轮行动完成。")
+			else:
+				_bind_action_panel(phase)
+
+func _bind_action_panel(phase: String) -> void:
+	var assassinating: bool = phase == "assassination"
+	%ActionPanel.show()
+	%Targets.visible = assassinating
+	%TeamNames.visible = not assassinating
+	%Choices.visible = not assassinating
+	%ChoiceHint.visible = not assassinating
+	if assassinating:
+		%ActionTitle.text = "最后的一次猜测"
+		%ActionDescription.text = "选择一位好人，再确认刺杀。这里不会标明梅林。"
+		_sync_targets()
+		%Confirm.text = "确认刺杀，揭晓终局  →"
+		%Confirm.disabled = selected_target < 0
+		return
+	var public_vote: bool = phase == "team_vote"
+	%ActionTitle.text = "请投下你的队伍票" if public_vote else "请放下你的任务卡"
+	%ActionDescription.text = "所有人投票后，队伍票将统一翻开。" if public_vote else "任务卡只公开成功 / 失败总数，不公开谁投了哪张。"
+	var names: PackedStringArray = []
+	for id: int in view.team:
+		names.append("%02d · %s" % [_seat_number(id), _player_name(id)])
+	%TeamNames.text = "远征队伍：" + "、".join(names)
+	%No.visible = public_vote or view.your_role in ["assassin", "minion"]
+	%GoodOnly.visible = not %No.visible
+	%Yes.text = ("赞成队伍" if public_vote else "任务成功") + (" ✓" if selected_ballot == 1 else "")
+	%No.text = ("反对队伍" if public_vote else "任务失败") + (" ✓" if selected_ballot == 0 else "")
+	%Yes.theme_type_variation = &"Primary" if selected_ballot == 1 else &""
+	%No.theme_type_variation = &"Primary" if selected_ballot == 0 else &""
+	%ChoiceHint.text = "尚未选择" if selected_ballot < 0 else "已经选择，确认后不可修改。"
+	%Confirm.text = "确认投票  →"
+	%Confirm.disabled = selected_ballot < 0
+
+func _choose_ballot(value: int) -> void:
+	selected_ballot = value
+	_render()
+
+func _confirm_action() -> void:
+	match str(view.phase):
+		"assassination":
+			if selected_target >= 0:
+				_submit_action("assassinate", selected_target)
+		"team_vote", "quest":
+			if selected_ballot >= 0:
+				_submit_action("team_vote" if view.phase == "team_vote" else "quest_vote", selected_ballot)
+
+func _sync_targets() -> void:
+	var eligible: Array[int] = []
+	for player: Dictionary in view.players:
+		var id: int = player.id
+		if id == session.self_id or id in view.your_allies:
+			continue
+		eligible.append(id)
+		if not targets.has(id):
+			var button: Button = target_button_scene.instantiate()
+			button.name = "AssassinationTarget%d" % id
+			%Targets.add_child(button)
+			button.pressed.connect(_choose_target.bind(id))
+			targets[id] = button
+		var target: Button = targets[id]
+		target.set_pressed_no_signal(selected_target == id)
+		target.text = "%02d · %s%s" % [_seat_number(id), player.name, " ✓" if selected_target == id else ""]
+		target.theme_type_variation = &"Primary" if selected_target == id else &""
+	for id: int in targets.keys():
+		if id not in eligible:
+			%Targets.remove_child(targets[id])
+			targets[id].queue_free()
+			targets.erase(id)
+
+func _choose_target(id: int) -> void:
+	%UIClick.play()
+	selected_target = id
+	_render()
+
+func _show_role_guide() -> void:
+	_open_dialog(true)
+
+func _request_leave() -> void:
+	_open_dialog(false)
+
+func _open_dialog(guide: bool) -> void:
+	modal = %Dialog
+	%DialogTitle.text = "身份百科" if guide else "结束这场远征？"
+	%DialogDescription.text = "了解各身份的能力与目标" if guide else "退出将取消本局身份游戏，其他玩家不计胜负；由大游戏处理后续轮换。"
+	%RoleEntries.visible = guide
+	%Stay.text = "关闭" if guide else "继续游戏"
+	%Leave.visible = not guide
+	modal.show()
+	%Stay.grab_focus()
+
+func _dismiss_modal() -> void:
+	%Dialog.hide()
+	modal = null
 
 func _quest_size() -> int:
 	if view.has("quest_size"): return int(view.quest_size)
 	var sizes: Array = view.get("quest_sizes", [])
-	var index = int(view.get("quest_number", view.get("round", 1))) - 1
+	var index: Variant = int(view.get("quest_number", view.get("round", 1))) - 1
 	return int(sizes[index]) if index >= 0 and index < sizes.size() else 0
 
 func _seat_number(id: int) -> int:
-	for i in view.get("players", []).size():
+	for i: Variant in view.get("players", []).size():
 		if int(view.players[i].id) == id: return i + 1
 	return id
 
-## Bind each callback to one rendered view, so stale or repeated clicks cannot
-## submit another hot-seat player's action or advance two public phases.
-func _guarded_button(text: String, callback: Callable, primary: bool = false, minimum: Vector2 = Vector2(0, 44)) -> Button:
-	var serial = render_serial
-	return _button(text, func():
-		if serial == render_serial:
-			callback.call(), primary, minimum)
-
 func _can_select(p: Dictionary) -> bool:
-	if p.is_empty() or round_start or exited or peek_identity: return false
+	if session.self_id <= 0: return false
+	if p.is_empty() or round_start or exited or subtitles.intro_active: return false
 	if view.get("phase", "") != "team_proposal": return false
 	return int(view.get("leader_id", -1)) == session.self_id and not _player(int(p.id)).is_empty()
 
@@ -262,309 +318,140 @@ func _toggle_team(id: int) -> void:
 	else:
 		_on_error("队伍已满，请先取消一位队员。")
 		return
+	%UIClick.play()
 	error_text = ""
-	last_selected_id = id if selected_team.has(id) else -1
 	_render()
 	if selected_team.has(id): call_deferred("_selection_flourish", id, render_serial)
-	last_selected_id = -1
+
+
 
 func _selection_flourish(id: int, serial: int) -> void:
-	# Containers finish their layout after the rebuild. A stale deferred effect
-	# must never appear after a phase change, handoff, or a newer selection.
-	if serial != render_serial or not selected_team.has(id): return
-	var seat = arena.get_node_or_null("Seat%d" % id)
-	if is_instance_valid(seat):
-		atmosphere.select_at(seat.get_global_rect().get_center() - atmosphere.global_position)
+	if serial == render_serial and id in selected_team:
+		atmosphere.select_at(cards[id].get_global_rect().get_center() - atmosphere.global_position)
 
-func _perimeter() -> void:
-	if view.get("phase", "") in ["", "lobby", "connecting"]: return
+## A roster change creates or removes seats. Other updates reuse their instances.
+func _sync_seats(active: bool) -> void:
 	var players: Array = view.get("players", [])
-	if players.size() < 5 or players.size() > 8: return
-	var positions: Array = {
-		5: [Vector2(.37,0), Vector2(.63,0), Vector2(0,.5), Vector2(1,.5)],
-		6: [Vector2(.30,0), Vector2(.50,0), Vector2(.70,0), Vector2(0,.5), Vector2(1,.5)],
-		7: [Vector2(.37,0), Vector2(.63,0), Vector2(0,.34), Vector2(0,.66), Vector2(1,.34), Vector2(1,.66)],
-		8: [Vector2(.30,0), Vector2(.50,0), Vector2(.70,0), Vector2(0,.34), Vector2(0,.66), Vector2(1,.34), Vector2(1,.66)]
-	}.get(players.size(), [])
-	var viewer = int(view.get("self_id", session.self_id))
-	if _player(viewer).is_empty(): return
-	var other_index = 0
-	for i in players.size():
-		var p: Dictionary = players[i]
-		var id = int(p.id)
-		var is_self = id == viewer
-		var pos = Vector2(.5, 1) if is_self else positions[other_index]
-		if not is_self: other_index += 1
-		var selected = selected_team.has(id)
-		var eligible = _can_select(p)
-		var proposed = view.get("team", []).has(id)
-		var box = Button.new()
-		box.name = "Seat%d" % id
-		box.set_meta("player_id", id)
-		box.set_meta("is_self", is_self)
-		box.disabled = not eligible
-		box.focus_mode = Control.FOCUS_ALL if eligible else Control.FOCUS_NONE
-		box.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if eligible else Control.CURSOR_ARROW
-		box.tooltip_text = "点击选择或取消「%s」，选满后在下方确认" % str(p.name) if eligible else ""
-		var serial = render_serial
-		box.pressed.connect(func():
-			if serial == render_serial: _toggle_team(id))
-		box.anchor_left = pos.x
-		box.anchor_right = pos.x
-		box.anchor_top = pos.y
-		box.anchor_bottom = pos.y
-		box.offset_left = -83
-		box.offset_right = 83
-		box.offset_top = -70
-		box.offset_bottom = 70
-		if pos.x == 0:
-			box.offset_left = 20
-			box.offset_right = 186
-		elif pos.x == 1:
-			box.offset_left = -186
-			box.offset_right = -20
-		if pos.y == 0:
-			box.offset_top = 20
-			box.offset_bottom = 160
-		elif pos.y == 1:
-			box.offset_top = -160
-			box.offset_bottom = -20
-		var card_style = _style(Color("#243b3e") if selected else Color("#10282f"), GOLD if selected or is_self else (TEAL if proposed else Color("#4a6263")), 5, 10)
-		for state in ["normal", "disabled"]: box.add_theme_stylebox_override(state, card_style)
-		box.add_theme_stylebox_override("hover", _style(Color("#294449"), GOLD, 5, 10))
-		box.add_theme_stylebox_override("pressed", _style(Color("#263f42"), GOLD, 5, 10))
-		box.add_theme_stylebox_override("focus", _style(Color.TRANSPARENT, PAPER, 5, 10))
-		arena.add_child(box)
-		var inset = MarginContainer.new()
-		inset.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		for side in ["left", "right", "top", "bottom"]: inset.add_theme_constant_override("margin_" + side, 10)
-		box.add_child(inset)
-		var v = VBoxContainer.new()
-		v.add_theme_constant_override("separation", 3)
-		inset.add_child(v)
-		var line = _row(v, 8)
-		_label("%02d%s" % [i+1, " · 你" if is_self else ""], 15, GOLD, line)
-		_label("队长" if int(view.get("leader_id", -1)) == id else "在席", 12, TEAL, line).horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		var portrait = TextureRect.new()
-		var portrait_role = str(p.get("role", "knight")) if view.get("phase", "") == "ended" else "knight"
-		portrait.texture = load("res://assets/art/avalon_%s.svg" % portrait_role)
-		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		portrait.custom_minimum_size.y = 42
-		v.add_child(portrait)
-		var name_label = _label(str(p.name), 17, PAPER, v)
-		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		name_label.autowrap_mode = TextServer.AUTOWRAP_OFF
-		name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		name_label.custom_minimum_size.x = 140
-		var footer = "身份未揭晓"
-		var tint = MUTED
-		if view.get("phase", "") == "ended":
-			footer = AVALON_ROLES.get(str(p.get("role", "")), "")
-			tint = GOLD
-		elif eligible:
-			footer = "已选择 ✓" if selected else "点击加入队伍"
-			tint = GOLD if selected else TEAL
-		elif view.get("phase", "") == "team_vote_result":
-			var votes: Dictionary = view.get("team_votes", {})
-			var vote = votes.get(id, votes.get(str(id), null))
-			if vote != null:
-				footer = "赞成 ✓" if int(vote) == 1 else "反对 ×"
-				tint = TEAL if int(vote) == 1 else Color("#e9ad99")
-		elif proposed:
-			footer = "远征队员"
-			tint = TEAL
-		_label(footer, 11, tint, v).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		var ornament = OrnamentScript.new()
-		ornament.name = "HeraldicOrnament"
-		ornament.selected = selected
-		ornament.proposed = proposed
-		ornament.leader = int(view.get("leader_id", -1)) == id
-		ornament.reduced_motion = reduced_motion
-		ornament.reveal_age = 0.0 if last_selected_id == id else 5.0
-		if view.get("phase", "") == "team_vote_result":
-			var public_votes: Dictionary = view.get("team_votes", {})
-			ornament.ballot = int(public_votes.get(id, public_votes.get(str(id), -1)))
-			ornament.reveal_age = atmosphere.phase_age - i * .07
-		box.add_child(ornament)
-		box.mouse_entered.connect(func(): ornament.set_hover(true))
-		box.mouse_exited.connect(func(): ornament.set_hover(false))
-		box.focus_entered.connect(func(): ornament.set_hover(true))
-		box.focus_exited.connect(func(): ornament.set_hover(false))
-		_ignore_card_children(box)
+	var layout: Array = []
+	if active and not _player(int(view.self_id)).is_empty():
+		layout = {5: [Vector2(.37,0), Vector2(.63,0), Vector2(0,.5), Vector2(1,.5)],
+			6: [Vector2(.30,0), Vector2(.50,0), Vector2(.70,0), Vector2(0,.5), Vector2(1,.5)],
+			7: [Vector2(.37,0), Vector2(.63,0), Vector2(0,.34), Vector2(0,.66), Vector2(1,.34), Vector2(1,.66)],
+			8: [Vector2(.30,0), Vector2(.50,0), Vector2(.70,0), Vector2(0,.34), Vector2(0,.66), Vector2(1,.34), Vector2(1,.66)]}[players.size()]
+	var occupied: Array[int] = []
+	if not layout.is_empty():
+		var other_index: int = 0
+		for index: int in players.size():
+			var player: Dictionary = players[index]
+			var id: int = player.id
+			occupied.append(id)
+			if not cards.has(id):
+				var seat: Button = player_card_scene.instantiate()
+				seat.name = "Seat%d" % id
+				%Seats.add_child(seat)
+				seat.pressed.connect(_toggle_team.bind(id))
+				cards[id] = seat
+			var position_on_table: Vector2 = Vector2(.5, 1)
+			if id != view.self_id:
+				position_on_table = layout[other_index]
+				other_index += 1
+			cards[id].place(position_on_table)
+			cards[id].bind_player(player, index + 1, view, _visible_identity(player), _can_select(player), id in selected_team, reduced_motion)
+	for id: int in cards.keys():
+		if id not in occupied:
+			%Seats.remove_child(cards[id])
+			cards[id].queue_free()
+			cards.erase(id)
 
-func _game() -> void:
-	var phase = str(view.get("phase", ""))
-	if phase in ["", "lobby", "connecting"]: return
-	if phase == "ended":
-		_label("好人获胜" if view.get("winner", "") == "good" else "邪恶获胜", 18, GOLD, root_box)
-		if standalone_preview: root_box.add_child(_guarded_button("再来一局  →", func(): start_game(local_names), true))
-		root_box.add_child(_guarded_button("结束本局", _leave))
-		return
-	if peek_identity:
-		if not _authorized(): _handoff()
-		else: _identity()
-		return
-	if phase in PRIVATE_PHASES:
-		var needs_action = not view.get("submitted_ids", []).has(session.self_id)
-		if phase == "quest": needs_action = needs_action and view.get("team", []).has(session.self_id)
-		if phase == "assassination": needs_action = str(view.get("your_role", "")) == "assassin"
-		if not needs_action:
-			_label("你的选择已收好。\n等待其他玩家完成。" if view.get("submitted_ids", []).has(session.self_id) else "请等待本轮行动完成。", 17, MUTED, root_box)
-			return
-		if not _authorized(): _handoff()
-		elif phase == "reveal": _identity()
-		else: _private_action()
-		return
-	_public_board(root_box)
+func _waiting_text() -> String:
+	match str(view.get("phase", "")):
+		"team_proposal":
+			return "等待队长「%s」选择队员" % _player_name(int(view.get("leader_id", -1)))
+		"team_vote":
+			return "等待全体玩家完成队伍投票 · 已完成 %d/%d" % [view.get("submitted_ids", []).size(), view.get("players", []).size()]
+		"quest":
+			return "等待远征队员提交任务牌"
+		"assassination":
+			return "等待刺客选择目标"
+		"team_vote_result":
+			return "%s · 赞成 %d / 反对 %d\n3 秒后自动继续" % ["提案通过" if view.get("team_approved", false) else "提案未通过", int(view.get("team_approve_count", 0)), int(view.get("team_reject_count", 0))]
+		"quest_result":
+			return "%s · 成功 %d 张 / 失败 %d 张\n3 秒后自动继续" % ["远征成功" if int(view.get("quest_fail_votes", 0)) < int(view.get("fails_required", 1)) else "远征失败", int(view.get("quest_success_votes", 0)), int(view.get("quest_fail_votes", 0))]
+	return ""
 
-func _authorized() -> bool:
-	return authorized_viewer == session.self_id and authorized_phase == str(view.get("phase", ""))
+func _present_subtitles() -> void:
+	subtitles.reduced_motion = reduced_motion
+	var caption_parent: Control = %IntroCaptionArea if subtitles.intro_active else stage
+	if subtitles.get_parent() != caption_parent:
+		subtitles.reparent(caption_parent, false)
+	subtitles.add_theme_font_size_override("font_size", 40 if subtitles.intro_active else 30)
+	var message: String = _waiting_text()
+	if exited:
+		message = "此夜的远征已落幕"
+	elif view.get("phase", "") == "ended":
+		message = ("圣杯之光不灭，好人获胜" if view.get("winner", "") == "good" else "暗影笼罩圆桌，邪恶获胜") + "\n" + str(view.get("last_result", ""))
+	var key: String = "%d/%s/%s/%s/%s" % [match_serial, view.get("epoch", 0), view.get("phase", ""), exited, message]
+	subtitles.present(key, message)
 
-func _handoff() -> void:
-	_label("请将屏幕交给「%s」" % _player_name(session.self_id), 18, PAPER, root_box)
-	_label("确认无人旁观，再打开私密页面。", 14, MUTED, root_box)
-	root_box.add_child(_guarded_button("确认是我，打开私密页面  →", func(): authorized_viewer = session.self_id; authorized_phase = str(view.phase); _render(), true))
-	if peek_identity: root_box.add_child(_guarded_button("返回公共讨论", _close_peek))
-
-func _open_private_panel() -> VBoxContainer:
-	private_panel = ColorRect.new()
-	private_panel.name = "OpaquePrivatePanel"
-	private_panel.color = Color("#0a1d24")
-	private_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(private_panel)
-	# The private scene is opaque FIRST; decorative moonlight contains no role data.
-	var moonlight = TextureRect.new()
-	moonlight.name = "AbbeyMoonlight"
-	moonlight.texture = preload("res://assets/art/avalon_light_masks/window_j_blur.png")
-	moonlight.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	moonlight.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	moonlight.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	moonlight.modulate = Color(.48, .8, .78, .07)
-	moonlight.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	private_panel.add_child(moonlight)
-	var center = CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	private_panel.add_child(center)
-	var content = VBoxContainer.new()
-	content.custom_minimum_size = Vector2(760, 400)
-	center.add_child(content)
-	_label(_player_name(session.self_id) + "  /  仅你可见", 15, GOLD, content)
-	return content
-
-func _role_art(role: String, minimum: Vector2) -> TextureRect:
-	var art = TextureRect.new()
-	art.texture = load("res://assets/art/avalon_%s.svg" % role)
-	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	art.custom_minimum_size = minimum
-	return art
-
-func _identity() -> void:
-	root_box = _open_private_panel()
-	var role = str(view.get("your_role", "loyal"))
-	var row = _row(root_box, 28)
-	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	row.add_child(_role_art(role, Vector2(200, 240)))
-	var words = VBoxContainer.new()
-	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(words)
-	_title("你是，" + AVALON_ROLES.get(role, "忠臣"), 36, words)
-	_label(AVALON_COPY.get(role, ""), 18, MUTED, words)
-	var known: Array = view.get("known_evil", []) if role == "merlin" else view.get("your_allies", [])
-	if role in ["merlin", "assassin", "minion"] and not known.is_empty():
-		var names = PackedStringArray()
-		for id in known: names.append("%02d · %s" % [_seat_number(int(id)), _player_name(int(id))])
-		_label(("你看见的邪恶阵营：\n" if role == "merlin" else "你的邪恶同伴：\n") + "、".join(names), 18, GOLD, words)
-	root_box.add_child(_guarded_button("收起秘密，返回讨论  →" if peek_identity else "记住身份，收起卡牌  →", _close_peek if peek_identity else func(): _submit_action("reveal_ack"), true))
-
-func _private_action() -> void:
-	root_box = _open_private_panel()
-	var phase = str(view.get("phase", ""))
-	if phase == "assassination":
-		_title("最后的一次猜测", 32, root_box)
-		_label("选择一位好人，再确认刺杀。这里不会标明梅林。", 18, MUTED, root_box)
-		var targets = GridContainer.new()
-		targets.columns = 3
-		root_box.add_child(targets)
-		var allies: Array = view.get("your_allies", [])
-		for p in view.get("players", []):
-			var id = int(p.id)
-			if id == session.self_id or allies.has(id): continue
-			var target = _guarded_button("%02d · %s%s" % [_seat_number(id), str(p.name), " ✓" if selected_target == id else ""], func(): selected_target = id; _render(), selected_target == id, Vector2(236, 70))
-			target.name = "AssassinationTarget%d" % id
-			targets.add_child(target)
-		_spacer(root_box)
-		var confirm = _guarded_button("确认刺杀，揭晓终局  →", func(): _submit_action("assassinate", selected_target), true)
-		confirm.disabled = selected_target < 0
-		root_box.add_child(confirm)
-		return
-	_title("请投下你的队伍票" if phase == "team_vote" else "请放下你的任务卡", 32, root_box)
-	_label("所有人投票后，队伍票将逐人公开。" if phase == "team_vote" else "任务卡只公开成功 / 失败总数，不公开谁投了哪张。", 18, MUTED, root_box)
-	var team_names = PackedStringArray()
-	for id in view.get("team", []): team_names.append("%02d · %s" % [_seat_number(int(id)), _player_name(int(id))])
-	_label("远征队伍：" + "、".join(team_names), 17, TEAL, root_box)
-	var choices = _row(root_box, 20)
-	var yes = _guarded_button(("赞成队伍" if phase == "team_vote" else "任务成功") + (" ✓" if selected_ballot == 1 else ""), func(): selected_ballot = 1; _render(), selected_ballot == 1, Vector2(360, 100))
-	choices.add_child(yes)
-	if phase == "team_vote" or view.get("your_role", "") in ["assassin", "minion"]:
-		choices.add_child(_guarded_button(("反对队伍" if phase == "team_vote" else "任务失败") + (" ✓" if selected_ballot == 0 else ""), func(): selected_ballot = 0; _render(), selected_ballot == 0, Vector2(360, 100)))
-	elif phase == "quest":
-		_label("好人只能选择任务成功。", 17, TEAL, root_box)
-	_spacer(root_box)
-	_label("尚未选择" if selected_ballot < 0 else "已经选择，确认后不可修改。", 16, GOLD, root_box)
-	var confirm = _guarded_button("确认投票，收起私密页面  →", func(): _submit_action("team_vote" if phase == "team_vote" else "quest_vote", selected_ballot), true)
-	confirm.disabled = selected_ballot < 0
-	root_box.add_child(confirm)
-
-func _public_board(parent: Node) -> void:
-	var phase = str(view.get("phase", ""))
-	if phase == "team_proposal":
-		if int(view.get("leader_id", -1)) == session.self_id:
-			_label("队长选人：%d / %d · 可以选择自己" % [selected_team.size(), _quest_size()], 17, PAPER, parent)
-			var confirm = _guarded_button("确认提名，开始队伍投票  →", _submit_team, true)
-			confirm.disabled = selected_team.size() != _quest_size()
-			parent.add_child(confirm)
-		else:
-			_label("等待队长「%s」提名队伍" % _player_name(int(view.get("leader_id", -1))), 17, MUTED, parent)
-		parent.add_child(_guarded_button("私密查阅身份", _choose_peek if session.mode == "local" else func(): peek_identity = true; authorized_viewer = -1; _render(), false, Vector2(0, 36)))
-		return
-	if phase == "team_vote_result":
-		var approved = 0
-		for vote in view.get("team_votes", {}).values():
-			if int(vote) == 1: approved += 1
-		_label("赞成 %d · 反对 %d\n每位玩家的队伍票已显示在卡片上" % [approved, view.get("players", []).size() - approved], 15, PAPER, parent)
-	elif phase == "quest_result":
-		_label("成功 %d 张 · 失败 %d 张\n任务卡匿名结算，不公开投票人" % [int(view.get("quest_success_votes", 0)), int(view.get("quest_fail_votes", 0))], 16, PAPER, parent)
-	if session.is_host or session.mode == "local":
-		var next = "开启任务" if phase == "team_vote_result" and view.get("team_approved", false) else "继续远征"
-		parent.add_child(_guarded_button(next + "  →", func(): error_text = ""; session.advance(), true))
-	else:
-		_label("等待房主推进阶段…", 16, MUTED, parent)
+func _visible_identity(player: Dictionary) -> String:
+	var id: int = int(player.id)
+	if view.get("phase", "") == "ended":
+		return str(AVALON_ROLES.get(str(player.get("role", "")), "身份未知"))
+	var role: String = str(view.get("your_role", ""))
+	if id == session.self_id:
+		return str(AVALON_ROLES.get(role, "身份未知"))
+	if role == "merlin" and view.get("known_evil", []).has(id):
+		return "邪恶阵营"
+	if role in ["assassin", "minion"] and view.get("your_allies", []).has(id):
+		return "邪恶同伴"
+	return "身份未知"
 
 func _submit_team() -> void:
 	if view.get("phase", "") != "team_proposal" or session.self_id != int(view.get("leader_id", -1)) or selected_team.size() != _quest_size(): return
 	error_text = ""
-	var team = selected_team.duplicate()
+	%UIConfirm.play()
+	var team: Variant = selected_team.duplicate()
 	session.submit("propose_team", team)
 
 func _submit_action(action: String, target: int = -1) -> void:
-	if not _authorized(): return
+	if subtitles.intro_active or session.self_id <= 0 or str(view.get("phase", "")) not in ["team_vote", "quest", "assassination"]: return
 	error_text = ""
-	authorized_viewer = -1
 	selected_target = -2
 	selected_ballot = -1
+	%UIConfirm.play()
 	session.submit(action, target)
-	# Invalid submissions also close the secret page; never leave a stale ballot up.
-	if is_instance_valid(private_panel): _render()
+	# Clear the local choice after sending; server snapshots decide the next phase.
+	_render()
 
-func _choose_peek() -> void:
-	_show_modal("谁要查阅秘密？", "仅对应玩家可操作。查阅结束后，请收起秘密再交回设备。", [])
-	var content = modal.get_meta("content") as VBoxContainer
-	for p in view.get("players", []):
-		var id = int(p.id)
-		content.add_child(_guarded_button(str(p.name), func(): _dismiss_modal(); peek_identity = true; authorized_viewer = -1; session.set_local_viewer(id), false, Vector2(0, 42)))
-	content.add_child(_guarded_button("取消", _dismiss_modal))
+## Container sorting completes after the snapshot. Only the newest layout supplies
+## geometry to the persistent animation layer.
+func _refresh_effect_layout(serial: int) -> void:
+	if not is_inside_tree() or is_queued_for_deletion():
+		return
+	await get_tree().process_frame
+	if not is_inside_tree() or is_queued_for_deletion() or serial != render_serial:
+		return
+	var seats: Dictionary = {}
+	var ballots: Dictionary = {}
+	var cells: Array[Rect2] = []
+	for id: int in cards:
+		seats[id] = _overlay_rect(cards[id])
+		ballots[id] = _overlay_rect(cards[id].ballot_label)
+	for cell: Control in %QuestTrack.get_children():
+		cells.append(_overlay_rect(cell))
+	table_effects.bind_layout(seats, ballots, cells)
 
-func _request_leave() -> void:
-	_show_modal("结束这场远征？", "退出会通知派对主程序，由它处理后续流程。独立预览的本地对局将结束。", [["继续游戏", _dismiss_modal, false], ["确认离开", func(): _dismiss_modal(); _leave(), true]])
+func _overlay_rect(control: Control) -> Rect2:
+	var rect: Rect2 = control.get_global_rect()
+	rect.position -= table_effects.global_position
+	return rect
+
+func _refresh_vote_labels() -> void:
+	var flipping: bool = table_effects.vote_age < table_effects.VOTE_SECONDS
+	var sealed: bool = table_effects.vote_age < table_effects.VOTE_SECONDS * 0.5
+	var drawn: bool = table_effects.visible and (flipping or view.get("phase") in ["team_vote", "team_vote_result"])
+	for player: Dictionary in view.get("players", []):
+		if cards.has(player.id):
+			cards[player.id].bind_vote_labels(player.last_team_vote, sealed, drawn)
+
+

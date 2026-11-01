@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bvqbrqgxcb4ae"
-path="res://.godot/imported/avalon_merlin.svg-76d637510ed0af74480f331d78afaa2a.ctex"
+uid="uid://cbt4uxjjmg3o4"
+path="res://.godot/imported/avalon_merlin.svg-a2301ef6e59970d44ef0f78b75041af4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/avalon_merlin.svg"
-dest_files=["res://.godot/imported/avalon_merlin.svg-76d637510ed0af74480f331d78afaa2a.ctex"]
+source_file="res://games/minigame/godot_party_default_identity_party/assets/art/avalon_merlin.svg"
+dest_files=["res://.godot/imported/avalon_merlin.svg-a2301ef6e59970d44ef0f78b75041af4.ctex"]
 
 [params]
 

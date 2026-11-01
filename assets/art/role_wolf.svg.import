@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://57xhvx5povny"
-path="res://.godot/imported/role_wolf.svg-43e5ffce946813708a0e13de01b30bac.ctex"
+uid="uid://bo2w0s5ysa17b"
+path="res://.godot/imported/role_wolf.svg-726a3ac6175a0ee14fc99375ba5f4e40.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/role_wolf.svg"
-dest_files=["res://.godot/imported/role_wolf.svg-43e5ffce946813708a0e13de01b30bac.ctex"]
+source_file="res://games/minigame/godot_party_default_identity_party/assets/art/role_wolf.svg"
+dest_files=["res://.godot/imported/role_wolf.svg-726a3ac6175a0ee14fc99375ba5f4e40.ctex"]
 
 [params]
 

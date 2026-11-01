@@ -6,3 +6,5 @@ export.cfg
 
 __pycache__/
 *.pyc
+*.TMP
+/config/

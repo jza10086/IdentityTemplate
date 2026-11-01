@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c5avv148q6v01"
-path="res://.godot/imported/avalon_loyal.svg-70d0b9aecc0e70f645bb471b25de1e2c.ctex"
+uid="uid://bds3t8ysqpfxc"
+path="res://.godot/imported/avalon_loyal.svg-71b25764decddd2074bc0f3b5d554033.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/avalon_loyal.svg"
-dest_files=["res://.godot/imported/avalon_loyal.svg-70d0b9aecc0e70f645bb471b25de1e2c.ctex"]
+source_file="res://games/minigame/godot_party_default_identity_party/assets/art/avalon_loyal.svg"
+dest_files=["res://.godot/imported/avalon_loyal.svg-71b25764decddd2074bc0f3b5d554033.ctex"]
 
 [params]
 

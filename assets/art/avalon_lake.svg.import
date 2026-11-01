@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c35x0jdtnu5t7"
-path="res://.godot/imported/avalon_lake.svg-7364cc9f69617fc9859bca3e37cb7d4c.ctex"
+uid="uid://dr7dhebbcw33m"
+path="res://.godot/imported/avalon_lake.svg-9e49e68cf6c1aad76baf2400ac381c27.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/avalon_lake.svg"
-dest_files=["res://.godot/imported/avalon_lake.svg-7364cc9f69617fc9859bca3e37cb7d4c.ctex"]
+source_file="res://games/minigame/godot_party_default_identity_party/assets/art/avalon_lake.svg"
+dest_files=["res://.godot/imported/avalon_lake.svg-9e49e68cf6c1aad76baf2400ac381c27.ctex"]
 
 [params]
 

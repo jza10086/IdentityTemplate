@@ -1,13 +1,12 @@
-class_name WerewolfRules
 extends RefCounted
 ## Authoritative, scene-independent rules. Never send `state` to a client.
 ## Send only `public_view(viewer_id)`, which deliberately whitelists public fields.
 
-const MIN_PLAYERS := 4
-const MAX_PLAYERS := 8
-const ROLE_WOLF := "wolf"
-const ROLE_SEER := "seer"
-const ROLE_VILLAGER := "villager"
+const MIN_PLAYERS : Variant = 4
+const MAX_PLAYERS : Variant = 8
+const ROLE_WOLF : Variant = "wolf"
+const ROLE_SEER : Variant = "seer"
+const ROLE_VILLAGER : Variant = "villager"
 
 var state: Dictionary = {}
 
@@ -37,7 +36,7 @@ static func role_description(role: String) -> String:
 static func preset(player_count: int) -> Dictionary:
 	if player_count < MIN_PLAYERS or player_count > MAX_PLAYERS:
 		return {}
-	var wolves := 2 if player_count >= 7 else 1
+	var wolves : Variant = 2 if player_count >= 7 else 1
 	return {
 		"wolf": wolves,
 		"seer": 1,
@@ -52,7 +51,7 @@ func setup(players: Array, seed_value: int = -1) -> bool:
 		return false
 	var seen: Dictionary = {}
 	var clean_players: Array = []
-	for value in players:
+	for value: Variant in players:
 		if not value is Dictionary:
 			return false
 		var player: Dictionary = value
@@ -65,25 +64,25 @@ func setup(players: Array, seed_value: int = -1) -> bool:
 		seen[player_id] = true
 		clean_players.append({"id": player_id, "name": player_name, "alive": true})
 
-	var config := preset(players.size())
+	var config : Variant = preset(players.size())
 	var roles: Array[String] = []
-	for _index in range(int(config["wolf"])):
+	for _index: Variant in range(int(config["wolf"])):
 		roles.append(ROLE_WOLF)
 	roles.append(ROLE_SEER)
 	while roles.size() < players.size():
 		roles.append(ROLE_VILLAGER)
-	var rng := RandomNumberGenerator.new()
+	var rng : Variant = RandomNumberGenerator.new()
 	if seed_value == -1:
 		rng.randomize()
 	else:
 		rng.seed = seed_value
 	# Array.shuffle uses the global RNG; use a private RNG for reproducible games.
-	for index in range(roles.size() - 1, 0, -1):
-		var other := rng.randi_range(0, index)
-		var old_role := roles[index]
+	for index: Variant in range(roles.size() - 1, 0, -1):
+		var other : Variant = rng.randi_range(0, index)
+		var old_role : Variant = roles[index]
 		roles[index] = roles[other]
 		roles[other] = old_role
-	for index in range(clean_players.size()):
+	for index: Variant in range(clean_players.size()):
 		clean_players[index]["role"] = roles[index]
 
 	state = {
@@ -105,13 +104,13 @@ func setup(players: Array, seed_value: int = -1) -> bool:
 func submit(player_id: int, action: String, target_id: int = -1) -> Dictionary:
 	if state.is_empty():
 		return _error("对局尚未开始。")
-	var player := _player(player_id)
+	var player : Variant = _player(player_id)
 	if player.is_empty():
 		return _error("找不到这位玩家。")
 	if not bool(player["alive"]):
 		return _error("已出局的玩家不能行动。")
 	var phase: String = state["phase"]
-	var expected := {"reveal": "reveal_ack", "night": "night_action", "vote": "vote"}
+	var expected : Variant = {"reveal": "reveal_ack", "night": "night_action", "vote": "vote"}
 	if not expected.has(phase) or action != expected[phase]:
 		return _error("当前阶段不能执行这个行动。")
 	if state["submissions"].has(player_id):
@@ -127,14 +126,14 @@ func submit(player_id: int, action: String, target_id: int = -1) -> Dictionary:
 				if target_id != -1:
 					return _error("村民在夜晚只能等待。")
 			else:
-				var validation := _validate_target(player_id, target_id)
+				var validation : Variant = _validate_target(player_id, target_id)
 				if not validation["ok"]:
 					return validation
 				if role == ROLE_WOLF and _player(target_id)["role"] == ROLE_WOLF:
 					return _error("狼人不能袭击狼人同伴。")
 		"vote":
 			if target_id != -1:
-				var validation := _validate_target(player_id, target_id)
+				var validation : Variant = _validate_target(player_id, target_id)
 				if not validation["ok"]:
 					return validation
 
@@ -174,7 +173,7 @@ func pending_player_ids() -> Array:
 	var pending: Array = []
 	if state.is_empty() or state["phase"] not in ["reveal", "night", "vote"]:
 		return pending
-	for player in state["players"]:
+	for player: Variant in state["players"]:
 		if bool(player["alive"]) and not state["submissions"].has(player["id"]):
 			pending.append(int(player["id"]))
 	return pending
@@ -185,12 +184,12 @@ func pending_player_ids() -> Array:
 func public_view(viewer_id: int) -> Dictionary:
 	if state.is_empty():
 		return {}
-	var viewer := _player(viewer_id)
-	var own_role := str(viewer.get("role", ""))
+	var viewer : Variant = _player(viewer_id)
+	var own_role : Variant = str(viewer.get("role", ""))
 	var visible_players: Array = []
 	var allies: Array = []
-	for player in state["players"]:
-		var visible := {
+	for player: Variant in state["players"]:
+		var visible : Variant = {
 			"id": int(player["id"]),
 			"name": str(player["name"]),
 			"alive": bool(player["alive"]),
@@ -218,7 +217,7 @@ func public_view(viewer_id: int) -> Dictionary:
 
 
 func _player(player_id: int) -> Dictionary:
-	for player in state.get("players", []):
+	for player: Variant in state.get("players", []):
 		if int(player["id"]) == player_id:
 			return player
 	return {}
@@ -226,7 +225,7 @@ func _player(player_id: int) -> Dictionary:
 
 ## Display seats follow roster order; network peer IDs are never seat labels.
 func _seat_number(player_id: int) -> int:
-	for index in range(state.get("players", []).size()):
+	for index: Variant in range(state.get("players", []).size()):
 		if int(state["players"][index]["id"]) == player_id:
 			return index + 1
 	return 0
@@ -235,7 +234,7 @@ func _seat_number(player_id: int) -> int:
 func _validate_target(player_id: int, target_id: int) -> Dictionary:
 	if target_id == player_id:
 		return _error("不能选择自己。")
-	var target := _player(target_id)
+	var target : Variant = _player(target_id)
 	if target.is_empty() or not bool(target["alive"]):
 		return _error("请选择一名存活玩家。")
 	return _ok()
@@ -251,7 +250,7 @@ func _begin_night() -> void:
 func _resolve_night() -> void:
 	var wolf_votes: Dictionary = {}
 	# Resolve every seer action before the kill, including a seer killed this night.
-	for player in state["players"]:
+	for player: Variant in state["players"]:
 		if not bool(player["alive"]):
 			continue
 		var player_id: int = player["id"]
@@ -260,17 +259,17 @@ func _resolve_night() -> void:
 			ROLE_WOLF:
 				wolf_votes[target_id] = int(wolf_votes.get(target_id, 0)) + 1
 			ROLE_SEER:
-				var target := _player(target_id)
-				var alignment := "狼人阵营" if target["role"] == ROLE_WOLF else "好人阵营"
-				var note := "第 %d 夜：%s（%d 号）属于%s。" % [int(state["round"]), str(target["name"]), _seat_number(target_id), alignment]
+				var target : Variant = _player(target_id)
+				var alignment : Variant = "狼人阵营" if target["role"] == ROLE_WOLF else "好人阵营"
+				var note : Variant = "第 %d 夜：%s（%d 号）属于%s。" % [int(state["round"]), str(target["name"]), _seat_number(target_id), alignment]
 				if not state["notes"].has(player_id):
 					state["notes"][player_id] = []
 				state["notes"][player_id].append(note)
 
-	var peaceful := bool(state["peaceful_first_night"]) and int(state["round"]) == 1
+	var peaceful : Variant = bool(state["peaceful_first_night"]) and int(state["round"]) == 1
 	var target_id: int = -1 if peaceful else int(_highest_targets(wolf_votes)[0])
 	if target_id != -1:
-		var target := _player(target_id)
+		var target : Variant = _player(target_id)
 		target["alive"] = false
 		state["last_result"] = "天亮了，%s（%d 号）昨夜出局。" % [str(target["name"]), _seat_number(target_id)]
 	else:
@@ -283,13 +282,13 @@ func _resolve_night() -> void:
 
 func _resolve_vote() -> void:
 	var tally: Dictionary = {}
-	for target_id in state["submissions"].values():
+	for target_id: Variant in state["submissions"].values():
 		if int(target_id) != -1:
 			tally[target_id] = int(tally.get(target_id, 0)) + 1
-	var top := _highest_targets(tally)
+	var top : Variant = _highest_targets(tally)
 	if top.size() == 1 and int(top[0]) != -1:
 		var target_id: int = top[0]
-		var target := _player(target_id)
+		var target : Variant = _player(target_id)
 		target["alive"] = false
 		state["last_result"] = "投票结束，%s（%d 号）以 %d 票出局。" % [str(target["name"]), _seat_number(target_id), int(tally[target_id])]
 	elif tally.is_empty():
@@ -305,8 +304,8 @@ func _resolve_vote() -> void:
 ## Returns sorted tied leaders. Empty tally uses [-1] as the no-target sentinel.
 func _highest_targets(tally: Dictionary) -> Array:
 	var leaders: Array = []
-	var best := 0
-	for target_id in tally:
+	var best : Variant = 0
+	for target_id: Variant in tally:
 		var votes: int = tally[target_id]
 		if votes > best:
 			leaders = [int(target_id)]
@@ -318,9 +317,9 @@ func _highest_targets(tally: Dictionary) -> Array:
 
 
 func _check_winner() -> void:
-	var wolves := 0
-	var good := 0
-	for player in state["players"]:
+	var wolves : Variant = 0
+	var good : Variant = 0
+	for player: Variant in state["players"]:
 		if bool(player["alive"]):
 			if player["role"] == ROLE_WOLF:
 				wolves += 1

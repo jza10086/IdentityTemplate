@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c0u3kv50ihfrd"
-path="res://.godot/imported/role_villager.svg-c26441907397ddb23cddc630eff89ebd.ctex"
+uid="uid://vvntd14kmwk8"
+path="res://.godot/imported/role_villager.svg-cc1ec456e339281070c0c6a0e9fe34cf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/role_villager.svg"
-dest_files=["res://.godot/imported/role_villager.svg-c26441907397ddb23cddc630eff89ebd.ctex"]
+source_file="res://games/minigame/godot_party_default_identity_party/assets/art/role_villager.svg"
+dest_files=["res://.godot/imported/role_villager.svg-cc1ec456e339281070c0c6a0e9fe34cf.ctex"]
 
 [params]
 

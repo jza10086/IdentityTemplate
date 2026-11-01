@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://da0e2vwa43lkf"]
+
+[ext_resource type="FontFile" uid="uid://c0p7ssc7un4ip" path="res://games/minigame/godot_party_default_identity_party/assets/fonts/MoonveilSerif.otf" id="1_tx255"]
+
+[node name="RoleEntry" type="VBoxContainer" unique_id=1873905320]
+custom_minimum_size = Vector2(378, 0)
+size_flags_horizontal = 3
+
+[node name="RoleTitle" type="Label" parent="." unique_id=250451616]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.93333334, 0.8980392, 0.8352941, 1)
+theme_override_fonts/font = ExtResource("1_tx255")
+theme_override_font_sizes/font_size = 29
+text = "梅林"
+autowrap_mode = 3
+
+[node name="Description" type="Label" parent="." unique_id=1092329443]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.93333334, 0.8980392, 0.8352941, 1)
+theme_override_font_sizes/font_size = 20
+text = "好人阵营，能看见邪恶玩家。"
+autowrap_mode = 3

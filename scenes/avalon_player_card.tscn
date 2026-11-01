@@ -1,0 +1,226 @@
+[gd_scene format=3 uid="uid://cjecwaskui056"]
+
+[ext_resource type="Script" uid="uid://dvdoxk8x4xs2g" path="res://games/minigame/godot_party_default_identity_party/scripts/ui/avalon_player_card.gd" id="1_15pj2"]
+[ext_resource type="Texture2D" uid="uid://y50fbnw2s4pp" path="res://games/minigame/godot_party_default_identity_party/assets/art/avalon_knight.svg" id="1_b1qkm"]
+[ext_resource type="Script" uid="uid://ck6k4u1vym8d5" path="res://games/minigame/godot_party_default_identity_party/scripts/ui/avalon_card_ornament.gd" id="2_15pj2"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sk8g4"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.0627451, 0.15686275, 0.18431373, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2901961, 0.38431373, 0.3882353, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6d1u4"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.14901961, 0.24705882, 0.25882354, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8392157, 0.6392157, 0.43529412, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_usfpo"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.16078432, 0.26666668, 0.28627452, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8392157, 0.6392157, 0.43529412, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kjj20"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.93333334, 0.8980392, 0.8352941, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_44aph"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.0627451, 0.15686275, 0.18431373, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8392157, 0.6392157, 0.43529412, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ktqmb"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.0627451, 0.15686275, 0.18431373, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.5882353, 0.7764706, 0.7294118, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xd45h"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.14117648, 0.23137255, 0.24313726, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8392157, 0.6392157, 0.43529412, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="AvalonPlayerCard" type="Button" unique_id=372218981]
+offset_right = 190.0
+offset_bottom = 184.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_sk8g4")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_6d1u4")
+theme_override_styles/hover = SubResource("StyleBoxFlat_usfpo")
+theme_override_styles/focus = SubResource("StyleBoxFlat_kjj20")
+script = ExtResource("1_15pj2")
+self_style = SubResource("StyleBoxFlat_44aph")
+proposed_style = SubResource("StyleBoxFlat_ktqmb")
+selected_style = SubResource("StyleBoxFlat_xd45h")
+
+[node name="Inset" type="MarginContainer" parent="." unique_id=536744398]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Body" type="VBoxContainer" parent="Inset" unique_id=2141655259]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 3
+
+[node name="Header" type="HBoxContainer" parent="Inset/Body" unique_id=658241442]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="SeatNumber" type="Label" parent="Inset/Body/Header" unique_id=426922836]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.8392157, 0.6392157, 0.43529412, 1)
+theme_override_font_sizes/font_size = 17
+text = "01 · 你"
+autowrap_mode = 3
+
+[node name="Leader" type="Label" parent="Inset/Body/Header" unique_id=438240481]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.5882353, 0.7764706, 0.7294118, 1)
+theme_override_font_sizes/font_size = 13
+text = "队长"
+horizontal_alignment = 2
+autowrap_mode = 3
+
+[node name="Portrait" type="TextureRect" parent="Inset/Body" unique_id=132616344]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("1_b1qkm")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PlayerName" type="Label" parent="Inset/Body" unique_id=1456672035]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.93333334, 0.8980392, 0.8352941, 1)
+theme_override_font_sizes/font_size = 19
+text = "圆桌骑士"
+horizontal_alignment = 1
+text_overrun_behavior = 3
+
+[node name="VisibleIdentity" type="Label" parent="Inset/Body" unique_id=1292375740]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.6039216, 0.65882355, 0.7372549, 1)
+theme_override_font_sizes/font_size = 16
+text = "身份未知"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ActionStatus" type="Label" parent="Inset/Body" unique_id=1310648960]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.6039216, 0.65882355, 0.7372549, 1)
+theme_override_font_sizes/font_size = 12
+text = "等待行动"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="LastTeamVote" type="Label" parent="Inset/Body" unique_id=1576400036]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "上次队伍票：赞成"
+horizontal_alignment = 1
+
+[node name="HeraldicOrnament" type="Control" parent="." unique_id=2120588984]
+unique_name_in_owner = true
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("2_15pj2")

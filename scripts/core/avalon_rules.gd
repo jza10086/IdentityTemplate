@@ -1,14 +1,13 @@
-class_name AvalonRules
 extends RefCounted
 ## Authoritative, scene-independent basic Avalon (Merlin + Assassin), 5–8 players.
 ## Never send `state` to a client. Only send the whitelisted `public_view`.
 
-const MIN_PLAYERS := 5
-const MAX_PLAYERS := 8
-const ROLE_MERLIN := "merlin"
-const ROLE_ASSASSIN := "assassin"
-const ROLE_LOYAL := "loyal"
-const ROLE_MINION := "minion"
+const MIN_PLAYERS : Variant = 5
+const MAX_PLAYERS : Variant = 8
+const ROLE_MERLIN : Variant = "merlin"
+const ROLE_ASSASSIN : Variant = "assassin"
+const ROLE_LOYAL : Variant = "loyal"
+const ROLE_MINION : Variant = "minion"
 
 var state: Dictionary = {}
 
@@ -44,7 +43,7 @@ static func is_evil(role: String) -> bool:
 
 
 static func preset(player_count: int) -> Dictionary:
-	var sizes := {
+	var sizes : Variant = {
 		5: [2, 3, 2, 3, 3],
 		6: [2, 3, 4, 3, 4],
 		7: [2, 3, 3, 4, 4],
@@ -52,8 +51,8 @@ static func preset(player_count: int) -> Dictionary:
 	}
 	if not sizes.has(player_count):
 		return {}
-	var evil := 2 if player_count <= 6 else 3
-	var good := player_count - evil
+	var evil : Variant = 2 if player_count <= 6 else 3
+	var good : Variant = player_count - evil
 	return {
 		"merlin": 1, "assassin": 1, "loyal": good - 1, "minion": evil - 1,
 		"good": good, "evil": evil, "quest_sizes": sizes[player_count].duplicate(),
@@ -66,7 +65,7 @@ func setup(players: Array, seed_value: int = -1) -> bool:
 		return false
 	var seen: Dictionary = {}
 	var clean_players: Array = []
-	for value in players:
+	for value: Variant in players:
 		if not value is Dictionary:
 			return false
 		var player: Dictionary = value
@@ -79,28 +78,28 @@ func setup(players: Array, seed_value: int = -1) -> bool:
 		seen[player_id] = true
 		clean_players.append({"id": player_id, "name": player_name, "alive": true})
 
-	var config := preset(players.size())
+	var config : Variant = preset(players.size())
 	var roles: Array[String] = [ROLE_MERLIN, ROLE_ASSASSIN]
-	for _index in range(int(config["loyal"])):
+	for _index: Variant in range(int(config["loyal"])):
 		roles.append(ROLE_LOYAL)
-	for _index in range(int(config["minion"])):
+	for _index: Variant in range(int(config["minion"])):
 		roles.append(ROLE_MINION)
-	var rng := RandomNumberGenerator.new()
+	var rng : Variant = RandomNumberGenerator.new()
 	if seed_value == -1:
 		rng.randomize()
 	else:
 		rng.seed = seed_value
-	for index in range(roles.size() - 1, 0, -1):
-		var other := rng.randi_range(0, index)
-		var old_role := roles[index]
+	for index: Variant in range(roles.size() - 1, 0, -1):
+		var other : Variant = rng.randi_range(0, index)
+		var old_role : Variant = roles[index]
 		roles[index] = roles[other]
 		roles[other] = old_role
-	for index in range(clean_players.size()):
+	for index: Variant in range(clean_players.size()):
 		clean_players[index]["role"] = roles[index]
-	var leader_index := rng.randi_range(0, clean_players.size() - 1)
+	var leader_index : Variant = rng.randi_range(0, clean_players.size() - 1)
 	state = {
 		"players": clean_players,
-		"phase": "reveal", "round": 1, "quest_number": 1,
+		"phase": "team_proposal", "round": 1, "quest_number": 1,
 		"leader_id": int(clean_players[leader_index]["id"]),
 		"team": [], "quest_sizes": config["quest_sizes"].duplicate(),
 		"quest_results": [], "quest_successes": 0, "quest_failures": 0,
@@ -109,9 +108,10 @@ func setup(players: Array, seed_value: int = -1) -> bool:
 		"team_votes": {}, "team_approved": false,
 		"team_approve_count": 0, "team_reject_count": 0,
 		"submissions": {}, "assassination_target_id": -1,
-		"events": ["身份已分配，请各自确认身份。梅林与刺客已加入本局。"],
+		"events": ["身份已分配。梅林与刺客已加入本局。"],
 		"winner": "", "last_result": "",
 	}
+	_begin_proposal()
 	return true
 
 
@@ -122,12 +122,12 @@ func submit(player_id: Variant, action: Variant, payload: Variant = -1) -> Dicti
 		return _error("对局尚未开始。")
 	if typeof(player_id) != TYPE_INT or typeof(action) != TYPE_STRING:
 		return _error("行动参数格式不正确。")
-	var player := _player(player_id)
+	var player : Variant = _player(player_id)
 	if player.is_empty():
 		return _error("找不到这位玩家。")
 	var phase: String = state["phase"]
-	var expected := {
-		"reveal": "reveal_ack", "team_proposal": "propose_team",
+	var expected : Variant = {
+		"team_proposal": "propose_team",
 		"team_vote": "team_vote", "quest": "quest_vote", "assassination": "assassinate",
 	}
 	if not expected.has(phase) or action != expected[phase]:
@@ -136,16 +136,10 @@ func submit(player_id: Variant, action: Variant, payload: Variant = -1) -> Dicti
 		return _error("你已经提交过本阶段的行动。")
 
 	match phase:
-		"reveal":
-			if typeof(payload) != TYPE_INT or payload != -1:
-				return _error("确认身份不需要选择目标。")
-			state["submissions"][player_id] = true
-			if pending_player_ids().is_empty():
-				_begin_proposal()
 		"team_proposal":
 			if player_id != state["leader_id"]:
 				return _error("只有本轮队长可以提名队伍。")
-			var validation := _validate_team(payload)
+			var validation : Variant = _validate_team(payload)
 			if not validation["ok"]:
 				return validation
 			state["team"] = payload.duplicate()
@@ -173,12 +167,12 @@ func submit(player_id: Variant, action: Variant, payload: Variant = -1) -> Dicti
 				return _error("只有刺客可以作出最后的刺杀选择。")
 			if typeof(payload) != TYPE_INT:
 				return _error("请选择一名好人玩家作为刺杀目标。")
-			var target := _player(payload)
+			var target : Variant = _player(payload)
 			if target.is_empty() or is_evil(str(target["role"])):
 				return _error("请选择一名好人玩家作为刺杀目标。")
 			state["assassination_target_id"] = int(payload)
 			var hit: bool = target["role"] == ROLE_MERLIN
-			var result := "刺客选择了 %s（%d 号）。%s" % [str(target["name"]), _seat_number(payload), "梅林被识破，坏人阵营获胜！" if hit else "梅林安全，好人阵营获胜！"]
+			var result : Variant = "刺客选择了 %s（%d 号）。%s" % [str(target["name"]), _seat_number(payload), "梅林被识破，坏人阵营获胜！" if hit else "梅林安全，好人阵营获胜！"]
 			_finish("evil" if hit else "good", result)
 	return _ok()
 
@@ -215,9 +209,9 @@ func pending_player_ids() -> Array:
 	if state.is_empty():
 		return pending
 	var phase: String = state["phase"]
-	if phase not in ["reveal", "team_proposal", "team_vote", "quest", "assassination"]:
+	if phase not in ["team_proposal", "team_vote", "quest", "assassination"]:
 		return pending
-	for player in state["players"]:
+	for player: Variant in state["players"]:
 		var player_id: int = player["id"]
 		if phase == "team_proposal" and player_id != state["leader_id"]:
 			continue
@@ -236,14 +230,14 @@ func pending_player_ids() -> Array:
 func public_view(viewer_id: int) -> Dictionary:
 	if state.is_empty():
 		return {}
-	var viewer := _player(viewer_id)
-	var own_role := str(viewer.get("role", ""))
+	var viewer : Variant = _player(viewer_id)
+	var own_role : Variant = str(viewer.get("role", ""))
 	var visible_players: Array = []
 	var allies: Array = []
 	var known_evil: Array = []
-	for player in state["players"]:
+	for player: Variant in state["players"]:
 		var player_id: int = player["id"]
-		var visible := {"id": player_id, "name": str(player["name"]), "alive": true}
+		var visible : Variant = {"id": player_id, "name": str(player["name"]), "alive": true}
 		if player_id == viewer_id or state["phase"] == "ended":
 			visible["role"] = str(player["role"])
 		if is_evil(str(player["role"])):
@@ -251,12 +245,14 @@ func public_view(viewer_id: int) -> Dictionary:
 				allies.append(player_id)
 			if own_role == ROLE_MERLIN:
 				known_evil.append(player_id)
+		# Only resolved, public team ballots survive a new nomination.
+		visible["last_team_vote"] = state["team_votes"].get(player_id)
 		visible_players.append(visible)
 	var submitted: Array = []
 	if state["phase"] == "quest":
 		if not viewer.is_empty() and state["submissions"].has(viewer_id):
 			submitted.append(viewer_id)
-	elif state["phase"] in ["reveal", "team_vote"]:
+	elif state["phase"] == "team_vote":
 		submitted = state["submissions"].keys()
 		submitted.sort()
 	return {
@@ -268,7 +264,7 @@ func public_view(viewer_id: int) -> Dictionary:
 		"quest_successes": int(state["quest_successes"]), "quest_failures": int(state["quest_failures"]),
 		"quest_success_votes": int(state["quest_success_votes"]), "quest_fail_votes": int(state["quest_fail_votes"]),
 		"fails_required": _fails_required(), "rejection_count": int(state["rejection_count"]),
-		"team_votes": state["team_votes"].duplicate(), "team_approved": bool(state["team_approved"]),
+		"team_votes": {} if state["phase"] in ["team_proposal", "team_vote"] else state["team_votes"].duplicate(), "team_approved": bool(state["team_approved"]),
 		"team_approve_count": int(state["team_approve_count"]), "team_reject_count": int(state["team_reject_count"]),
 		"your_role": own_role, "your_allies": allies, "known_evil": known_evil,
 		"submitted_ids": submitted, "events": state["events"].duplicate(),
@@ -278,14 +274,14 @@ func public_view(viewer_id: int) -> Dictionary:
 
 
 func _player(player_id: int) -> Dictionary:
-	for player in state.get("players", []):
+	for player: Variant in state.get("players", []):
 		if int(player["id"]) == player_id:
 			return player
 	return {}
 
 
 func _seat_number(player_id: int) -> int:
-	for index in range(state.get("players", []).size()):
+	for index: Variant in range(state.get("players", []).size()):
 		if int(state["players"][index]["id"]) == player_id:
 			return index + 1
 	return 0
@@ -298,7 +294,7 @@ func _validate_team(payload: Variant) -> Dictionary:
 	if payload.size() != required:
 		return _error("本次任务必须选择 %d 名不同队员。" % required)
 	var seen: Dictionary = {}
-	for player_id in payload:
+	for player_id: Variant in payload:
 		if typeof(player_id) != TYPE_INT or _player(player_id).is_empty() or seen.has(player_id):
 			return _error("任务队伍包含无效或重复的玩家。")
 		seen[player_id] = true
@@ -322,22 +318,21 @@ func _begin_proposal() -> void:
 	state["phase"] = "team_proposal"
 	state["team"] = []
 	state["submissions"] = {}
-	state["team_votes"] = {}
 	state["team_approved"] = false
 	state["team_approve_count"] = 0
 	state["team_reject_count"] = 0
-	var leader := _player(int(state["leader_id"]))
+	var leader : Variant = _player(int(state["leader_id"]))
 	var size: int = state["quest_sizes"][int(state["quest_number"]) - 1]
 	state["events"].append("第 %d 次任务：%s（%d 号）担任队长，选择 %d 名队员。" % [int(state["quest_number"]), str(leader["name"]), _seat_number(int(leader["id"])), size])
 
 
 func _resolve_team_vote() -> void:
-	var approvals := 0
-	for approved in state["submissions"].values():
+	var approvals : Variant = 0
+	for approved: Variant in state["submissions"].values():
 		if approved:
 			approvals += 1
 	var count: int = state["players"].size()
-	var accepted := approvals * 2 > count
+	var accepted : Variant = approvals * 2 > count
 	state["team_votes"] = state["submissions"].duplicate()
 	state["submissions"] = {}
 	state["team_approved"] = accepted
@@ -357,13 +352,13 @@ func _resolve_team_vote() -> void:
 
 
 func _resolve_quest() -> void:
-	var fail_votes := 0
-	for success in state["submissions"].values():
+	var fail_votes : Variant = 0
+	for success: Variant in state["submissions"].values():
 		if not success:
 			fail_votes += 1
 	var success_votes: int = state["team"].size() - fail_votes
-	var required := _fails_required()
-	var success := fail_votes < required
+	var required : Variant = _fails_required()
+	var success : Variant = fail_votes < required
 	# Keep only anonymous counts. The identity-to-card mapping is erased forever.
 	state["submissions"] = {}
 	state["quest_success_votes"] = success_votes

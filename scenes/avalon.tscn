@@ -1,12 +1,702 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://wbreuoqimj7h"]
 
-[ext_resource type="Script" path="res://scripts/ui/avalon.gd" id="1"]
+[ext_resource type="FontFile" uid="uid://ctau5n7bnjmt5" path="res://games/minigame/godot_party_default_identity_party/assets/fonts/NotoSansSC-Regular.otf" id="1_be6aw"]
+[ext_resource type="Texture2D" uid="uid://dr7dhebbcw33m" path="res://games/minigame/godot_party_default_identity_party/assets/art/avalon_lake.svg" id="2_50w0m"]
+[ext_resource type="Script" uid="uid://dnw4s1kusx6tf" path="res://games/minigame/godot_party_default_identity_party/scripts/ui/avalon.gd" id="2_ya3kx"]
+[ext_resource type="PackedScene" uid="uid://cjecwaskui056" path="res://games/minigame/godot_party_default_identity_party/scenes/avalon_player_card.tscn" id="3_1usd3"]
+[ext_resource type="Script" uid="uid://cydtnoil5di0j" path="res://games/minigame/godot_party_default_identity_party/scripts/ui/avalon_atmosphere.gd" id="3_xlqxd"]
+[ext_resource type="PackedScene" uid="uid://dieyiawdt7hq8" path="res://games/minigame/godot_party_default_identity_party/scenes/avalon_target_button.tscn" id="4_5u51i"]
+[ext_resource type="FontFile" uid="uid://c0p7ssc7un4ip" path="res://games/minigame/godot_party_default_identity_party/assets/fonts/MoonveilSerif.otf" id="4_pmqus"]
+[ext_resource type="PackedScene" uid="uid://da0e2vwa43lkf" path="res://games/minigame/godot_party_default_identity_party/scenes/avalon_role_entry.tscn" id="5_nh0oi"]
+[ext_resource type="Script" uid="uid://dvv7ywv31kdtk" path="res://games/minigame/godot_party_default_identity_party/scripts/ui/avalon_table_effects.gd" id="5_ya3kx"]
+[ext_resource type="Script" uid="uid://di3ey1bho0dd8" path="res://games/minigame/godot_party_default_identity_party/scripts/ui/avalon_subtitles.gd" id="6_1usd3"]
+[ext_resource type="AudioStream" uid="uid://y1emapbkawam" path="res://games/minigame/godot_party_default_identity_party/assets/audio/click_001.ogg" id="11_pnu15"]
+[ext_resource type="AudioStream" uid="uid://db5qx4wodb6f4" path="res://games/minigame/godot_party_default_identity_party/assets/audio/pluck_001.ogg" id="12_li2ky"]
+[ext_resource type="AudioStream" uid="uid://cqijb5x5bf3o2" path="res://games/minigame/godot_party_default_identity_party/assets/audio/jingles_PIZZA01.ogg" id="13_qn0tn"]
+[ext_resource type="AudioStream" uid="uid://c4cx163vfv7od" path="res://games/minigame/godot_party_default_identity_party/assets/audio/glass_breaking.wav" id="14_hsa3c"]
 
-[node name="Avalon" type="Control"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5u51i"]
+content_margin_left = 14.0
+content_margin_top = 14.0
+content_margin_right = 14.0
+content_margin_bottom = 14.0
+bg_color = Color(0.09019608, 0.1254902, 0.18039216, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.16078432, 0.2, 0.26666668, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nh0oi"]
+content_margin_left = 14.0
+content_margin_top = 14.0
+content_margin_right = 14.0
+content_margin_bottom = 14.0
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.93333334, 0.8980392, 0.8352941, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pnu15"]
+content_margin_left = 14.0
+content_margin_top = 14.0
+content_margin_right = 14.0
+content_margin_bottom = 14.0
+bg_color = Color(0.14901961, 0.20784314, 0.29411766, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8392157, 0.6392157, 0.43529412, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_li2ky"]
+content_margin_left = 14.0
+content_margin_top = 14.0
+content_margin_right = 14.0
+content_margin_bottom = 14.0
+bg_color = Color(0.09803922, 0.14509805, 0.21176471, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.2509804, 0.32156864, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qn0tn"]
+content_margin_left = 14.0
+content_margin_top = 14.0
+content_margin_right = 14.0
+content_margin_bottom = 14.0
+bg_color = Color(0.07058824, 0.10980392, 0.1764706, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8392157, 0.6392157, 0.43529412, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hsa3c"]
+content_margin_left = 14.0
+content_margin_top = 14.0
+content_margin_right = 14.0
+content_margin_bottom = 14.0
+bg_color = Color(0.9137255, 0.7294118, 0.5254902, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8392157, 0.6392157, 0.43529412, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_d3ads"]
+content_margin_left = 14.0
+content_margin_top = 14.0
+content_margin_right = 14.0
+content_margin_bottom = 14.0
+bg_color = Color(0.8392157, 0.6392157, 0.43529412, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8392157, 0.6392157, 0.43529412, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kytfh"]
+content_margin_left = 14.0
+content_margin_top = 14.0
+content_margin_right = 14.0
+content_margin_bottom = 14.0
+bg_color = Color(0.7254902, 0.5372549, 0.34901962, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8392157, 0.6392157, 0.43529412, 1)
+corner_radius_top_left = 9
+corner_radius_top_right = 9
+corner_radius_bottom_right = 9
+corner_radius_bottom_left = 9
+
+[sub_resource type="Theme" id="Theme_48x4w"]
+default_font = ExtResource("1_be6aw")
+default_font_size = 18
+Button/colors/font_color = Color(0.93333334, 0.8980392, 0.8352941, 1)
+Button/colors/font_disabled_color = Color(0.39607844, 0.44313726, 0.52156866, 1)
+Button/font_sizes/font_size = 20
+Button/styles/disabled = SubResource("StyleBoxFlat_5u51i")
+Button/styles/focus = SubResource("StyleBoxFlat_nh0oi")
+Button/styles/hover = SubResource("StyleBoxFlat_pnu15")
+Button/styles/normal = SubResource("StyleBoxFlat_li2ky")
+Button/styles/pressed = SubResource("StyleBoxFlat_qn0tn")
+GridContainer/constants/h_separation = 14
+GridContainer/constants/v_separation = 14
+HBoxContainer/constants/separation = 14
+Label/colors/font_color = Color(0.93333334, 0.8980392, 0.8352941, 1)
+Primary/base_type = &"Button"
+Primary/colors/font_color = Color(0.039215688, 0.06666667, 0.11372549, 1)
+Primary/colors/font_hover_color = Color(0.039215688, 0.06666667, 0.11372549, 1)
+Primary/colors/font_pressed_color = Color(0.039215688, 0.06666667, 0.11372549, 1)
+Primary/styles/hover = SubResource("StyleBoxFlat_hsa3c")
+Primary/styles/normal = SubResource("StyleBoxFlat_d3ads")
+Primary/styles/pressed = SubResource("StyleBoxFlat_kytfh")
+VBoxContainer/constants/separation = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_l1upc"]
+content_margin_left = 14.0
+content_margin_top = 14.0
+content_margin_right = 14.0
+content_margin_bottom = 14.0
+bg_color = Color(0.0627451, 0.15686275, 0.18431373, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8392157, 0.6392157, 0.43529412, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_riehy"]
+content_margin_left = 20.0
+content_margin_top = 20.0
+content_margin_right = 20.0
+content_margin_bottom = 20.0
+bg_color = Color(0.0627451, 0.15686275, 0.18431373, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.2509804, 0.32156864, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bheis"]
+content_margin_left = 30.0
+content_margin_top = 30.0
+content_margin_right = 30.0
+content_margin_bottom = 30.0
+bg_color = Color(0.078431375, 0.12156863, 0.18039216, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.2509804, 0.32156864, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[node name="AvalonTable" type="Control" unique_id=761391452]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("1")
+theme = SubResource("Theme_48x4w")
+script = ExtResource("2_ya3kx")
+player_card_scene = ExtResource("3_1usd3")
+target_button_scene = ExtResource("4_5u51i")
+role_entry_scene = ExtResource("5_nh0oi")
+
+[node name="AvalonLake" type="TextureRect" parent="." unique_id=1426951581]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+texture = ExtResource("2_50w0m")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="AvalonAtmosphere" type="Control" parent="." unique_id=527914676]
+unique_name_in_owner = true
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("3_xlqxd")
+
+[node name="Arena" type="Control" parent="." unique_id=445356384]
+unique_name_in_owner = true
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Seats" type="Control" parent="Arena" unique_id=1140678550]
+unique_name_in_owner = true
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="RoundPhaseDock" type="VBoxContainer" parent="Arena" unique_id=228998252]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 320.0
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Round" type="Label" parent="Arena/RoundPhaseDock" unique_id=1029700633]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.8392157, 0.6392157, 0.43529412, 1)
+theme_override_font_sizes/font_size = 31
+text = "1/5 回合"
+autowrap_mode = 3
+
+[node name="Phase" type="Label" parent="Arena/RoundPhaseDock" unique_id=73597799]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.93333334, 0.8980392, 0.8352941, 1)
+theme_override_font_sizes/font_size = 20
+text = "队长提名阶段"
+autowrap_mode = 3
+
+[node name="IdentityDock" type="PanelContainer" parent="Arena" unique_id=1694277162]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -188.0
+offset_right = 410.0
+offset_bottom = -20.0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_l1upc")
+
+[node name="IdentityContent" type="VBoxContainer" parent="Arena/IdentityDock" unique_id=205879838]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Role" type="Label" parent="Arena/IdentityDock/IdentityContent" unique_id=230806756]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.8392157, 0.6392157, 0.43529412, 1)
+theme_override_font_sizes/font_size = 34
+text = "忠臣"
+autowrap_mode = 3
+
+[node name="RoleDescription" type="Label" parent="Arena/IdentityDock/IdentityContent" unique_id=666122792]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.93333334, 0.8980392, 0.8352941, 1)
+theme_override_font_sizes/font_size = 18
+text = "好人阵营，无特殊技能。你的目标是让远征成功，防止内鬼破坏远征，并保护梅林。"
+autowrap_mode = 3
+
+[node name="QuestStatus" type="VBoxContainer" parent="Arena" unique_id=779558579]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -490.0
+offset_top = -194.0
+offset_right = -128.0
+offset_bottom = -20.0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 7
+
+[node name="QuestTrack" type="HBoxContainer" parent="Arena/QuestStatus" unique_id=1330831727]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="QuestCell0" type="Control" parent="Arena/QuestStatus/QuestTrack" unique_id=2009553454]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 76)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="QuestCell1" type="Control" parent="Arena/QuestStatus/QuestTrack" unique_id=517520751]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 76)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="QuestCell2" type="Control" parent="Arena/QuestStatus/QuestTrack" unique_id=1343599417]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 76)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="QuestCell3" type="Control" parent="Arena/QuestStatus/QuestTrack" unique_id=1901575050]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 76)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="QuestCell4" type="Control" parent="Arena/QuestStatus/QuestTrack" unique_id=85332542]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 76)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="LeaderSummary" type="Label" parent="Arena/QuestStatus" unique_id=1803855764]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.8392157, 0.6392157, 0.43529412, 1)
+theme_override_font_sizes/font_size = 17
+text = "队长：圆桌骑士 · 连拒 0 / 5"
+autowrap_mode = 3
+
+[node name="QuestRule" type="Label" parent="Arena/QuestStatus" unique_id=1630862228]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.93333334, 0.8980392, 0.8352941, 1)
+theme_override_font_sizes/font_size = 16
+text = "本次 2 人出征 · 1 张失败票判失败"
+autowrap_mode = 3
+
+[node name="TeamSummary" type="Label" parent="Arena/QuestStatus" unique_id=2011305417]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.6039216, 0.65882355, 0.7372549, 1)
+theme_override_font_sizes/font_size = 15
+autowrap_mode = 3
+
+[node name="ActionDock" type="VBoxContainer" parent="Arena" unique_id=1123935983]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 128.0
+offset_top = -194.0
+offset_right = 490.0
+offset_bottom = -20.0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 7
+
+[node name="DockMessage" type="Label" parent="Arena/ActionDock" unique_id=1597022813]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.93333334, 0.8980392, 0.8352941, 1)
+theme_override_font_sizes/font_size = 19
+text = "队长选人：0 / 2 · 可以选择自己"
+autowrap_mode = 3
+
+[node name="Nominate" type="Button" parent="Arena/ActionDock" unique_id=147646479]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"Primary"
+text = "确认提名，开始队伍投票  →"
+
+[node name="Finish" type="Button" parent="Arena/ActionDock" unique_id=1182000831]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "返回大游戏结算"
+
+[node name="Notice" type="Label" parent="Arena/ActionDock" unique_id=1827515507]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.9137255, 0.6784314, 0.6, 1)
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 3
+
+[node name="RoleGuideButton" type="Button" parent="Arena" unique_id=1238899477]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(155, 48)
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -184.0
+offset_top = -78.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_default_cursor_shape = 2
+text = "身份百科"
+
+[node name="ActionPanel" type="CenterContainer" parent="Arena" unique_id=710765306]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 192.0
+mouse_filter = 2
+
+[node name="Panel" type="PanelContainer" parent="Arena/ActionPanel" unique_id=1632369251]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(880, 420)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_riehy")
+
+[node name="ActionContent" type="VBoxContainer" parent="Arena/ActionPanel/Panel" unique_id=227798112]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ActionTitle" type="Label" parent="Arena/ActionPanel/Panel/ActionContent" unique_id=1985972632]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.93333334, 0.8980392, 0.8352941, 1)
+theme_override_fonts/font = ExtResource("4_pmqus")
+theme_override_font_sizes/font_size = 36
+text = "请投下你的队伍票"
+autowrap_mode = 3
+
+[node name="ActionDescription" type="Label" parent="Arena/ActionPanel/Panel/ActionContent" unique_id=1829612108]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.6039216, 0.65882355, 0.7372549, 1)
+theme_override_font_sizes/font_size = 20
+text = "所有人投票后，队伍票将统一翻开。"
+autowrap_mode = 3
+
+[node name="TeamNames" type="Label" parent="Arena/ActionPanel/Panel/ActionContent" unique_id=1701267667]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.5882353, 0.7764706, 0.7294118, 1)
+theme_override_font_sizes/font_size = 19
+text = "远征队伍"
+autowrap_mode = 3
+
+[node name="Choices" type="HBoxContainer" parent="Arena/ActionPanel/Panel/ActionContent" unique_id=1030425323]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Yes" type="Button" parent="Arena/ActionPanel/Panel/ActionContent/Choices" unique_id=32111606]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(389, 108)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "赞成队伍"
+
+[node name="No" type="Button" parent="Arena/ActionPanel/Panel/ActionContent/Choices" unique_id=1264993618]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(389, 108)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "反对队伍"
+
+[node name="GoodOnly" type="Label" parent="Arena/ActionPanel/Panel/ActionContent/Choices" unique_id=113297167]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.5882353, 0.7764706, 0.7294118, 1)
+theme_override_font_sizes/font_size = 19
+text = "好人只能选择任务成功。"
+autowrap_mode = 3
+
+[node name="Targets" type="GridContainer" parent="Arena/ActionPanel/Panel/ActionContent" unique_id=1748163159]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+columns = 3
+
+[node name="Space" type="Control" parent="Arena/ActionPanel/Panel/ActionContent" unique_id=1341137438]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="ChoiceHint" type="Label" parent="Arena/ActionPanel/Panel/ActionContent" unique_id=775883524]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.8392157, 0.6392157, 0.43529412, 1)
+theme_override_font_sizes/font_size = 18
+text = "尚未选择"
+autowrap_mode = 3
+
+[node name="Confirm" type="Button" parent="Arena/ActionPanel/Panel/ActionContent" unique_id=1900074742]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"Primary"
+text = "确认投票  →"
+
+[node name="AvalonTableEffects" type="Control" parent="." unique_id=1796077177]
+unique_name_in_owner = true
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("5_ya3kx")
+
+[node name="CenterStage" type="Control" parent="." unique_id=1317189308]
+unique_name_in_owner = true
+anchors_preset = 0
+anchor_left = 0.18
+anchor_top = 0.205
+anchor_right = 0.82
+anchor_bottom = 0.305
+mouse_filter = 2
+
+[node name="WaitingStatus" type="Label" parent="CenterStage" unique_id=1547250794]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.93333334, 0.8980392, 0.8352941, 1)
+theme_override_colors/font_shadow_color = Color(0.03137255, 0.043137256, 0.0627451, 0.8)
+theme_override_constants/shadow_offset_y = 2
+theme_override_fonts/font = ExtResource("4_pmqus")
+theme_override_font_sizes/font_size = 30
+text = "等待队长「圆桌骑士」选择队员"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+script = ExtResource("6_1usd3")
+
+[node name="Dialog" type="ColorRect" parent="." unique_id=1013905648]
+unique_name_in_owner = true
+visible = false
+z_index = 1
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.015686275, 0.023529412, 0.043137256, 0.93333334)
+
+[node name="Center" type="CenterContainer" parent="Dialog" unique_id=654988386]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="DialogPanel" type="PanelContainer" parent="Dialog/Center" unique_id=1266503217]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(840, 280)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bheis")
+
+[node name="DialogContent" type="VBoxContainer" parent="Dialog/Center/DialogPanel" unique_id=651923362]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="DialogTitle" type="Label" parent="Dialog/Center/DialogPanel/DialogContent" unique_id=775472585]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.93333334, 0.8980392, 0.8352941, 1)
+theme_override_fonts/font = ExtResource("4_pmqus")
+theme_override_font_sizes/font_size = 32
+text = "身份百科"
+autowrap_mode = 3
+
+[node name="DialogDescription" type="Label" parent="Dialog/Center/DialogPanel/DialogContent" unique_id=970497182]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.6039216, 0.65882355, 0.7372549, 1)
+theme_override_font_sizes/font_size = 19
+text = "了解各身份的能力与目标"
+autowrap_mode = 3
+
+[node name="RoleEntries" type="GridContainer" parent="Dialog/Center/DialogPanel/DialogContent" unique_id=1481305905]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 24
+theme_override_constants/v_separation = 24
+columns = 2
+
+[node name="Stay" type="Button" parent="Dialog/Center/DialogPanel/DialogContent" unique_id=671563367]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "关闭"
+
+[node name="Leave" type="Button" parent="Dialog/Center/DialogPanel/DialogContent" unique_id=412254733]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"Primary"
+text = "确认离开"
+
+[node name="IntroCaptionArea" type="Control" parent="." unique_id=1729542406]
+unique_name_in_owner = true
+anchors_preset = 0
+anchor_left = 0.18
+anchor_top = 0.25
+anchor_right = 0.82
+anchor_bottom = 0.65
+mouse_filter = 2
+
+[node name="Audio" type="Node" parent="." unique_id=1359602497]
+
+[node name="UIClick" type="AudioStreamPlayer" parent="Audio" unique_id=1861431388]
+unique_name_in_owner = true
+stream = ExtResource("11_pnu15")
+volume_db = -15.0
+
+[node name="UIConfirm" type="AudioStreamPlayer" parent="Audio" unique_id=580556955]
+unique_name_in_owner = true
+stream = ExtResource("12_li2ky")
+volume_db = -12.0
+
+[node name="QuestSuccess" type="AudioStreamPlayer" parent="Audio" unique_id=1036440018]
+unique_name_in_owner = true
+stream = ExtResource("13_qn0tn")
+volume_db = -9.0
+
+[node name="QuestFailure" type="AudioStreamPlayer" parent="Audio" unique_id=1734184262]
+unique_name_in_owner = true
+stream = ExtResource("14_hsa3c")
+volume_db = -11.0
