@@ -5,6 +5,8 @@ const Match: Script = preload("res://games/minigame/godot_party_default_identity
 const Session: Script = preload("res://games/minigame/godot_party_default_identity_party/scripts/session/game_session.gd")
 const WerewolfUI: Script = preload("res://games/minigame/godot_party_default_identity_party/scripts/ui/main.gd")
 const AvalonTable: PackedScene = preload("res://games/minigame/godot_party_default_identity_party/scenes/avalon.tscn")
+const Pages = preload("res://games/protocols/godot_party_default_protocol/round_pages.gd")
+var pages: Pages
 var api: PartyAPI
 var request: Dictionary = {}
 var participants: Array[Dictionary] = []
@@ -55,9 +57,15 @@ func _ready() -> void:
 	stage.exit_requested.connect(_exit_requested)
 	if api.is_host():
 		model = Match.new()
-	api.mark_ready()
+	pages = Pages.new()
+	var ready_error: Error = pages.prepare(self, api, request, _start_gameplay)
+	if ready_error != OK:
+		api.fail("load_failed", error_string(ready_error))
 
 func party_start() -> void:
+	pages.transport_started()
+
+func _start_gameplay() -> void:
 	running = true
 	if api.is_host():
 		if session.game_id == "avalon":
@@ -97,7 +105,7 @@ func _finish_match() -> void:
 	if not running or not api.is_host() or not model.finished():
 		return
 	running = false
-	var error: Error = api.finish(model.result(request.request_id))
+	var error: Error = pages.present(model.result(request.request_id))
 	if error != OK:
 		api.fail("result_rejected", error_string(error))
 
