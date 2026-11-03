@@ -1,0 +1,26 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: zh_Hans\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "GodotPartyDefault · 阿瓦隆"
+msgstr "GodotPartyDefault · 阿瓦隆"
+
+msgid "减少动态效果"
+msgstr "减少动态效果"
+
+msgid "本局时间上限（分钟，超时不计胜负）"
+msgstr "本局时间上限（分钟，超时不计胜负）"
+
+msgid "本机偏好"
+msgstr "本机偏好"
+
+msgid "游戏规则"
+msgstr "游戏规则"
+
+msgid "身份玩法"
+msgstr "身份玩法"
+
+msgid "阿瓦隆 5–8 人。房主推进公开阶段，身份、投票与行动按规则保密。"
+msgstr "阿瓦隆 5–8 人。房主推进公开阶段，身份、投票与行动按规则保密。"
