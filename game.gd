@@ -30,6 +30,7 @@ func party_setup(value: PartyAPI, config: Dictionary) -> void:
 	api.players_changed.connect(_players_changed)
 
 func _ready() -> void:
+	add_to_group(&"party_minimal_hud")
 	if api == null:
 		push_error("请通过 GodotParty 大厅启动身份派对。")
 		return
@@ -54,6 +55,19 @@ func _ready() -> void:
 	add_child(stage)
 	stage.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	stage.bind_session(session)
+	var menu_hint: Label = Label.new()
+	add_child(menu_hint)
+	menu_hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	menu_hint.offset_left = -190
+	menu_hint.offset_right = -28
+	menu_hint.offset_top = -54
+	menu_hint.offset_bottom = -24
+	menu_hint.text = "Esc：菜单"
+	menu_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	menu_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	menu_hint.add_theme_font_size_override("font_size", 20)
+	menu_hint.add_theme_color_override("font_outline_color", Color("101c2b"))
+	menu_hint.add_theme_constant_override("outline_size", 5)
 	stage.exit_requested.connect(_exit_requested)
 	if api.is_host():
 		model = Match.new()
