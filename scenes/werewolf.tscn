@@ -1,0 +1,327 @@
+[gd_scene format=3]
+[ext_resource type="Script" path="res://games/minigame/godot_party_default_identity_party/scripts/ui/main.gd" id="ui"]
+[ext_resource type="Script" path="res://games/minigame/godot_party_default_identity_party/scripts/ui/round_subtitles.gd" id="subtitle"]
+[ext_resource type="Texture2D" path="res://games/minigame/godot_party_default_identity_party/assets/art/background.svg" id="bg"]
+[ext_resource type="FontFile" path="res://games/minigame/godot_party_default_identity_party/assets/fonts/MoonveilSerif.otf" id="title"]
+
+[sub_resource type="StyleBoxFlat" id="Primary"]
+bg_color = Color(0.84,0.64,0.44,1)
+corner_radius_top_left = 9
+corner_radius_bottom_left = 9
+corner_radius_bottom_right = 9
+corner_radius_top_right = 9
+
+[sub_resource type="StyleBoxFlat" id="Dark"]
+bg_color = Color(0.098,0.145,0.212,1)
+corner_radius_top_left = 9
+corner_radius_bottom_left = 9
+corner_radius_bottom_right = 9
+corner_radius_top_right = 9
+
+[sub_resource type="StyleBoxFlat" id="Hover"]
+bg_color = Color(0.60,0.44,0.33,1)
+corner_radius_top_left = 9
+corner_radius_bottom_left = 9
+corner_radius_bottom_right = 9
+corner_radius_top_right = 9
+
+[sub_resource type="StyleBoxFlat" id="Pressed"]
+bg_color = Color(0.45,0.32,0.25,1)
+corner_radius_top_left = 9
+corner_radius_bottom_left = 9
+corner_radius_bottom_right = 9
+corner_radius_top_right = 9
+
+[node name="Werewolf" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("ui")
+
+[node name="Background" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+expand_mode = 1
+stretch_mode = 6
+texture = ExtResource("bg")
+mouse_filter = 2
+
+[node name="CenterStage" type="Control" parent="."]
+anchor_left = 0.2
+anchor_right = 0.8
+anchor_top = 0.3
+anchor_bottom = 0.65
+mouse_filter = 2
+
+[node name="RoundSubtitles" type="Label" parent="CenterStage"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_font_sizes/font_size = 38
+text = "夜色降临"
+autowrap_mode = 3
+anchor_right = 1.0
+anchor_bottom = 1.0
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_fonts/font = ExtResource("title")
+script = ExtResource("subtitle")
+
+[node name="Arena" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Seats" type="Control" parent="Arena"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="ActionDock" type="VBoxContainer" parent="Arena"]
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 112
+offset_right = 440
+offset_top = -174
+offset_bottom = -20
+grow_vertical = 0
+theme_override_constants/separation = 8
+
+[node name="Prompt" type="Label" parent="Arena/ActionDock"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_font_sizes/font_size = 18
+text = "选择要放逐的玩家"
+autowrap_mode = 3
+
+[node name="Detail" type="Label" parent="Arena/ActionDock"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_font_sizes/font_size = 16
+text = "点击人物卡片"
+autowrap_mode = 3
+
+[node name="Restart" type="Button" parent="Arena/ActionDock"]
+theme_override_styles/normal = SubResource("Primary")
+theme_override_styles/hover = SubResource("Hover")
+theme_override_styles/pressed = SubResource("Pressed")
+theme_override_colors/font_color = Color(0.039,0.067,0.114,1)
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0,52)
+mouse_default_cursor_shape = 2
+text = "再来一局  →"
+
+[node name="Start" type="Button" parent="Arena/ActionDock"]
+theme_override_styles/normal = SubResource("Primary")
+theme_override_styles/hover = SubResource("Hover")
+theme_override_styles/pressed = SubResource("Pressed")
+theme_override_colors/font_color = Color(0.039,0.067,0.114,1)
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0,52)
+mouse_default_cursor_shape = 2
+text = "开始本局，分发身份  →"
+
+[node name="Finish" type="Button" parent="Arena/ActionDock"]
+theme_override_styles/normal = SubResource("Dark")
+theme_override_styles/hover = SubResource("Hover")
+theme_override_styles/pressed = SubResource("Pressed")
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0,52)
+mouse_default_cursor_shape = 2
+text = "结束本局"
+
+[node name="Authorize" type="Button" parent="Arena/ActionDock"]
+theme_override_styles/normal = SubResource("Primary")
+theme_override_styles/hover = SubResource("Hover")
+theme_override_styles/pressed = SubResource("Pressed")
+theme_override_colors/font_color = Color(0.039,0.067,0.114,1)
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0,52)
+mouse_default_cursor_shape = 2
+text = "确认是我，查看秘密  →"
+
+[node name="Back" type="Button" parent="Arena/ActionDock"]
+theme_override_styles/normal = SubResource("Dark")
+theme_override_styles/hover = SubResource("Hover")
+theme_override_styles/pressed = SubResource("Pressed")
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0,52)
+mouse_default_cursor_shape = 2
+text = "返回公共讨论"
+
+[node name="Rest" type="Button" parent="Arena/ActionDock"]
+theme_override_styles/normal = SubResource("Primary")
+theme_override_styles/hover = SubResource("Hover")
+theme_override_styles/pressed = SubResource("Pressed")
+theme_override_colors/font_color = Color(0.039,0.067,0.114,1)
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0,52)
+mouse_default_cursor_shape = 2
+text = "确认休息，结束回合  →"
+
+[node name="Peek" type="Button" parent="Arena/ActionDock"]
+theme_override_styles/normal = SubResource("Dark")
+theme_override_styles/hover = SubResource("Hover")
+theme_override_styles/pressed = SubResource("Pressed")
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0,52)
+mouse_default_cursor_shape = 2
+text = "私密查阅身份 / 记录"
+
+[node name="Advance" type="Button" parent="Arena/ActionDock"]
+theme_override_styles/normal = SubResource("Primary")
+theme_override_styles/hover = SubResource("Hover")
+theme_override_styles/pressed = SubResource("Pressed")
+theme_override_colors/font_color = Color(0.039,0.067,0.114,1)
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0,52)
+mouse_default_cursor_shape = 2
+text = "房主推进阶段 →"
+
+[node name="Choices" type="HBoxContainer" parent="Arena/ActionDock"]
+
+
+[node name="Abstain" type="Button" parent="Arena/ActionDock/Choices"]
+theme_override_styles/normal = SubResource("Dark")
+theme_override_styles/hover = SubResource("Hover")
+theme_override_styles/pressed = SubResource("Pressed")
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0,52)
+mouse_default_cursor_shape = 2
+text = "弃票"
+
+[node name="Submit" type="Button" parent="Arena/ActionDock/Choices"]
+theme_override_styles/normal = SubResource("Primary")
+theme_override_styles/hover = SubResource("Hover")
+theme_override_styles/pressed = SubResource("Pressed")
+theme_override_colors/font_color = Color(0.039,0.067,0.114,1)
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0,52)
+mouse_default_cursor_shape = 2
+text = "确认放逐票  →"
+
+[node name="Notice" type="Label" parent="Arena/ActionDock"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_font_sizes/font_size = 14
+text = ""
+autowrap_mode = 3
+
+[node name="PrivatePanel" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+visible = false
+color = Color(0.039,0.067,0.114,1)
+
+[node name="Center" type="CenterContainer" parent="PrivatePanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Identity" type="VBoxContainer" parent="PrivatePanel/Center"]
+custom_minimum_size = Vector2(760,400)
+
+[node name="Row" type="HBoxContainer" parent="PrivatePanel/Center/Identity"]
+size_flags_vertical = 3
+theme_override_constants/separation = 28
+
+[node name="RoleArt" type="TextureRect" parent="PrivatePanel/Center/Identity/Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200,240)
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Words" type="VBoxContainer" parent="PrivatePanel/Center/Identity/Row"]
+size_flags_horizontal = 3
+
+[node name="Viewer" type="Label" parent="PrivatePanel/Center/Identity/Row/Words"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_font_sizes/font_size = 14
+text = "小林  /  仅你可见"
+autowrap_mode = 3
+
+[node name="RoleTitle" type="Label" parent="PrivatePanel/Center/Identity/Row/Words"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_font_sizes/font_size = 36
+text = "你是，村民"
+autowrap_mode = 3
+
+[node name="RoleCopy" type="Label" parent="PrivatePanel/Center/Identity/Row/Words"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_font_sizes/font_size = 18
+text = "聆听发言，找出所有狼人。"
+autowrap_mode = 3
+
+[node name="Allies" type="Label" parent="PrivatePanel/Center/Identity/Row/Words"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_font_sizes/font_size = 16
+text = "你的狼队友：小周"
+autowrap_mode = 3
+
+[node name="Notes" type="Label" parent="PrivatePanel/Center/Identity/Row/Words"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_font_sizes/font_size = 16
+text = "你的查验记录"
+autowrap_mode = 3
+
+[node name="CloseSecret" type="Button" parent="PrivatePanel/Center/Identity"]
+theme_override_styles/normal = SubResource("Primary")
+theme_override_styles/hover = SubResource("Hover")
+theme_override_styles/pressed = SubResource("Pressed")
+theme_override_colors/font_color = Color(0.039,0.067,0.114,1)
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0,52)
+mouse_default_cursor_shape = 2
+text = "记住身份，收起卡牌  →"
+
+[node name="LeaveDialog" type="ColorRect" parent="."]
+unique_name_in_owner = true
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.015,0.025,0.045,0.93)
+
+[node name="Center" type="CenterContainer" parent="LeaveDialog"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Contents" type="VBoxContainer" parent="LeaveDialog/Center"]
+custom_minimum_size = Vector2(600,280)
+
+[node name="Title" type="Label" parent="LeaveDialog/Center/Contents"]
+theme_override_font_sizes/font_size = 29
+text = "结束这场夜谈？"
+
+[node name="Description" type="Label" parent="LeaveDialog/Center/Contents"]
+autowrap_mode = 3
+size_flags_vertical = 3
+text = "退出将取消本局身份游戏，其他玩家不计胜负；由大游戏处理后续轮换。"
+
+[node name="Stay" type="Button" parent="LeaveDialog/Center/Contents"]
+theme_override_styles/normal = SubResource("Dark")
+theme_override_styles/hover = SubResource("Hover")
+theme_override_styles/pressed = SubResource("Pressed")
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0,52)
+text = "继续游戏"
+
+[node name="Leave" type="Button" parent="LeaveDialog/Center/Contents"]
+theme_override_styles/normal = SubResource("Primary")
+theme_override_styles/hover = SubResource("Hover")
+theme_override_styles/pressed = SubResource("Pressed")
+theme_override_colors/font_color = Color(0.039,0.067,0.114,1)
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0,52)
+text = "确认离开"

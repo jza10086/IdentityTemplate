@@ -1,0 +1,62 @@
+[gd_scene format=3]
+[ext_resource type="Texture2D" path="res://games/minigame/godot_party_default_identity_party/assets/art/seat_portrait.svg" id="portrait"]
+
+[node name="Seat" type="Button"]
+custom_minimum_size = Vector2(166,140)
+
+[node name="Inset" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Content" type="VBoxContainer" parent="Inset"]
+theme_override_constants/separation = 3
+mouse_filter = 2
+
+[node name="Header" type="HBoxContainer" parent="Inset/Content"]
+mouse_filter = 2
+
+[node name="Number" type="Label" parent="Inset/Content/Header"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_font_sizes/font_size = 15
+text = "01 · 你"
+autowrap_mode = 3
+
+[node name="Alive" type="Label" parent="Inset/Content/Header"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_font_sizes/font_size = 12
+text = "存活"
+autowrap_mode = 3
+
+[node name="Portrait" type="TextureRect" parent="Inset/Content"]
+unique_name_in_owner = true
+mouse_filter = 2
+texture = ExtResource("portrait")
+expand_mode = 1
+stretch_mode = 5
+custom_minimum_size = Vector2(0,42)
+
+[node name="PlayerName" type="Label" parent="Inset/Content"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_font_sizes/font_size = 17
+text = "小林"
+autowrap_mode = 3
+horizontal_alignment = 1
+autowrap_mode = 0
+text_overrun_behavior = 3
+custom_minimum_size = Vector2(140,0)
+
+[node name="SeatStatus" type="Label" parent="Inset/Content"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+text = "秘密未揭晓"
+autowrap_mode = 3
+horizontal_alignment = 1

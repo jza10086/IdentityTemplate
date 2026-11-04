@@ -3,7 +3,7 @@
 extends Control
 const Match: Script = preload("res://games/minigame/godot_party_default_identity_party/identity_match.gd")
 const Session: Script = preload("res://games/minigame/godot_party_default_identity_party/scripts/session/game_session.gd")
-const WerewolfUI: Script = preload("res://games/minigame/godot_party_default_identity_party/scripts/ui/main.gd")
+const WerewolfUI: PackedScene = preload("res://games/minigame/godot_party_default_identity_party/scenes/werewolf.tscn")
 const AvalonTable: PackedScene = preload("res://games/minigame/godot_party_default_identity_party/scenes/avalon.tscn")
 const Pages = preload("res://games/protocols/godot_party_default_protocol/round_pages.gd")
 var pages: Pages
@@ -48,26 +48,13 @@ func _ready() -> void:
 			session.self_id = index + 1
 	add_child(session)
 	session.action_requested.connect(_send)
-	stage = AvalonTable.instantiate() if session.game_id == "avalon" else WerewolfUI.new()
+	stage = AvalonTable.instantiate() if session.game_id == "avalon" else WerewolfUI.instantiate()
 	stage.standalone_preview = false
 	if api.config != null:
 		stage.reduced_motion = bool(api.config.get_own(&"reduced_motion", false))
 	add_child(stage)
 	stage.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	stage.bind_session(session)
-	var menu_hint: Label = Label.new()
-	add_child(menu_hint)
-	menu_hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
-	menu_hint.offset_left = -190
-	menu_hint.offset_right = -28
-	menu_hint.offset_top = -54
-	menu_hint.offset_bottom = -24
-	menu_hint.text = "Esc：菜单"
-	menu_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	menu_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	menu_hint.add_theme_font_size_override("font_size", 20)
-	menu_hint.add_theme_color_override("font_outline_color", Color("101c2b"))
-	menu_hint.add_theme_constant_override("outline_size", 5)
 	stage.exit_requested.connect(_exit_requested)
 	if api.is_host():
 		model = Match.new()

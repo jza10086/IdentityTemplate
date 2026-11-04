@@ -4,5 +4,26 @@
 
 [node name="IdentityParty" type="Control" unique_id=1285254996]
 layout_mode = 3
-anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
 script = ExtResource("1_vwl66")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+layer = 0
+
+[node name="MenuHint" type="Label" parent="HUD"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_font_sizes/font_size = 20
+text = "Esc：菜单"
+autowrap_mode = 3
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -190
+offset_right = -28
+offset_top = -54
+offset_bottom = -24
+horizontal_alignment = 2
+theme_override_constants/outline_size = 5
