@@ -5,16 +5,18 @@ const Match: Script = preload("res://games/minigame/godot_party_default_identity
 const Session: Script = preload("res://games/minigame/godot_party_default_identity_party/scripts/session/game_session.gd")
 const WerewolfUI: PackedScene = preload("res://games/minigame/godot_party_default_identity_party/scenes/werewolf.tscn")
 const AvalonTable: PackedScene = preload("res://games/minigame/godot_party_default_identity_party/scenes/avalon.tscn")
-const Pages = preload("res://games/protocols/godot_party_default_protocol/round_pages.gd")
+const View: Script = preload("res://games/minigame/godot_party_default_identity_party/scripts/ui/main.gd")
+const Pages: Script = preload("res://games/protocols/godot_party_default_protocol/round_pages.gd")
 var pages: Pages
 var api: PartyAPI
 var request: Dictionary = {}
 var participants: Array[Dictionary] = []
 var local_id: String = ""
-var session: Node
-var stage: Control
-var model: RefCounted
+var session: Session
+var stage: View
+var model: Match
 var running: bool = false
+var stopped: bool = false
 var elapsed: float = 0.0
 var end_elapsed: float = 0.0
 var limit_seconds: float = 1200.0
@@ -28,8 +30,11 @@ func party_setup(value: PartyAPI, config: Dictionary) -> void:
 			local_id = player.player_id
 	api.net.message_received.connect(_message)
 	api.players_changed.connect(_players_changed)
+	api.on_close(party_stop.bind(&"scope_closed"))
 
 func _ready() -> void:
+	if stopped:
+		return
 	add_to_group(&"party_minimal_hud")
 	if api == null:
 		push_error("请通过 GodotParty 大厅启动身份派对。")
@@ -64,9 +69,12 @@ func _ready() -> void:
 		api.fail("load_failed", error_string(ready_error))
 
 func party_start() -> void:
-	pages.transport_started()
+	if not stopped:
+		pages.transport_started()
 
 func _start_gameplay() -> void:
+	if stopped:
+		return
 	running = true
 	if api.is_host():
 		if session.game_id == "avalon":
@@ -80,11 +88,30 @@ func _start_gameplay() -> void:
 			return
 		_publish()
 
+## End only this activity's listeners, presentation and host model; PartyAPI owns peers.
 func party_stop(_reason: StringName) -> void:
+	if stopped:
+		return
+	stopped = true
 	running = false
 	set_process(false)
+	if api != null:
+		api.net.message_received.disconnect(_message)
+		api.players_changed.disconnect(_players_changed)
 	if is_instance_valid(stage):
-		stage.process_mode = Node.PROCESS_MODE_DISABLED
+		stage.exit_requested.disconnect(_exit_requested)
+		stage.stop_presentation()
+	if is_instance_valid(session):
+		session.action_requested.disconnect(_send)
+		session.leave()
+	if is_instance_valid(pages):
+		pages.stop()
+		pages.hide()
+	model = null
+	participants.clear()
+
+func _exit_tree() -> void:
+	party_stop(&"tree_exited")
 
 func _process(delta: float) -> void:
 	if not running or not api.is_host():
@@ -92,9 +119,11 @@ func _process(delta: float) -> void:
 	elapsed += delta
 	if not model.finished() and elapsed >= limit_seconds:
 		model.cancel("达到本局时间上限，不计胜负。")
-		_publish()
+		if _publish() != OK:
+			return
 	if model.advance_time(delta):
-		_publish()
+		if _publish() != OK:
+			return
 	if model.finished():
 		end_elapsed += delta
 		if end_elapsed >= (3.0 if model.cancelled else 8.0):
@@ -120,18 +149,19 @@ func _send(action: String, payload: Variant = -1) -> void:
 		session.error_occurred.emit("发送失败：" + error_string(error))
 
 func _exit_requested() -> void:
-	stage.exited = false
+	if stopped:
+		return
+	stage.show_exit_feedback(false)
 	if session.view.get("phase") == "ended":
 		_finish_match()
 		return
 	if local_id.is_empty():
-		stage._on_error("当前为观战；可通过框架菜单离开房间。")
+		stage.show_feedback("当前为观战；可通过框架菜单离开房间。")
 		return
 	_send("withdraw")
-	stage._render()
 
 func _message(sender: Dictionary, topic: StringName, payload: Variant) -> void:
-	if not payload is Dictionary or not is_instance_valid(session):
+	if stopped or not payload is Dictionary or not is_instance_valid(session):
 		return
 	var host: bool = int(sender.get("peer_id", 0)) == 1
 	if topic == &"view" and host:
@@ -140,9 +170,8 @@ func _message(sender: Dictionary, topic: StringName, payload: Variant) -> void:
 			return
 		session.present(payload)
 		if payload.get("cancelled", false):
-			stage.exited = true
-			stage._render()
-			stage._on_error(str(payload.get("status", "本局已取消")))
+			stage.show_exit_feedback(true, str(payload.get("status", "本局已取消")))
+			session.leave()
 		return
 	if not running or topic != &"action" or not api.is_host() or model == null:
 		return
@@ -161,17 +190,27 @@ func _message(sender: Dictionary, topic: StringName, payload: Variant) -> void:
 		_publish()
 	else:
 		for id: String in sender.get("player_ids", []):
-			api.net.send_to_player(id, &"view", model.snapshot_for(id))
-		api.net.send_to_peer(int(sender.get("peer_id", 0)), &"view", {"feedback": str(report.get("error", "操作无效"))})
+			var error: Error = api.net.send_to_player(id, &"view", model.snapshot_for(id))
+			if error != OK:
+				_fail_transport("snapshot_send_failed", error)
+				return
+		var error: Error = api.net.send_to_peer(int(sender.get("peer_id", 0)), &"view", {"feedback": str(report.get("error", "操作无效"))})
+		if error != OK:
+			_fail_transport("feedback_send_failed", error)
 
-func _publish() -> void:
+func _publish() -> Error:
 	for player: Dictionary in api.get_room_players():
 		if player.connected:
 			var snapshot: Dictionary = model.snapshot_for(player.player_id)
 			var error: Error = api.net.send_to_player(player.player_id, &"view", snapshot)
 			if error != OK:
-				api.fail("snapshot_send_failed", error_string(error))
-				return
+				_fail_transport("snapshot_send_failed", error)
+				return error
+	return OK
+
+func _fail_transport(code: String, error: Error) -> void:
+	party_stop(&"transport_failed")
+	api.fail(code, error_string(error))
 
 func _players_changed() -> void:
 	if not running or not api.is_host() or model == null or model.rules == null:

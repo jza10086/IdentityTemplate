@@ -20,35 +20,36 @@ signal exit_requested
 @export var standalone_preview: bool = false
 ## Host accessibility preference: preserve sentence timing without opacity animation.
 @export var reduced_motion: bool = false
-var session: Node
-var owns_session : Variant = true
-var page: Variant = "game"
+var session: SessionScript
+var owns_session: bool = true
+var page: String = "game"
 var root_box: VBoxContainer
 var seats: Dictionary[int, Button] = {}
 var arena: Control
 var stage: Control
 var subtitles: Label
 var private_panel: Control
-var match_serial : Variant = 0
+var match_serial: int = 0
 var view: Dictionary = {}
-var local_count: Variant = 8
-var local_names: Array = ["旅人一", "旅人二", "旅人三", "旅人四", "旅人五", "旅人六", "旅人七", "旅人八"]
-var authorized_viewer: Variant = -1
-var authorized_phase: Variant = ""
-var peek_identity: Variant = false
-var role_visible: Variant = false
-var selected_target: Variant = -2
-var error_text: Variant = ""
+var local_count: int = 8
+var local_names: Array[String] = ["旅人一", "旅人二", "旅人三", "旅人四", "旅人五", "旅人六", "旅人七", "旅人八"]
+var authorized_viewer: int = -1
+var authorized_phase: String = ""
+var peek_identity: bool = false
+var role_visible: bool = false
+var selected_target: int = -2
+var error_text: String = ""
 var notice_label: Label
 var modal: Control
 var font: Font
 var title_font: Font
-var last_phase: Variant = ""
-var round_start : Variant = true
-var exited : Variant = false
-var reported_end : Variant = false
+var last_phase: String = ""
+var round_start: bool = true
+var exited: bool = false
+var reported_end: bool = false
+var presentation_stopped: bool = false
 # Fixed local seat used for the public table layout.
-var table_viewer_id : Variant = -1
+var table_viewer_id: int = -1
 
 func _ready() -> void:
 	font = load("res://games/minigame/godot_party_default_identity_party/assets/fonts/NotoSansSC-Regular.otf")
@@ -80,7 +81,7 @@ func _ready() -> void:
 	session.name = "GameSession"
 	add_child(session)
 	session.view_changed.connect(_on_view)
-	session.error_occurred.connect(_on_error)
+	session.error_occurred.connect(show_feedback)
 	if standalone_preview: call_deferred("_start_preview")
 	else: _render()
 
@@ -91,17 +92,18 @@ func _start_preview() -> void:
 ## Party host entry. Ordered unique names map to seat IDs 1..N.
 ## Standalone entry is disabled; PartyAPI authenticates the fixed local seat.
 func start_game(_roster: Array, _local_player_id: int = 1) -> void:
-	_on_error("请通过 GodotParty 大厅开始联机对局。")
+	show_feedback("请通过 GodotParty 大厅开始联机对局。")
 
 ## Bind an already configured GameSession. Host owns admission and transport.
-func bind_session(external_session: Node) -> void:
+func bind_session(external_session: SessionScript) -> void:
 	if not is_node_ready():
 		standalone_preview = false
 		call_deferred("bind_session", external_session)
 		return
-	if not is_instance_valid(external_session) or not external_session is SessionScript:
-		_on_error("需要有效的 GameSession 实例。")
-		return
+	presentation_stopped = false
+	process_mode = Node.PROCESS_MODE_INHERIT
+	show()
+	error_text = ""
 	match_serial += 1
 	table_viewer_id = external_session.self_id
 	authorized_viewer = -1
@@ -113,12 +115,14 @@ func bind_session(external_session: Node) -> void:
 	last_phase = ""
 	round_start = false
 	exited = false
-	if external_session == session:
+	if external_session == session and session.view_changed.is_connected(_on_view):
 		_on_view(session.view)
 		return
 	if is_instance_valid(session):
-		session.view_changed.disconnect(_on_view)
-		session.error_occurred.disconnect(_on_error)
+		if session.view_changed.is_connected(_on_view):
+			session.view_changed.disconnect(_on_view)
+		if session.error_occurred.is_connected(show_feedback):
+			session.error_occurred.disconnect(show_feedback)
 		if owns_session: session.queue_free()
 	session = external_session
 	owns_session = false
@@ -127,7 +131,7 @@ func bind_session(external_session: Node) -> void:
 	exited = false
 	reported_end = false
 	session.view_changed.connect(_on_view)
-	session.error_occurred.connect(_on_error)
+	session.error_occurred.connect(show_feedback)
 	_on_view(session.view)
 
 func _tone(color: Color) -> Color:
@@ -189,11 +193,53 @@ func _on_view(snapshot: Dictionary) -> void:
 		reported_end = true
 		finished.emit(view.duplicate(true))
 
-func _on_error(message: String) -> void:
+## Show a local transport or action error without exposing transport to the view.
+func show_feedback(message: String) -> void:
 	error_text = message
 	if is_instance_valid(notice_label):
 		notice_label.text = message
 		notice_label.show()
+
+## The host confirms cancellation; a rejected exit keeps the current table usable.
+func show_exit_feedback(did_exit: bool, message: String = "") -> void:
+	exited = did_exit
+	if did_exit:
+		view = {}
+		peek_identity = false
+		authorized_viewer = -1
+		authorized_phase = ""
+		role_visible = false
+		selected_target = -2
+	_dismiss_modal()
+	_render()
+	show_feedback(message)
+
+## Disconnect before clearing local secrets so a late snapshot cannot repopulate them.
+## This also works when a scope is cancelled during initialization.
+func stop_presentation() -> void:
+	if presentation_stopped:
+		return
+	if is_instance_valid(session):
+		if session.view_changed.is_connected(_on_view):
+			session.view_changed.disconnect(_on_view)
+		if session.error_occurred.is_connected(show_feedback):
+			session.error_occurred.disconnect(show_feedback)
+	view = {}
+	peek_identity = false
+	authorized_viewer = -1
+	authorized_phase = ""
+	role_visible = false
+	selected_target = -2
+	table_viewer_id = -1
+	error_text = ""
+	exited = true
+	if is_node_ready():
+		_dismiss_modal()
+		_render()
+		subtitles.reset()
+	presentation_stopped = true
+	hide()
+	process_mode = Node.PROCESS_MODE_DISABLED
 
 func _submit_action(action: String, target: int = -1) -> void:
 	authorized_viewer = -1
@@ -240,7 +286,7 @@ func _narration() -> Array[String]:
 	return sentences
 
 func _render() -> void:
-	if not is_node_ready(): return
+	if not is_node_ready() or presentation_stopped: return
 	private_panel.hide()
 	%RoleArt.texture = null
 	for field: Label in [%Viewer, %RoleTitle, %RoleCopy, %Allies, %Notes]:

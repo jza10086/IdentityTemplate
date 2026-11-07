@@ -25,3 +25,4 @@ func advance() -> void:
 func leave() -> void:
 	# Owned facade disposal must never disconnect the framework session.
 	view.clear()
+	self_id = 0

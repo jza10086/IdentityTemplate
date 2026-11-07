@@ -13,6 +13,10 @@ var reduced_motion : Variant = false
 var completed : Variant = false
 var generation : Variant = 0
 
+func reset() -> void:
+	play("", [])
+	text = ""
+
 func play(key: String, sentences: Array) -> void:
 	if key == sequence_key: return
 	sequence_key = key

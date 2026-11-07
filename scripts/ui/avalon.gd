@@ -84,10 +84,8 @@ func _sync_atmosphere(key: String) -> void:
 		success = view.get("winner", "") == "good"
 	atmosphere.present(key, "intro" if round_start else ("exited" if exited else phase), success, reduced_motion)
 
-func bind_session(external_session: Node) -> void:
-	if is_instance_valid(external_session) and external_session is SessionScript and external_session.game_id != "avalon":
-		_on_error("这个场景只接受阿瓦隆会话，请由宿主选择对应游戏。")
-		return
+func bind_session(external_session: SessionScript) -> void:
+	assert(external_session.game_id == "avalon", "阿瓦隆场景需要阿瓦隆会话")
 	selected_team.clear()
 	selected_ballot = -1
 	prologue_started = false
@@ -98,6 +96,33 @@ func bind_session(external_session: Node) -> void:
 		if is_instance_valid(table_effects): table_effects.reset()
 		_dismiss_modal()
 	super.bind_session(external_session)
+
+func show_exit_feedback(did_exit: bool, message: String = "") -> void:
+	if did_exit:
+		selected_team.clear()
+		selected_ballot = -1
+		subtitles.reset()
+		_stop_audio()
+	super.show_exit_feedback(did_exit, message)
+
+func stop_presentation() -> void:
+	if presentation_stopped:
+		return
+	super.stop_presentation()
+	# Invalidate deferred layout and selection callbacks as well as visible clocks.
+	render_serial += 1
+	selected_team.clear()
+	selected_ballot = -1
+	prologue_started = false
+	if is_node_ready():
+		table_effects.reset()
+		table_effects.hide()
+		atmosphere.set_process(false)
+		_stop_audio()
+
+func _stop_audio() -> void:
+	for player: AudioStreamPlayer in [%UIClick, %UIConfirm, %QuestSuccess, %QuestFailure]:
+		player.stop()
 
 func _on_view(snapshot: Dictionary) -> void:
 	var previous_phase: Variant = str(view.get("phase", ""))
@@ -125,7 +150,7 @@ func _on_view(snapshot: Dictionary) -> void:
 
 ## Bind fixed scene nodes in place so snapshot refreshes retain focus and animation clocks.
 func _render() -> void:
-	if not is_node_ready():
+	if not is_node_ready() or presentation_stopped:
 		return
 	render_serial += 1
 	var phase: String = str(view.get("phase", ""))
@@ -136,6 +161,15 @@ func _render() -> void:
 	%RoleGuideButton.visible = active
 	%Seats.visible = active
 	%IdentityDock.visible = active and AVALON_COPY.has(str(view.get("your_role", "")))
+	if not %IdentityDock.visible:
+		%Role.text = ""
+		%RoleDescription.text = ""
+	if phase != "assassination" or view.get("your_role", "") != "assassin":
+		for target: Button in targets.values():
+			%Targets.remove_child(target)
+			target.queue_free()
+		targets.clear()
+	%TeamNames.text = ""
 	%ActionPanel.hide()
 	%Nominate.hide()
 	%Finish.hide()
@@ -316,7 +350,7 @@ func _toggle_team(id: int) -> void:
 	if selected_team.has(id): selected_team.erase(id)
 	elif selected_team.size() < _quest_size(): selected_team.append(id)
 	else:
-		_on_error("队伍已满，请先取消一位队员。")
+		show_feedback("队伍已满，请先取消一位队员。")
 		return
 	%UIClick.play()
 	error_text = ""
