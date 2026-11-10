@@ -1,5 +1,5 @@
 [gd_scene format=3]
-[ext_resource type="Texture2D" path="res://games/minigame/godot_party_default_identity_party/assets/art/seat_portrait.svg" id="portrait"]
+[ext_resource type="Texture2D" path="res://games/minigame/gp_avalon/assets/art/seat_portrait.svg" id="portrait"]
 
 [node name="Seat" type="Button"]
 custom_minimum_size = Vector2(166,140)

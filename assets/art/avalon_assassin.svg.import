@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://djlcwqmhme3hc"
-path="res://.godot/imported/avalon_assassin.svg-50d43c956a598441bbb0df3bbd9ceedb.ctex"
+path="res://.godot/imported/avalon_assassin.svg-9fefcaa330c55b13b1f1d6aded22bce8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://games/minigame/godot_party_default_identity_party/assets/art/avalon_assassin.svg"
-dest_files=["res://.godot/imported/avalon_assassin.svg-50d43c956a598441bbb0df3bbd9ceedb.ctex"]
+source_file="res://games/minigame/gp_avalon/assets/art/avalon_assassin.svg"
+dest_files=["res://.godot/imported/avalon_assassin.svg-9fefcaa330c55b13b1f1d6aded22bce8.ctex"]
 
 [params]
 

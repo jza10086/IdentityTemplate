@@ -2,8 +2,8 @@ extends RefCounted
 ## Registry for implemented identity games. Add another rules adapter here
 ## when it supports setup/submit/advance/public_view/pending_player_ids.
 
-const WerewolfScript = preload("res://games/minigame/godot_party_default_identity_party/scripts/core/werewolf_rules.gd")
-const AvalonScript = preload("res://games/minigame/godot_party_default_identity_party/scripts/core/avalon_rules.gd")
+const WerewolfScript = preload("res://games/minigame/gp_avalon/scripts/core/werewolf_rules.gd")
+const AvalonScript = preload("res://games/minigame/gp_avalon/scripts/core/avalon_rules.gd")
 
 
 static func create_rules(game_id: String) -> RefCounted:

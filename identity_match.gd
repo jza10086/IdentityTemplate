@@ -1,7 +1,7 @@
 ## Host-only match model. Stable player IDs map to local seats, never to transport peer IDs.
 ## Only snapshot_for() crosses the network; raw rules and the assignment seed remain on the host.
 extends RefCounted
-const Catalog: Script = preload("res://games/minigame/godot_party_default_identity_party/scripts/core/game_catalog.gd")
+const Catalog: Script = preload("res://games/minigame/gp_avalon/scripts/core/game_catalog.gd")
 const RESULT_DISPLAY_SECONDS: float = 3.0
 var result_elapsed: float = 0.0
 var rules: RefCounted

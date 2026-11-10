@@ -1,6 +1,6 @@
 extends Control
 ## Presentation only. Rules and private network snapshots live in separate layers.
-const SessionScript = preload("res://games/minigame/godot_party_default_identity_party/scripts/session/game_session.gd")
+const SessionScript = preload("res://games/minigame/gp_avalon/scripts/session/game_session.gd")
 const INK = Color("#0a111d")
 const PANEL = Color("#141f2e")
 const PAPER = Color("#eee5d5")
@@ -53,8 +53,8 @@ var presentation_stopped: bool = false
 var table_viewer_id: int = -1
 
 func _ready() -> void:
-	font = load("res://games/minigame/godot_party_default_identity_party/assets/fonts/NotoSansSC-Regular.otf")
-	title_font = load("res://games/minigame/godot_party_default_identity_party/assets/fonts/MoonveilSerif.otf")
+	font = load("res://games/minigame/gp_avalon/assets/fonts/NotoSansSC-Regular.otf")
+	title_font = load("res://games/minigame/gp_avalon/assets/fonts/MoonveilSerif.otf")
 	title_font.fallbacks = [font]
 	_apply_theme()
 	stage = $CenterStage
@@ -396,7 +396,7 @@ func _perimeter() -> void:
 		box.get_node("%PlayerName").text = str(p.name)
 		var revealed: bool = view.phase == "ended"
 		var role: String = str(p.get("role", ""))
-		box.get_node("%Portrait").texture = load("res://games/minigame/godot_party_default_identity_party/assets/art/role_%s.svg" % role) if revealed else preload("../../assets/art/seat_portrait.svg")
+		box.get_node("%Portrait").texture = load("res://games/minigame/gp_avalon/assets/art/role_%s.svg" % role) if revealed else preload("../../assets/art/seat_portrait.svg")
 		var status: Label = box.get_node("%SeatStatus")
 		status.text = ROLES[role] if revealed else ("已选择 ✓" if selected else ("点击卡片选择" if eligible else "秘密未揭晓"))
 		status.modulate = GOLD if selected or revealed else (TEAL if eligible else MUTED)
@@ -446,7 +446,7 @@ func _handoff() -> void:
 
 func _identity() -> void:
 	var role: String = view.your_role
-	%RoleArt.texture = load("res://games/minigame/godot_party_default_identity_party/assets/art/role_%s.svg" % role)
+	%RoleArt.texture = load("res://games/minigame/gp_avalon/assets/art/role_%s.svg" % role)
 	%Viewer.text = "{player}  /  仅你可见".format({"player": _player_name(session.self_id)})
 	%RoleTitle.text = "你是，{role}".format({"role": ROLES[role]})
 	%RoleCopy.text = ROLE_COPY[role]

@@ -14,8 +14,8 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_process(not reduced_motion and reveal_age < .35)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	if ResourceLoader.exists("res://games/minigame/godot_party_default_identity_party/assets/art/avalon_oath.svg"):
-		seal = load("res://games/minigame/godot_party_default_identity_party/assets/art/avalon_oath.svg")
+	if ResourceLoader.exists("res://games/minigame/gp_avalon/assets/art/avalon_oath.svg"):
+		seal = load("res://games/minigame/gp_avalon/assets/art/avalon_oath.svg")
 
 func set_hover(value: bool) -> void:
 	set_process(not reduced_motion)

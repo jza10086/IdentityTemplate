@@ -3,12 +3,12 @@
 importer="font_data_dynamic"
 type="FontFile"
 uid="uid://c0p7ssc7un4ip"
-path="res://.godot/imported/MoonveilSerif.otf-5c318b598adf6d68788990eb5393a57b.fontdata"
+path="res://.godot/imported/MoonveilSerif.otf-e19c5217dce4fbdc710de13102d5124b.fontdata"
 
 [deps]
 
-source_file="res://games/minigame/godot_party_default_identity_party/assets/fonts/MoonveilSerif.otf"
-dest_files=["res://.godot/imported/MoonveilSerif.otf-5c318b598adf6d68788990eb5393a57b.fontdata"]
+source_file="res://games/minigame/gp_avalon/assets/fonts/MoonveilSerif.otf"
+dest_files=["res://.godot/imported/MoonveilSerif.otf-e19c5217dce4fbdc710de13102d5124b.fontdata"]
 
 [params]
 

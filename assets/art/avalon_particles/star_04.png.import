@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cfarb0oaovbuf"
-path="res://.godot/imported/star_04.png-efd1fb9ed5097ded0a1e8d67f0e55f10.ctex"
+path="res://.godot/imported/star_04.png-778ec15650890ea486e39ffabe9f3a67.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://games/minigame/godot_party_default_identity_party/assets/art/avalon_particles/star_04.png"
-dest_files=["res://.godot/imported/star_04.png-efd1fb9ed5097ded0a1e8d67f0e55f10.ctex"]
+source_file="res://games/minigame/gp_avalon/assets/art/avalon_particles/star_04.png"
+dest_files=["res://.godot/imported/star_04.png-778ec15650890ea486e39ffabe9f3a67.ctex"]
 
 [params]
 

@@ -1,4 +1,4 @@
-extends "res://games/minigame/godot_party_default_identity_party/scripts/ui/main.gd"
+extends "res://games/minigame/gp_avalon/scripts/ui/main.gd"
 ## Avalon is a presentation adapter. The authoritative rules never live in this scene.
 ## Only a viewer-filtered session snapshot is used to draw private information.
 const AVALON_ROLES = {"merlin":"梅林", "assassin":"刺客", "loyal":"忠臣", "minion":"爪牙"}

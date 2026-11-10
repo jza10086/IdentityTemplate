@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://cjecwaskui056"]
 
-[ext_resource type="Script" uid="uid://dvdoxk8x4xs2g" path="res://games/minigame/godot_party_default_identity_party/scripts/ui/avalon_player_card.gd" id="1_15pj2"]
-[ext_resource type="Texture2D" uid="uid://y50fbnw2s4pp" path="res://games/minigame/godot_party_default_identity_party/assets/art/avalon_knight.svg" id="1_b1qkm"]
-[ext_resource type="Script" uid="uid://ck6k4u1vym8d5" path="res://games/minigame/godot_party_default_identity_party/scripts/ui/avalon_card_ornament.gd" id="2_15pj2"]
+[ext_resource type="Script" uid="uid://dvdoxk8x4xs2g" path="res://games/minigame/gp_avalon/scripts/ui/avalon_player_card.gd" id="1_15pj2"]
+[ext_resource type="Texture2D" uid="uid://y50fbnw2s4pp" path="res://games/minigame/gp_avalon/assets/art/avalon_knight.svg" id="1_b1qkm"]
+[ext_resource type="Script" uid="uid://ck6k4u1vym8d5" path="res://games/minigame/gp_avalon/scripts/ui/avalon_card_ornament.gd" id="2_15pj2"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sk8g4"]
 content_margin_left = 10.0

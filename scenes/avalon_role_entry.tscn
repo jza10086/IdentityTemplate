@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://da0e2vwa43lkf"]
 
-[ext_resource type="FontFile" uid="uid://c0p7ssc7un4ip" path="res://games/minigame/godot_party_default_identity_party/assets/fonts/MoonveilSerif.otf" id="1_tx255"]
+[ext_resource type="FontFile" uid="uid://c0p7ssc7un4ip" path="res://games/minigame/gp_avalon/assets/fonts/MoonveilSerif.otf" id="1_tx255"]
 
 [node name="RoleEntry" type="VBoxContainer" unique_id=1873905320]
 custom_minimum_size = Vector2(378, 0)

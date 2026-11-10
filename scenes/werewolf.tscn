@@ -1,8 +1,8 @@
 [gd_scene format=3]
-[ext_resource type="Script" path="res://games/minigame/godot_party_default_identity_party/scripts/ui/main.gd" id="ui"]
-[ext_resource type="Script" path="res://games/minigame/godot_party_default_identity_party/scripts/ui/round_subtitles.gd" id="subtitle"]
-[ext_resource type="Texture2D" path="res://games/minigame/godot_party_default_identity_party/assets/art/background.svg" id="bg"]
-[ext_resource type="FontFile" path="res://games/minigame/godot_party_default_identity_party/assets/fonts/MoonveilSerif.otf" id="title"]
+[ext_resource type="Script" path="res://games/minigame/gp_avalon/scripts/ui/main.gd" id="ui"]
+[ext_resource type="Script" path="res://games/minigame/gp_avalon/scripts/ui/round_subtitles.gd" id="subtitle"]
+[ext_resource type="Texture2D" path="res://games/minigame/gp_avalon/assets/art/background.svg" id="bg"]
+[ext_resource type="FontFile" path="res://games/minigame/gp_avalon/assets/fonts/MoonveilSerif.otf" id="title"]
 
 [sub_resource type="StyleBoxFlat" id="Primary"]
 bg_color = Color(0.84,0.64,0.44,1)

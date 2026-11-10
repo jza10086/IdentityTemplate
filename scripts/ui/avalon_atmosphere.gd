@@ -21,11 +21,11 @@ var mote: Texture2D
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	grail = load("res://games/minigame/godot_party_default_identity_party/assets/art/avalon_grail.svg") if ResourceLoader.exists("res://games/minigame/godot_party_default_identity_party/assets/art/avalon_grail.svg") else null
-	fracture = load("res://games/minigame/godot_party_default_identity_party/assets/art/avalon_broken_oath.svg") if ResourceLoader.exists("res://games/minigame/godot_party_default_identity_party/assets/art/avalon_broken_oath.svg") else null
-	blade = load("res://games/minigame/godot_party_default_identity_party/assets/art/avalon_blade.svg") if ResourceLoader.exists("res://games/minigame/godot_party_default_identity_party/assets/art/avalon_blade.svg") else null
-	if ResourceLoader.exists("res://games/minigame/godot_party_default_identity_party/assets/art/avalon_particles/star_04.png"):
-		mote = load("res://games/minigame/godot_party_default_identity_party/assets/art/avalon_particles/star_04.png")
+	grail = load("res://games/minigame/gp_avalon/assets/art/avalon_grail.svg") if ResourceLoader.exists("res://games/minigame/gp_avalon/assets/art/avalon_grail.svg") else null
+	fracture = load("res://games/minigame/gp_avalon/assets/art/avalon_broken_oath.svg") if ResourceLoader.exists("res://games/minigame/gp_avalon/assets/art/avalon_broken_oath.svg") else null
+	blade = load("res://games/minigame/gp_avalon/assets/art/avalon_blade.svg") if ResourceLoader.exists("res://games/minigame/gp_avalon/assets/art/avalon_blade.svg") else null
+	if ResourceLoader.exists("res://games/minigame/gp_avalon/assets/art/avalon_particles/star_04.png"):
+		mote = load("res://games/minigame/gp_avalon/assets/art/avalon_particles/star_04.png")
 
 func present(key: String, public_phase: String, success: bool, motion_reduced: bool) -> void:
 	reduced_motion = motion_reduced

@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://lfnq1g0ea3gk"
-path="res://.godot/imported/role_seer.svg-a6dad8b75143ac5b54a1e47923c3193e.ctex"
+path="res://.godot/imported/role_seer.svg-8e9ea07628bd70366119d514d354db20.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://games/minigame/godot_party_default_identity_party/assets/art/role_seer.svg"
-dest_files=["res://.godot/imported/role_seer.svg-a6dad8b75143ac5b54a1e47923c3193e.ctex"]
+source_file="res://games/minigame/gp_avalon/assets/art/role_seer.svg"
+dest_files=["res://.godot/imported/role_seer.svg-8e9ea07628bd70366119d514d354db20.ctex"]
 
 [params]
 

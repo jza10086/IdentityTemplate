@@ -86,7 +86,7 @@ func bind_player(player: Dictionary, seat_number: int, snapshot: Dictionary, kno
 	%SeatNumber.text = "%02d%s" % [seat_number, " · 你" if mine else ""]
 	%Leader.text = "队长" if id == snapshot.leader_id else "在席"
 	%PlayerName.text = player.name
-	%Portrait.texture = load("res://games/minigame/godot_party_default_identity_party/assets/art/avalon_%s.svg" % player.role) if phase == "ended" else knight
+	%Portrait.texture = load("res://games/minigame/gp_avalon/assets/art/avalon_%s.svg" % player.role) if phase == "ended" else knight
 	%VisibleIdentity.text = knowledge
 	var identity_color: Color = MUTED
 	if knowledge in ["邪恶阵营", "邪恶同伴"]:

@@ -16,9 +16,9 @@ const RESULT_SECONDS: float = 2.25
 
 var reduced_motion: bool = false
 var ui_font: Font
-var knight: Texture2D = preload("res://games/minigame/godot_party_default_identity_party/assets/art/avalon_knight.svg")
-var grail: Texture2D = preload("res://games/minigame/godot_party_default_identity_party/assets/art/avalon_grail.svg")
-var fracture: Texture2D = preload("res://games/minigame/godot_party_default_identity_party/assets/art/avalon_broken_oath.svg")
+var knight: Texture2D = preload("res://games/minigame/gp_avalon/assets/art/avalon_knight.svg")
+var grail: Texture2D = preload("res://games/minigame/gp_avalon/assets/art/avalon_grail.svg")
+var fracture: Texture2D = preload("res://games/minigame/gp_avalon/assets/art/avalon_broken_oath.svg")
 var phase: String = ""
 var initialized: bool = false
 var leader_id: int = -1

@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://k7ajkxec4q2f"
-path="res://.godot/imported/window_j_blur.png-f65dbed570cfd96f81bea4b4556ea9a5.ctex"
+path="res://.godot/imported/window_j_blur.png-1102036a5b5cce0353a9c453617e7085.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://games/minigame/godot_party_default_identity_party/assets/art/avalon_light_masks/window_j_blur.png"
-dest_files=["res://.godot/imported/window_j_blur.png-f65dbed570cfd96f81bea4b4556ea9a5.ctex"]
+source_file="res://games/minigame/gp_avalon/assets/art/avalon_light_masks/window_j_blur.png"
+dest_files=["res://.godot/imported/window_j_blur.png-1102036a5b5cce0353a9c453617e7085.ctex"]
 
 [params]
 

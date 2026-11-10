@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://du574nwrn686n"]
 
-[ext_resource type="Script" uid="uid://xf3gyt51t8kd" path="res://games/minigame/godot_party_default_identity_party/game.gd" id="1_vwl66"]
+[ext_resource type="Script" uid="uid://xf3gyt51t8kd" path="res://games/minigame/gp_avalon/game.gd" id="1_vwl66"]
 
 [node name="IdentityParty" type="Control" unique_id=1285254996]
 layout_mode = 3
