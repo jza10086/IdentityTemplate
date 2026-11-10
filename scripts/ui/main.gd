@@ -22,6 +22,7 @@ signal exit_requested
 @export var reduced_motion: bool = false
 var session: SessionScript
 var owns_session: bool = true
+var party_input: PartyInput
 var page: String = "game"
 var root_box: VBoxContainer
 var seats: Dictionary[int, Button] = {}
@@ -500,9 +501,18 @@ func _leave() -> void:
 	_render()
 
 func _unhandled_key_input(event: InputEvent) -> void:
+	if party_input != null and party_input.input_blocked:
+		return
 	if event is InputEventKey and event.pressed and event.keycode == KEY_SPACE:
 		subtitles.skip()
-	if event.is_action_pressed("ui_cancel"):
-		if is_instance_valid(modal): _dismiss_modal()
-		elif peek_identity: _close_peek()
-		else: _request_leave()
+	if event.is_action_pressed("ui_cancel") and not event.is_echo():
+		if is_instance_valid(modal):
+			_dismiss_modal()
+		elif peek_identity:
+			_close_peek()
+		elif owns_session:
+			_request_leave()
+		else:
+			# Formal sessions leave Esc to the shared framework menu.
+			return
+		get_viewport().set_input_as_handled()

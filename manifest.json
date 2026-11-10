@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "core_api_major": 4,
-  "package_version": "1.1.4",
+  "core_api_major": 5,
+  "package_version": "1.1.6",
   "id": "godot_party_default_identity_party",
   "name": "GodotPartyDefault · 阿瓦隆",
   "kind": "minigame",
@@ -20,7 +20,7 @@
     "social"
   ],
   "dependencies": {
-    "godot_party_default_protocol": "1.0.4"
+    "godot_party_default_protocol": "1.0.6"
   },
   "adapters": [
     {
@@ -34,12 +34,6 @@
     }
   ],
   "config_schema": "settings.gd",
-  "streams": {
-    "view": {
-      "mode": "reliable",
-      "audience": "instance"
-    }
-  },
   "localization": {
     "supported_locales": [
       "zh_Hans"

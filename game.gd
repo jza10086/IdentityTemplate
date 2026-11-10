@@ -1,5 +1,4 @@
-## API 4 lifecycle and authenticated per-recipient transport for IdentityTemplate.
-## The host may spectate. UI snapshots never contain another participant's private role.
+## Public phase changes broadcast once; private roles and knowledge go only to their owner.
 extends Control
 const Match: Script = preload("res://games/minigame/godot_party_default_identity_party/identity_match.gd")
 const Session: Script = preload("res://games/minigame/godot_party_default_identity_party/scripts/session/game_session.gd")
@@ -20,6 +19,15 @@ var stopped: bool = false
 var elapsed: float = 0.0
 var end_elapsed: float = 0.0
 var limit_seconds: float = 1200.0
+var _published_public: Dictionary = {}
+var _published_private: Dictionary = {}
+var _public_view: Dictionary = {}
+var _private_view: Dictionary = {}
+var _publication: int = 0
+var _public_revision: int = 0
+var _received_revision: int = 0
+var _phase_epoch: int = -1
+var _phase_start_msec: int = 0
 
 func party_setup(value: PartyAPI, config: Dictionary) -> void:
 	api = value
@@ -55,6 +63,7 @@ func _ready() -> void:
 	session.action_requested.connect(_send)
 	stage = AvalonTable.instantiate() if session.game_id == "avalon" else WerewolfUI.instantiate()
 	stage.standalone_preview = false
+	stage.party_input = api.input
 	if api.config != null:
 		stage.reduced_motion = bool(api.config.get_own(&"reduced_motion", false))
 	add_child(stage)
@@ -164,14 +173,31 @@ func _message(sender: Dictionary, topic: StringName, payload: Variant) -> void:
 	if stopped or not payload is Dictionary or not is_instance_valid(session):
 		return
 	var host: bool = int(sender.get("peer_id", 0)) == 1
-	if topic == &"view" and host:
-		if payload.has("feedback"):
-			session.error_occurred.emit(str(payload.feedback))
+	if topic == &"public_change" and host:
+		if not payload.get("revision") is int or payload.revision <= _public_revision or not _apply_fields(_public_view, payload):
 			return
-		session.present(payload)
-		if payload.get("cancelled", false):
-			stage.show_exit_feedback(true, str(payload.get("status", "本局已取消")))
+		_public_revision = payload.revision
+		return
+	if topic == &"private_change" and host:
+		if not payload.get("revision") is int or payload.revision <= _received_revision or not payload.get("public_revision") is int or payload.public_revision != _public_revision or not _apply_fields(_private_view, payload):
+			return
+		_received_revision = payload.revision
+		var complete: Dictionary = _public_view.duplicate(true)
+		for key: String in _private_view:
+			if key != "roles":
+				complete[key] = _private_view[key]
+		for player: Dictionary in complete.players:
+			var role_key: String = str(player.id)
+			if _private_view.get("roles", {}).has(role_key):
+				player["role"] = _private_view.roles[role_key]
+		session.present(complete)
+		if complete.get("cancelled", false):
+			stage.show_exit_feedback(true, str(complete.get("status", "本局已取消")))
 			session.leave()
+		return
+	if topic == &"feedback" and host:
+		if payload.get("message") is String:
+			session.error_occurred.emit(payload.message)
 		return
 	if not running or topic != &"action" or not api.is_host() or model == null:
 		return
@@ -189,24 +215,80 @@ func _message(sender: Dictionary, topic: StringName, payload: Variant) -> void:
 	if report.get("ok", false):
 		_publish()
 	else:
-		for id: String in sender.get("player_ids", []):
-			var error: Error = api.net.send_to_player(id, &"view", model.snapshot_for(id))
-			if error != OK:
-				_fail_transport("snapshot_send_failed", error)
-				return
-		var error: Error = api.net.send_to_peer(int(sender.get("peer_id", 0)), &"view", {"feedback": str(report.get("error", "操作无效"))})
+		var error: Error = api.net.send_to_peer(int(sender.get("peer_id", 0)), &"feedback", {"message": str(report.get("error", "操作无效"))})
 		if error != OK:
 			_fail_transport("feedback_send_failed", error)
 
 func _publish() -> Error:
+	var public: Dictionary = model.snapshot_for("")
+	if _phase_epoch != model.epoch:
+		_phase_epoch = model.epoch
+		_phase_start_msec = api.net.host_time_msec()
+	public["phase_start_msec"] = _phase_start_msec
+	public["phase_end_msec"] = _phase_start_msec + 3000 if public.phase in ["team_vote_result", "quest_result"] else -1
+	var patch: Dictionary = _field_changes(public, _published_public)
+	_publication += 1
+	if not patch.changes.is_empty() or not patch.removed.is_empty() or not patch.appended.is_empty():
+		patch["revision"] = _publication
+		var error: Error = api.net.broadcast(&"public_change", patch)
+		if error != OK:
+			_fail_transport("public_change_failed", error)
+			return error
+		_published_public = public.duplicate(true)
+		_public_revision = _publication
 	for player: Dictionary in api.get_room_players():
-		if player.connected:
-			var snapshot: Dictionary = model.snapshot_for(player.player_id)
-			var error: Error = api.net.send_to_player(player.player_id, &"view", snapshot)
-			if error != OK:
-				_fail_transport("snapshot_send_failed", error)
-				return error
+		if not player.connected:
+			continue
+		var personal: Dictionary = model.snapshot_for(player.player_id)
+		var private: Dictionary = {"roles": {}}
+		for index: int in personal.players.size():
+			var row: Dictionary = personal.players[index]
+			if row.has("role") and row.get("role") != public.players[index].get("role"):
+				private.roles[str(row.id)] = row.role
+		for key: String in personal:
+			if key != "players" and (not public.has(key) or personal[key] != public[key]):
+				private[key] = personal[key]
+		var previous: Dictionary = _published_private.get(player.player_id, {})
+		var private_patch: Dictionary = _field_changes(private, previous)
+		# This small commit marker also makes the public/private view update atomic.
+		private_patch["revision"] = _publication
+		private_patch["public_revision"] = _public_revision
+		var error: Error = api.net.send_to_player(player.player_id, &"private_change", private_patch)
+		if error != OK:
+			_fail_transport("private_change_failed", error)
+			return error
+		_published_private[player.player_id] = private.duplicate(true)
 	return OK
+
+func _field_changes(current: Dictionary, previous: Dictionary) -> Dictionary:
+	var changed: Dictionary = {}
+	var removed: Array[String] = []
+	var appended: Dictionary = {}
+	for key: String in previous:
+		if not current.has(key):
+			removed.append(key)
+	for key: String in current:
+		if previous.has(key) and previous[key] == current[key]:
+			continue
+		if key in ["events", "quest_results", "your_notes"] and previous.has(key) and current[key] is Array and previous[key] is Array and current[key].size() >= previous[key].size() and current[key].slice(0, previous[key].size()) == previous[key]:
+			appended[key] = current[key].slice(previous[key].size())
+		else:
+			changed[key] = current[key]
+	return {"changes": changed, "removed": removed, "appended": appended}
+
+func _apply_fields(target: Dictionary, payload: Dictionary) -> bool:
+	if not payload.get("changes") is Dictionary or not payload.get("removed") is Array or not payload.get("appended") is Dictionary:
+		return false
+	for key: Variant in payload.removed:
+		if not key is String:
+			return false
+		target.erase(key)
+	for key: String in payload.appended:
+		if not target.get(key) is Array or not payload.appended[key] is Array:
+			return false
+		target[key].append_array(payload.appended[key])
+	target.merge(payload.changes, true)
+	return true
 
 func _fail_transport(code: String, error: Error) -> void:
 	party_stop(&"transport_failed")
