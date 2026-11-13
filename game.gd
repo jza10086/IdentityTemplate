@@ -1,5 +1,10 @@
 ## Public phase changes broadcast once; private roles and knowledge go only to their owner.
 extends Control
+
+## Content-owned gameplay rules, independent of package compatibility.
+static func party_definition() -> Dictionary:
+	return {"player_counts": [5, 6, 7, 8], "tags": ["original", "medium", "social"]}
+
 const Match: Script = preload("res://games/minigame/gp_avalon/identity_match.gd")
 const Session: Script = preload("res://games/minigame/gp_avalon/scripts/session/game_session.gd")
 const WerewolfUI: PackedScene = preload("res://games/minigame/gp_avalon/scenes/werewolf.tscn")

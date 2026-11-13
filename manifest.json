@@ -1,49 +1,10 @@
 {
-  "manifest_version": 2,
-  "core_api_major": 6,
-  "package_version": "1.1.15",
-  "id": "gp_avalon",
   "name": "GodotPartyDefault · 阿瓦隆",
   "kind": "minigame",
-  "supported_systems": [
-    "windows"
-  ],
-  "entry": "game.tscn",
-  "cover": "assets/art/background.svg",
-  "introduction": "阿瓦隆 5–8 人。房主推进公开阶段，身份、投票与行动按规则保密。",
-  "player_counts": [
-    5,
-    6,
-    7,
-    8
-  ],
-  "tags": [
-    "original",
-    "medium",
-    "social"
-  ],
+  "package_version": "0.0.1",
+  "framework_version": "0.0.1",
+  "remark": "",
   "dependencies": {
-    "godot_party_default_protocol": "1.0.14"
-  },
-  "adapters": [
-    {
-      "id": "standard",
-      "protocol": {
-        "id": "godot_party_default_protocol",
-        "api_major": 1,
-        "min_api_minor": 0
-      },
-      "entry": "adapter.gd"
-    }
-  ],
-  "config_schema": "settings.gd",
-  "localization": {
-    "supported_locales": [
-      "zh_Hans"
-    ],
-    "fallback_locale": "zh_Hans",
-    "translations": {
-      "zh_Hans": "i18n/zh_Hans.po"
-    }
+    "godot_party_default_protocol": "~0.0.1"
   }
 }
