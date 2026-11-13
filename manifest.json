@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "core_api_major": 5,
-  "package_version": "1.1.14",
+  "core_api_major": 6,
+  "package_version": "1.1.15",
   "id": "gp_avalon",
   "name": "GodotPartyDefault · 阿瓦隆",
   "kind": "minigame",
@@ -23,7 +23,7 @@
     "social"
   ],
   "dependencies": {
-    "godot_party_default_protocol": "1.0.13"
+    "godot_party_default_protocol": "1.0.14"
   },
   "adapters": [
     {
