@@ -26,16 +26,15 @@
 
 参赛者退出、断线或达到时间上限会取消本局，3 秒后交回大游戏。取消局不计分，轮换大游戏等待重试或结束。
 
-## 维护与验证
+## 验证
 
-`identity_match.gd` 管理座次、操作校验、快照和结果；`game.gd` 负责 PartyAPI 生命周期和传输；`scripts/core/` 与 `scripts/ui/` 保留上游规则和视觉实现。旧独立大厅与 ENet 会话不参与运行。
+最近记录与未完成验收见 [gp_avalon 开发记录](gp_avalon_development.md)。按本次改动选取必要检查；旧测试命令不作为当前入口。
 
-旧集成测试已归档至 `tmp/test/archive/2026-10-28/tests/`，不再作为运行入口或验收依据。新增定向测试及其输出统一放在项目根目录 `tmp/test/`。
+## 包内开发文档
 
-五实例参数与逐步人工验收见 [身份派对人工验收](../../../doc/identity_party_manual_test.md)，从正式主菜单和大厅启动。
+未带 `res://` 的源码路径以本包根目录为基准。
 
-正式对局的 Esc 使用框架共享菜单（返回游戏、框架设置、小游戏设置、返回大厅）。已打开的身份查看或本地浮层优先关闭并消费该次 Esc；框架菜单打开时不响应底层快捷键。独立预览保留自身退出操作。
-
-素材出处详见 `upstream_art_sources.md`、`assets/fonts/SOURCES.md` 和项目 `doc/credits.md`；素材许可文件随包保留。
-
-阿瓦隆 5–8 人。房主推进公开阶段，身份、投票与行动按规则保密。
+- [Font sources and licensing](gp_avalon_assets_fonts_sources.md)
+- [M19 身份派对　A/B　依赖 G01](gp_avalon_development.md)
+- [阿瓦隆人工验收](gp_avalon_manual_acceptance.md)
+- [Avalon presentation backup](gp_avalon_recovery.md)
