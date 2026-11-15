@@ -10,7 +10,7 @@ metadata={
 
 [deps]
 
-source_file="res://games/minigame/gp_avalon/assets/art/avalon_knight.svg"
+source_file="res://games/minigame/GP_avalon/assets/art/avalon_knight.svg"
 dest_files=["res://.godot/imported/avalon_knight.svg-0189527ba4fe2529ad7667b382d425a6.ctex"]
 
 [params]

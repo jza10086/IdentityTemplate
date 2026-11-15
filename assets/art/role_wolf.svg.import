@@ -10,7 +10,7 @@ metadata={
 
 [deps]
 
-source_file="res://games/minigame/gp_avalon/assets/art/role_wolf.svg"
+source_file="res://games/minigame/GP_avalon/assets/art/role_wolf.svg"
 dest_files=["res://.godot/imported/role_wolf.svg-c489b3aea8f16609adae4ae705205b58.ctex"]
 
 [params]

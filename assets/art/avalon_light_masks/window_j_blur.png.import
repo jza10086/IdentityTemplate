@@ -10,7 +10,7 @@ metadata={
 
 [deps]
 
-source_file="res://games/minigame/gp_avalon/assets/art/avalon_light_masks/window_j_blur.png"
+source_file="res://games/minigame/GP_avalon/assets/art/avalon_light_masks/window_j_blur.png"
 dest_files=["res://.godot/imported/window_j_blur.png-1102036a5b5cce0353a9c453617e7085.ctex"]
 
 [params]

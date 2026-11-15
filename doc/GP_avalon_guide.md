@@ -4,7 +4,7 @@
 
 ## 在大厅启动
 
-选择 `godot_party_default_maingame_minigame_playlist`，在小游戏池勾选“阿瓦隆”。当前正式配置仅允许阿瓦隆，5–8 人；狼人杀源码保留，尚未开放。大游戏总局数设为 1 可以单独测试。大厅人数与实际子局参赛人数分别检查。轮换大厅提供语音，进入本小游戏后关闭，游戏内讨论仍使用玩家自行选择的语音方式。
+选择 `GP_minigame_playlist`，在小游戏池勾选“阿瓦隆”。当前正式配置仅允许阿瓦隆，5–8 人；狼人杀源码保留，尚未开放。大游戏总局数设为 1 可以单独测试。大厅人数与实际子局参赛人数分别检查。轮换大厅提供语音，进入本小游戏后关闭，游戏内讨论仍使用玩家自行选择的语音方式。
 
 ## 规则与界面
 
@@ -28,13 +28,13 @@
 
 ## 验证
 
-最近记录与未完成验收见 [gp_avalon 开发记录](gp_avalon_development.md)。按本次改动选取必要检查；旧测试命令不作为当前入口。
+最近记录与未完成验收见 [GP_avalon 开发记录](GP_avalon_development.md)。按本次改动选取必要检查；旧测试命令不作为当前入口。
 
 ## 包内开发文档
 
 未带 `res://` 的源码路径以本包根目录为基准。
 
-- [Font sources and licensing](gp_avalon_assets_fonts_sources.md)
-- [M19 身份派对　A/B　依赖 G01](gp_avalon_development.md)
-- [阿瓦隆人工验收](gp_avalon_manual_acceptance.md)
-- [Avalon presentation backup](gp_avalon_recovery.md)
+- [Font sources and licensing](GP_avalon_assets_fonts_sources.md)
+- [M19 身份派对　A/B　依赖 G01](GP_avalon_development.md)
+- [阿瓦隆人工验收](GP_avalon_manual_acceptance.md)
+- [Avalon presentation backup](GP_avalon_recovery.md)

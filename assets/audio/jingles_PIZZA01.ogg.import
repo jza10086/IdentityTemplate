@@ -7,7 +7,7 @@ path="res://.godot/imported/jingles_PIZZA01.ogg-bc7bea6cafa4b0c66520e53a6d08e2f8
 
 [deps]
 
-source_file="res://games/minigame/gp_avalon/assets/audio/jingles_PIZZA01.ogg"
+source_file="res://games/minigame/GP_avalon/assets/audio/jingles_PIZZA01.ogg"
 dest_files=["res://.godot/imported/jingles_PIZZA01.ogg-bc7bea6cafa4b0c66520e53a6d08e2f8.oggvorbisstr"]
 
 [params]

@@ -24,3 +24,6 @@ msgstr "身份玩法"
 
 msgid "阿瓦隆 5–8 人。房主推进公开阶段，身份、投票与行动按规则保密。"
 msgstr "阿瓦隆 5–8 人。房主推进公开阶段，身份、投票与行动按规则保密。"
+
+msgid "package.name"
+msgstr "GodotPartyDefault · 阿瓦隆"

@@ -9,7 +9,7 @@
 
 | 实例 | 参数 |
 | --- | --- |
-| 房主 | `-- --party-profile=identity_manual_host --party-host --party-port=18425 --party-main=godot_party_default_maingame_minigame_playlist --party-mini=gp_avalon` |
+| 房主 | `-- --party-profile=identity_manual_host --party-host --party-port=18425 --party-main=GP_minigame_playlist --party-mini=GP_avalon` |
 | 客户端 1 | `-- --party-profile=identity_manual_c1 --party-join=127.0.0.1 --party-port=18425` |
 | 客户端 2 | `-- --party-profile=identity_manual_c2 --party-join=127.0.0.1 --party-port=18425` |
 | 客户端 3 | `-- --party-profile=identity_manual_c3 --party-join=127.0.0.1 --party-port=18425` |

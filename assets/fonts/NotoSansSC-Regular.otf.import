@@ -7,7 +7,7 @@ path="res://.godot/imported/NotoSansSC-Regular.otf-65009c507a1550d177375f3790621
 
 [deps]
 
-source_file="res://games/minigame/gp_avalon/assets/fonts/NotoSansSC-Regular.otf"
+source_file="res://games/minigame/GP_avalon/assets/fonts/NotoSansSC-Regular.otf"
 dest_files=["res://.godot/imported/NotoSansSC-Regular.otf-65009c507a1550d177375f37906212e3.fontdata"]
 
 [params]

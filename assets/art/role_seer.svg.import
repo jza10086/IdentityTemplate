@@ -10,7 +10,7 @@ metadata={
 
 [deps]
 
-source_file="res://games/minigame/gp_avalon/assets/art/role_seer.svg"
+source_file="res://games/minigame/GP_avalon/assets/art/role_seer.svg"
 dest_files=["res://.godot/imported/role_seer.svg-8e9ea07628bd70366119d514d354db20.ctex"]
 
 [params]

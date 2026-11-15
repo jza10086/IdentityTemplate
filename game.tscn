@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://du574nwrn686n"]
 
-[ext_resource type="PackedScene" path="res://games/minigame/gp_avalon/ui/round_pages.tscn" id="protocol_pages"]
+[ext_resource type="PackedScene" path="res://games/minigame/GP_avalon/ui/round_pages.tscn" id="protocol_pages"]
 
-[ext_resource type="Script" uid="uid://xf3gyt51t8kd" path="res://games/minigame/gp_avalon/game.gd" id="1_vwl66"]
+[ext_resource type="Script" uid="uid://xf3gyt51t8kd" path="res://games/minigame/GP_avalon/game.gd" id="1_vwl66"]
 
 [node name="IdentityParty" type="Control" unique_id=1285254996 node_paths=PackedStringArray("pages")]
 pages = NodePath("ProtocolPages")
