@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dh8bc4ftmkxd5"
-path="res://.godot/imported/avalon_minion.svg-8bd782cd3eb26b2e856b3bbc51f0fd86.ctex"
+path="res://.godot/imported/avalon_minion.svg-ab5c3fe831f1c86b8a75d201afc7d6ec.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://games/minigame/GP_avalon/assets/art/avalon_minion.svg"
-dest_files=["res://.godot/imported/avalon_minion.svg-8bd782cd3eb26b2e856b3bbc51f0fd86.ctex"]
+dest_files=["res://.godot/imported/avalon_minion.svg-ab5c3fe831f1c86b8a75d201afc7d6ec.ctex"]
 
 [params]
 

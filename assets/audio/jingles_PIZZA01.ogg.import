@@ -3,12 +3,12 @@
 importer="oggvorbisstr"
 type="AudioStreamOggVorbis"
 uid="uid://cqijb5x5bf3o2"
-path="res://.godot/imported/jingles_PIZZA01.ogg-bc7bea6cafa4b0c66520e53a6d08e2f8.oggvorbisstr"
+path="res://.godot/imported/jingles_PIZZA01.ogg-912d47c506d01caa69b0cd03f5e15e97.oggvorbisstr"
 
 [deps]
 
 source_file="res://games/minigame/GP_avalon/assets/audio/jingles_PIZZA01.ogg"
-dest_files=["res://.godot/imported/jingles_PIZZA01.ogg-bc7bea6cafa4b0c66520e53a6d08e2f8.oggvorbisstr"]
+dest_files=["res://.godot/imported/jingles_PIZZA01.ogg-912d47c506d01caa69b0cd03f5e15e97.oggvorbisstr"]
 
 [params]
 

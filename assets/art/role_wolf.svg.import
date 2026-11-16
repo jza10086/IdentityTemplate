@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bo2w0s5ysa17b"
-path="res://.godot/imported/role_wolf.svg-c489b3aea8f16609adae4ae705205b58.ctex"
+path="res://.godot/imported/role_wolf.svg-d135791e27e6db842653461c7a12448a.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://games/minigame/GP_avalon/assets/art/role_wolf.svg"
-dest_files=["res://.godot/imported/role_wolf.svg-c489b3aea8f16609adae4ae705205b58.ctex"]
+dest_files=["res://.godot/imported/role_wolf.svg-d135791e27e6db842653461c7a12448a.ctex"]
 
 [params]
 

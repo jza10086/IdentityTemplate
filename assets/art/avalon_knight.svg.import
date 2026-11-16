@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://y50fbnw2s4pp"
-path="res://.godot/imported/avalon_knight.svg-0189527ba4fe2529ad7667b382d425a6.ctex"
+path="res://.godot/imported/avalon_knight.svg-02fe2fc17592ca120b7989a49bf78c56.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://games/minigame/GP_avalon/assets/art/avalon_knight.svg"
-dest_files=["res://.godot/imported/avalon_knight.svg-0189527ba4fe2529ad7667b382d425a6.ctex"]
+dest_files=["res://.godot/imported/avalon_knight.svg-02fe2fc17592ca120b7989a49bf78c56.ctex"]
 
 [params]
 
