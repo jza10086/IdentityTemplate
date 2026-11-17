@@ -27,7 +27,10 @@ func start(players: Array[Dictionary], settings: Dictionary, private_seed: int =
 		var seat: int = ordered.size() + 1
 		mapping[id] = seat
 		ordered.append({"id": seat, "name": str(player.get("name", ""))})
-	if not candidate.setup(ordered, private_seed):
+	if game_id == "avalon":
+		if not candidate.setup(ordered, private_seed, settings):
+			return false
+	elif not candidate.setup(ordered, private_seed):
 		return false
 	roster = players.duplicate(true)
 	seats = mapping
@@ -124,7 +127,7 @@ func result(request_id: String) -> Dictionary:
 	if not cancelled and finished():
 		for player: Dictionary in roster:
 			var role: String = str(rules._player(int(seats[player.player_id])).get("role", ""))
-			var evil: bool = role in ["wolf", "assassin", "minion"]
+			var evil: bool = rules.is_evil(role) if game_id == "avalon" else role == "wolf"
 			if evil == (winner in ["wolves", "evil"]):
 				winners.append(player.player_id)
 	var losing_rank: int = winners.size() + 1

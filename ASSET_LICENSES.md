@@ -21,7 +21,11 @@ CC0 仅适用于声明人有权处分的原创部分；第三方字体、采样�
 | `assets/art/avalon_loyal.svg` | GPT（代码生成） | 本项目制作；总登记 G09 | CC0-1.0 |
 | `assets/art/avalon_merlin.svg` | GPT（代码生成） | 本项目制作；总登记 G09 | CC0-1.0 |
 | `assets/art/avalon_minion.svg` | GPT（代码生成） | 本项目制作；总登记 G09 | CC0-1.0 |
+| `assets/art/avalon_mordred.svg` | GPT（代码生成） | 本项目制作；2026-11-17 角色扩展 | CC0-1.0 |
+| `assets/art/avalon_morgana.svg` | GPT（代码生成） | 本项目制作；2026-11-17 角色扩展 | CC0-1.0 |
 | `assets/art/avalon_oath.svg` | GPT（代码生成） | 本项目制作；总登记 G09 | CC0-1.0 |
+| `assets/art/avalon_oberon.svg` | GPT（代码生成） | 本项目制作；2026-11-17 角色扩展 | CC0-1.0 |
+| `assets/art/avalon_percival.svg` | GPT（代码生成） | 本项目制作；2026-11-17 角色扩展 | CC0-1.0 |
 | `assets/art/background.svg` | GPT（代码生成） | 本项目制作；总登记 G09 | CC0-1.0 |
 | `assets/art/icon.svg` | GPT（代码生成） | 本项目制作；总登记 G09 | CC0-1.0 |
 | `assets/art/role_seer.svg` | GPT（代码生成） | 本项目制作；总登记 G09 | CC0-1.0 |

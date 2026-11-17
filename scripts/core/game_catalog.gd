@@ -27,7 +27,7 @@ static func accepts_action(game_id: String, action: String, payload: Variant) ->
 			if action in ["team_vote", "quest_vote"]:
 				return typeof(payload) == TYPE_BOOL or (typeof(payload) == TYPE_INT and payload in [0, 1])
 			if action == "propose_team" and typeof(payload) == TYPE_ARRAY:
-				if payload.size() > 8:
+				if payload.size() > 5:
 					return false
 				for player_id: Variant in payload:
 					if typeof(player_id) != TYPE_INT:

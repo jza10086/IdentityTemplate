@@ -22,8 +22,29 @@ msgstr "游戏规则"
 msgid "身份玩法"
 msgstr "身份玩法"
 
-msgid "阿瓦隆 5–8 人。房主推进公开阶段，身份、投票与行动按规则保密。"
-msgstr "阿瓦隆 5–8 人。房主推进公开阶段，身份、投票与行动按规则保密。"
+msgid "阿瓦隆 5–10 人。支持基础与自定义角色配置，全员行动后自动推进。"
+msgstr "阿瓦隆 5–10 人。支持基础与自定义角色配置，全员行动后自动推进。"
+
+msgid "角色配置"
+msgstr "角色配置"
+
+msgid "基础配置"
+msgstr "基础配置"
+
+msgid "自定义角色配置"
+msgstr "自定义角色配置"
+
+msgid "派西维尔"
+msgstr "派西维尔"
+
+msgid "莫甘娜"
+msgstr "莫甘娜"
+
+msgid "莫德雷德"
+msgstr "莫德雷德"
+
+msgid "奥伯伦"
+msgstr "奥伯伦"
 
 msgid "package.name"
 msgstr "GodotPartyDefault · 阿瓦隆"

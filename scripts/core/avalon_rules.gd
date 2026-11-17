@@ -1,46 +1,25 @@
 extends RefCounted
-## Authoritative, scene-independent basic Avalon (Merlin + Assassin), 5–8 players.
+## Authoritative, scene-independent Avalon with configurable roles for 5–10 players.
 ## Never send `state` to a client. Only send the whitelisted `public_view`.
 
-const MIN_PLAYERS : Variant = 5
-const MAX_PLAYERS : Variant = 8
-const ROLE_MERLIN : Variant = "merlin"
-const ROLE_ASSASSIN : Variant = "assassin"
-const ROLE_LOYAL : Variant = "loyal"
-const ROLE_MINION : Variant = "minion"
+const Definition: Script = preload("res://games/minigame/GP_avalon/definition.gd")
+const MIN_PLAYERS: int = 5
+const MAX_PLAYERS: int = 10
+const ROLE_MERLIN: String = "merlin"
+const ROLE_ASSASSIN: String = "assassin"
+const ROLE_LOYAL: String = "loyal"
+const ROLE_MINION: String = "minion"
 
 var state: Dictionary = {}
 
-
 static func role_name(role: String) -> String:
-	match role:
-		ROLE_MERLIN:
-			return "梅林"
-		ROLE_ASSASSIN:
-			return "刺客"
-		ROLE_LOYAL:
-			return "亚瑟的忠臣"
-		ROLE_MINION:
-			return "莫德雷德的爪牙"
-	return "未知身份"
-
+	return Definition.ROLE_NAMES[role]
 
 static func role_description(role: String) -> String:
-	match role:
-		ROLE_MERLIN:
-			return "好人阵营。你知道所有坏人，但不知道他们的具体身份。引导三次任务成功，同时隐藏自己，避免被刺客识破。任务只能提交成功。"
-		ROLE_ASSASSIN:
-			return "坏人阵营。你知道坏人同伴。可让任务失败，或在三次任务成功后刺杀梅林，扭转胜负。"
-		ROLE_LOYAL:
-			return "好人阵营。通过讨论和队伍投票辨别可信的伙伴，让三次任务成功，并保护梅林。任务只能提交成功。"
-		ROLE_MINION:
-			return "坏人阵营。你知道坏人同伴，但不知道同伴的具体身份。任务可选择成功或失败，与同伴设法阻止三次任务成功。"
-	return "等待身份分配。"
-
+	return Definition.ROLE_DESCRIPTIONS[role]
 
 static func is_evil(role: String) -> bool:
-	return role in [ROLE_ASSASSIN, ROLE_MINION]
-
+	return role in Definition.EVIL_ROLES
 
 static func preset(player_count: int) -> Dictionary:
 	var sizes : Variant = {
@@ -48,10 +27,12 @@ static func preset(player_count: int) -> Dictionary:
 		6: [2, 3, 4, 3, 4],
 		7: [2, 3, 3, 4, 4],
 		8: [3, 4, 4, 5, 5],
+		9: [3, 4, 4, 5, 5],
+		10: [3, 4, 4, 5, 5],
 	}
 	if not sizes.has(player_count):
 		return {}
-	var evil : Variant = 2 if player_count <= 6 else 3
+	var evil: int = Definition.evil_count(player_count)
 	var good : Variant = player_count - evil
 	return {
 		"merlin": 1, "assassin": 1, "loyal": good - 1, "minion": evil - 1,
@@ -60,7 +41,7 @@ static func preset(player_count: int) -> Dictionary:
 
 
 ## Validation is atomic: invalid input leaves an existing game untouched.
-func setup(players: Array, seed_value: int = -1) -> bool:
+func setup(players: Array, seed_value: int = -1, role_options: Dictionary = {}) -> bool:
 	if players.size() < MIN_PLAYERS or players.size() > MAX_PLAYERS:
 		return false
 	var seen: Dictionary = {}
@@ -79,11 +60,9 @@ func setup(players: Array, seed_value: int = -1) -> bool:
 		clean_players.append({"id": player_id, "name": player_name, "alive": true})
 
 	var config : Variant = preset(players.size())
-	var roles: Array[String] = [ROLE_MERLIN, ROLE_ASSASSIN]
-	for _index: Variant in range(int(config["loyal"])):
-		roles.append(ROLE_LOYAL)
-	for _index: Variant in range(int(config["minion"])):
-		roles.append(ROLE_MINION)
+	var roles: Array[String] = Definition.role_deck(players.size(), role_options)
+	if roles.is_empty():
+		return false
 	var rng : Variant = RandomNumberGenerator.new()
 	if seed_value == -1:
 		rng.randomize()
@@ -168,7 +147,7 @@ func submit(player_id: Variant, action: Variant, payload: Variant = -1) -> Dicti
 			if typeof(payload) != TYPE_INT:
 				return _error("请选择一名好人玩家作为刺杀目标。")
 			var target : Variant = _player(payload)
-			if target.is_empty() or is_evil(str(target["role"])):
+			if target.is_empty() or int(payload) == player_id or (is_evil(str(target["role"])) and target["role"] != "oberon"):
 				return _error("请选择一名好人玩家作为刺杀目标。")
 			state["assassination_target_id"] = int(payload)
 			var hit: bool = target["role"] == ROLE_MERLIN
@@ -235,16 +214,19 @@ func public_view(viewer_id: int) -> Dictionary:
 	var visible_players: Array = []
 	var allies: Array = []
 	var known_evil: Array = []
+	var merlin_candidates: Array[int] = []
 	for player: Variant in state["players"]:
 		var player_id: int = player["id"]
 		var visible : Variant = {"id": player_id, "name": str(player["name"]), "alive": true}
 		if player_id == viewer_id or state["phase"] == "ended":
 			visible["role"] = str(player["role"])
 		if is_evil(str(player["role"])):
-			if is_evil(own_role) and player_id != viewer_id:
+			if is_evil(own_role) and own_role != "oberon" and player["role"] != "oberon" and player_id != viewer_id:
 				allies.append(player_id)
-			if own_role == ROLE_MERLIN:
+			if own_role == ROLE_MERLIN and player["role"] != "mordred":
 				known_evil.append(player_id)
+		if own_role == "percival" and player["role"] in [ROLE_MERLIN, "morgana"]:
+			merlin_candidates.append(player_id)
 		# Only resolved, public team ballots survive a new nomination.
 		visible["last_team_vote"] = state["team_votes"].get(player_id)
 		visible_players.append(visible)
@@ -267,6 +249,7 @@ func public_view(viewer_id: int) -> Dictionary:
 		"team_votes": {} if state["phase"] in ["team_proposal", "team_vote"] else state["team_votes"].duplicate(), "team_approved": bool(state["team_approved"]),
 		"team_approve_count": int(state["team_approve_count"]), "team_reject_count": int(state["team_reject_count"]),
 		"your_role": own_role, "your_allies": allies, "known_evil": known_evil,
+		"merlin_candidates": merlin_candidates,
 		"submitted_ids": submitted, "events": state["events"].duplicate(),
 		"winner": str(state["winner"]), "last_result": str(state["last_result"]),
 		"assassination_target_id": int(state["assassination_target_id"]),

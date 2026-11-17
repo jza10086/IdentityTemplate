@@ -1,5 +1,6 @@
 ## Business-owned setting defaults, constraints and UI hierarchy. No runtime side effects.
 extends RefCounted
+const Definition: Script = preload("res://games/minigame/GP_avalon/definition.gd")
 
 static func schema() -> Dictionary:
 	return {
@@ -16,6 +17,27 @@ static func schema() -> Dictionary:
 					"阿瓦隆"
 				],
 				"control": "select"
+			},
+			"role_mode": {
+				"type": "string", "default": Definition.ROLE_DEFAULTS.role_mode, "title": "角色配置",
+				"audience": "room", "apply": "next_round", "control": "select",
+				"values": ["基础配置", "自定义角色配置"]
+			},
+			"percival": {
+				"type": "bool", "default": Definition.ROLE_DEFAULTS.percival, "title": "派西维尔",
+				"audience": "room", "apply": "next_round", "control": "toggle"
+			},
+			"morgana": {
+				"type": "bool", "default": Definition.ROLE_DEFAULTS.morgana, "title": "莫甘娜",
+				"audience": "room", "apply": "next_round", "control": "toggle"
+			},
+			"mordred": {
+				"type": "bool", "default": Definition.ROLE_DEFAULTS.mordred, "title": "莫德雷德",
+				"audience": "room", "apply": "next_round", "control": "toggle"
+			},
+			"oberon": {
+				"type": "bool", "default": Definition.ROLE_DEFAULTS.oberon, "title": "奥伯伦",
+				"audience": "room", "apply": "next_round", "control": "toggle"
 			},
 			"time_limit": {
 				"type": "int",
@@ -47,7 +69,14 @@ static func schema() -> Dictionary:
 					},
 					{
 						"field": "time_limit"
-					}
+					},
+					{"field": "role_mode"},
+					{"id": "custom_roles", "title": "自定义角色配置", "children": [
+						{"field": "percival", "enabled_when": {"field": "role_mode", "equals": "自定义角色配置"}},
+						{"field": "morgana", "enabled_when": {"field": "role_mode", "equals": "自定义角色配置"}},
+						{"field": "mordred", "enabled_when": {"field": "role_mode", "equals": "自定义角色配置"}},
+						{"field": "oberon", "enabled_when": {"field": "role_mode", "equals": "自定义角色配置"}}
+					]}
 				]
 			},
 			{

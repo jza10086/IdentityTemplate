@@ -1,13 +1,9 @@
 extends "res://games/minigame/GP_avalon/scripts/ui/main.gd"
 ## Avalon is a presentation adapter. The authoritative rules never live in this scene.
 ## Only a viewer-filtered session snapshot is used to draw private information.
-const AVALON_ROLES = {"merlin":"梅林", "assassin":"刺客", "loyal":"忠臣", "minion":"爪牙"}
-const AVALON_COPY: Dictionary[String, String] = {
-	"merlin": "好人阵营，能看见邪恶玩家。你的目标是让三次远征成功，并隐藏身份，避免被刺客识破。",
-	"assassin": "邪恶阵营，知道邪恶同伴。你的目标是破坏三次远征，或在三次远征成功后刺杀梅林。",
-	"loyal": "好人阵营，无特殊技能。你的目标是让远征成功，防止内鬼破坏远征，并保护梅林。",
-	"minion": "邪恶阵营，知道邪恶同伴。你的目标是隐藏身份，混入远征队伍，让三次远征失败。"
-}
+const Definition: Script = preload("res://games/minigame/GP_avalon/definition.gd")
+const AVALON_ROLES: Dictionary[String, String] = Definition.ROLE_NAMES
+const AVALON_COPY: Dictionary[String, String] = Definition.ROLE_DESCRIPTIONS
 const AVALON_PHASES: Dictionary[String, String] = {
 	"team_proposal": "队长提名阶段",
 	"team_vote": "队伍投票阶段",
@@ -245,7 +241,7 @@ func _bind_action_panel(phase: String) -> void:
 	%ChoiceHint.visible = not assassinating
 	if assassinating:
 		%ActionTitle.text = "最后的一次猜测"
-		%ActionDescription.text = "选择一位好人，再确认刺杀。这里不会标明梅林。"
+		%ActionDescription.text = "选择一位玩家，再确认刺杀。这里不会标明梅林。"
 		_sync_targets()
 		%Confirm.text = "确认刺杀，揭晓终局  →"
 		%Confirm.disabled = selected_target < 0
@@ -257,7 +253,7 @@ func _bind_action_panel(phase: String) -> void:
 	for id: int in view.team:
 		names.append("%02d · %s" % [_seat_number(id), _player_name(id)])
 	%TeamNames.text = "远征队伍：" + "、".join(names)
-	%No.visible = public_vote or view.your_role in ["assassin", "minion"]
+	%No.visible = public_vote or view.your_role in Definition.EVIL_ROLES
 	%GoodOnly.visible = not %No.visible
 	%Yes.text = ("赞成队伍" if public_vote else "任务成功") + (" ✓" if selected_ballot == 1 else "")
 	%No.text = ("反对队伍" if public_vote else "任务失败") + (" ✓" if selected_ballot == 0 else "")
@@ -371,7 +367,18 @@ func _sync_seats(active: bool) -> void:
 		layout = {5: [Vector2(.37,0), Vector2(.63,0), Vector2(0,.5), Vector2(1,.5)],
 			6: [Vector2(.30,0), Vector2(.50,0), Vector2(.70,0), Vector2(0,.5), Vector2(1,.5)],
 			7: [Vector2(.37,0), Vector2(.63,0), Vector2(0,.34), Vector2(0,.66), Vector2(1,.34), Vector2(1,.66)],
-			8: [Vector2(.30,0), Vector2(.50,0), Vector2(.70,0), Vector2(0,.34), Vector2(0,.66), Vector2(1,.34), Vector2(1,.66)]}[players.size()]
+			8: [Vector2(.30,0), Vector2(.50,0), Vector2(.70,0), Vector2(0,.34), Vector2(0,.66), Vector2(1,.34), Vector2(1,.66)],
+			9: [Vector2(.4,0), Vector2(.6,0), Vector2(0,.29), Vector2(0,.50), Vector2(0,.71), Vector2(1,.29), Vector2(1,.50), Vector2(1,.71)],
+			10: [Vector2(.30,0), Vector2(.50,0), Vector2(.70,0), Vector2(0,.29), Vector2(0,.50), Vector2(0,.71), Vector2(1,.29), Vector2(1,.50), Vector2(1,.71)]}[players.size()]
+	elif active:
+		# Spectators have no personal seat; all actual players remain on the table.
+		var side_count: int = 1 if players.size() <= 6 else (2 if players.size() <= 8 else 3)
+		var top_count: int = players.size() - 2 * side_count
+		for index: int in top_count:
+			layout.append(Vector2(lerpf(0.3, 0.7, float(index) / (top_count - 1)), 0))
+		for side: float in [0.0, 1.0]:
+			for index: int in side_count:
+				layout.append(Vector2(side, 0.5 if side_count == 1 else lerpf(0.29, 0.71, float(index) / (side_count - 1))))
 	var occupied: Array[int] = []
 	if not layout.is_empty():
 		var other_index: int = 0
@@ -436,8 +443,10 @@ func _visible_identity(player: Dictionary) -> String:
 		return str(AVALON_ROLES.get(role, "身份未知"))
 	if role == "merlin" and view.get("known_evil", []).has(id):
 		return "邪恶阵营"
-	if role in ["assassin", "minion"] and view.get("your_allies", []).has(id):
+	if role in Definition.EVIL_ROLES and view.get("your_allies", []).has(id):
 		return "邪恶同伴"
+	if role == "percival" and id in view.merlin_candidates:
+		return "梅林候选"
 	return "身份未知"
 
 func _submit_team() -> void:

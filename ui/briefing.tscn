@@ -8,6 +8,6 @@
 text = "GodotPartyDefault · 阿瓦隆"
 
 [node name="Introduction" parent="View/Layout/Center/Content/Columns/RightColumn/InformationPanel/InformationMargin/Information/Rules/InformationScroll" index="0"]
-text = "阿瓦隆 5–8 人。房主推进公开阶段，身份、投票与行动按规则保密。"
+text = "阿瓦隆 5–10 人。支持基础与自定义角色配置，全员行动后自动推进。"
 
 [editable path="View"]
